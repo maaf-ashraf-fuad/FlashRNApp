@@ -13,7 +13,7 @@ export default class Login extends React.Component {
         <Text style={styles.description}>Login To Access FLASH</Text>
         </View>
        
-        <LoginForm/>
+        <LoginForm />
         
       </KeyboardAvoidingView>
     );

@@ -1,13 +1,11 @@
 import React from 'react';
-import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity, StatusBar} from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert} from 'react-native';
 
 export default class LoginForm extends React.Component {
   render() {
     return (
         <View 
         style={styles.container}>
-        <StatusBar barStyle = 'dark-content'>
-        </StatusBar>
         <TextInput
         placeholder='Staff ID'
         placeholderTextColor='rgba(255,0,0,0.8)'
@@ -16,7 +14,10 @@ export default class LoginForm extends React.Component {
         style={styles.logininput} 
         autoCapitalize = "none"
         autoCorrect={false}
+        value={this.state.username}
+        onChangeText={username => this.setState({username})}
         />
+        
         <TextInput
         placeholder='Password'
         placeholderTextColor='rgba(255,0,0,0.8)'
@@ -24,13 +25,37 @@ export default class LoginForm extends React.Component {
         returnKeyType='go'
         style={styles.logininput}
         ref={(logininput) => this.passwordInput = logininput}
+        value={this.state.password}
+        onChangeText={password => this.setState({password})}
+        onSubmitEditing={this._submitForm}
         />
-        <TouchableOpacity style={styles.buttonLogin}>
+        <TouchableOpacity style={styles.buttonLogin}
+        onPress={this._submitForm}
+        >
             <Text style={styles.loginText}>LOGIN</Text>
         </TouchableOpacity>
         </View>
-    );
-}}
+    )
+}
+  state = {
+    username: '',
+    password: '',
+  }
+_submitForm = () => {
+  const { username, password } = this.state
+  // validate the user input not null
+  if (this.state.username =='' && this.state.password =='' || this.state.username =='' || this.state.password =='') 
+  {
+      Alert.alert('FLASH','Please ensure your TM Staff ID & Password')
+  } 
+ else {
+   //call the soa rest api to call the username
+     console.log(username)
+     console.log(password)
+ }
+}
+
+}
 
 const styles = StyleSheet.create({
     container: {

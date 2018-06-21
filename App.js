@@ -13,7 +13,7 @@ import SearchInput from './src/component/search/searchinput';
 export default class App extends React.Component {
   render() {
     return (
-      <SearchInput />
+      <Login />
     );
   }
 }
