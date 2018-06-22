@@ -8,6 +8,7 @@ import {
 import Login from './src/component/login/login';
 import Splash from './src/component/splash/splash';
 import SearchInput from './src/component/search/searchinput';
+import DataPage from './src/component/DataPage/DataPage';
 //import ScanScreen from './src/component/scan/scanqr';
 
 export default class App extends React.Component {
