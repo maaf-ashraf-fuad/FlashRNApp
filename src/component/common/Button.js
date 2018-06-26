@@ -1,37 +1,65 @@
-import React from 'react';
-import { Text, TouchableOpacity } from 'react-native';
+import React, { Component } from 'react';
+import { Text, TouchableOpacity, View, StyleSheet } from 'react-native';
+import { Icon, Divider } from 'react-native-elements';
 
-const Button = ({ onPress, children }) => {
-const { buttonStyle, textStyle } = styles;
+class Button extends Component {
+
+setRef(ref) {
+        this.inputRef = ref;
+    }
+
+render() {
+  const {
+    onPress,
+    disabled = false,
+    buttonText,
+    renderDivider,
+    iconName,
+    iconType,
+    iconStyle,
+    buttonStyle,
+    setRef,
+    onLayout
+  } = this.props;
+  const combinedIconDisabledStyles = StyleSheet.flatten([styles.iconDisabledStyle, iconStyle]);
+  const combinedButtonStyles = StyleSheet.flatten([styles.buttonStyle, buttonStyle]);
 
   return (
-    <TouchableOpacity onPress={onPress} style={buttonStyle}>
-      <Text style={textStyle}>
-        { children }
-      </Text>
-    </TouchableOpacity>
+    <View style={ styles.containerStyle }>
+      { renderDivider?<Divider style={ styles.dividerStyle } />:null }
+      <TouchableOpacity ref={setRef} disabled={disabled} style={ combinedButtonStyles } onPress={onPress} onLayout={onLayout} >
+        { buttonText!==undefined?<Text style={ disabled?styles.textDisabledStyle:styles.textStyle }>{ buttonText }</Text>:null }
+        <Icon name={iconName} type={iconType} iconStyle={ disabled?combinedIconDisabledStyles:iconStyle} />
+      </TouchableOpacity>
+    </View>
   );
-};
+}}
 
-const styles = {
+const styles = StyleSheet.create({
+  containerStyle: {
+    justifyContent: 'center',
+  },
   buttonStyle: {
-    flex: 1,
-    alignSelf: 'stretch',
-    backgroundColor: '#fff',
-    borderRadius: 5,
-    borderWidth: 1,
-    borderColor: '#007aff',
-    marginLeft: 5,
-    marginRight: 5
+    flexDirection: 'row',
+    justifyContent: 'space-between'
   },
   textStyle: {
     alignSelf: 'center',
-    color: '#007aff',
-    fontSize: 16,
-    fontWeight: '600',
-    paddingTop: 10,
-    paddingBottom: 10
+    marginRight: 20
+  },
+  textDisabledStyle: {
+    alignSelf: 'center',
+    marginRight: 20,
+    color: '#666'
+  },
+  iconDisabledStyle: {
+    color: '#666'
+  },
+  dividerStyle: {
+    marginTop: 5,
+    marginBottom: 5,
+    backgroundColor: '#CED0CE'
   }
-};
+});
 
 export { Button };
