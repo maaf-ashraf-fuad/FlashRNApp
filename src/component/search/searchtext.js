@@ -33,6 +33,7 @@ state = {
   }
 
   _submitValue = () => {
+    const navigate = this.props.navigation;
     const { searchinput} = this.state
     // validate the user input not null
     if (this.state.searchinput =='') 
@@ -42,7 +43,13 @@ state = {
    else {
        //To validate perform search on the based on SOA rest API
        console.log(searchinput)
-       alert(searchinput)
+       Alert.alert('Your Input',searchinput,
+       [
+        {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+        {text: 'OK', onPress: () => navigate('DataPage')},
+      ],
+      { cancelable: false })
+       
         
    }
   }

@@ -1,15 +1,16 @@
 import React from 'react';
-import { View } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 
 const Card = (props) => {
+  const combineStyles = StyleSheet.flatten([styles.containerStyle, props.style]);
   return (
-    <View style={styles.containerStyle}>
+    <View style={combineStyles}>
       {props.children}
     </View>
   );
 };
 
-const styles = {
+const styles = StyleSheet.create({
   containerStyle: {
     borderWidth: 1,
     borderRadius: 3,
@@ -25,6 +26,6 @@ const styles = {
     marginRight: 15,
     marginTop: 10
   }
-};
+});
 
 export { Card };

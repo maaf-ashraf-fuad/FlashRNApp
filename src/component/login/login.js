@@ -4,6 +4,7 @@ import LoginForm from './loginform';
 
 export default class Login extends React.Component {
   render() {
+    const {navigate} = this.props.navigation;
     return (
       <KeyboardAvoidingView behavior="padding" style={styles.container}>
         <View style={styles.logoContainer}>
@@ -13,7 +14,7 @@ export default class Login extends React.Component {
         <Text style={styles.description}>Login To Access FLASH</Text>
         </View>
        
-        <LoginForm />
+        <LoginForm navigation={navigate}/>
         
       </KeyboardAvoidingView>
     );

@@ -43,6 +43,7 @@ export default class LoginForm extends React.Component {
   state = {
     f_user: '',
     f_pass: '',
+    f_name: '',
   }
 
   _entermenu= () => {
@@ -75,19 +76,51 @@ export default class LoginForm extends React.Component {
         })
         .then((response) => response.json())
         .then((responseJson) => {
-          console.log(responseJson.fullName);
           if (responseJson.fullName == null) {
             Alert.alert("Flash", responseJson.username + " is not allow");
             return;
           }
           else {
-            Alert.alert("Welcome", responseJson.fullName,
-              [
-                {
-                  text: 'OK', onPress: () => navigate('Menu')
-                }
-              ]
-            );
+           f_name = responseJson.fullName;
+              //SOA Check
+      fetch('http://10.54.1.21:8001/FLASH/verifyAccess/Proxy_Services/PS_Flash_verifyAccess2',
+      {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(
+          {
+            STAFF_ID: f_user,
+          }
+        )
+      })
+      
+      .then((response) => response.json())
+      .then((responseJson) => {
+        console.log(responseJson);
+        console.log(responseJson.xmlns);
+        console.log(responseJson["ns2:ErrorCode"]);
+        if (responseJson["ns2:ErrorCode"]== '01') {
+          Alert.alert("Flash", f_name + ", Kindly Contact Your System Admin");
+          return;
+        }
+        else {
+           Alert.alert("Welcome", f_name,
+            [
+              {
+                text: 'OK', onPress: () => navigate('Menu')
+              }
+            ]
+          );
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+      })
+      .done()
+      //End SoA CHECK
           }
         })
         .catch((error) => {
@@ -101,7 +134,10 @@ export default class LoginForm extends React.Component {
 
 const styles = StyleSheet.create({
   container: {
-    padding: 20
+    padding: 20,
+    flex:1,
+    justifyContent:'center',
+
   },
   logininput: {
     height: 30,

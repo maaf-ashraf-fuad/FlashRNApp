@@ -1,59 +1,170 @@
 import React, { Component } from 'react';
-
 import {
-  AppRegistry,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
+  Alert,
   Linking,
+  Dimensions,
+  LayoutAnimation,
+  Text,
+  View,
+  StatusBar,
+  StyleSheet,
+  TouchableOpacity,
 } from 'react-native';
+import { BarCodeScanner, Permissions } from 'expo';
 
-import QRCodeScanner from 'react-native-qrcode-scanner';
+export default class ScanScreen extends Component {
+  state = {
+    hasCameraPermission: null,
+    lastScannedUrl: null,
+  };
 
-class ScanScreen extends Component {
-  onSuccess(e) {
-    Linking
-      .openURL(e.data)
-      .catch(err => console.error('An error occured', err));
+  componentDidMount() {
+    this._requestCameraPermission();
   }
+
+  _requestCameraPermission = async () => {
+    const { status } = await Permissions.askAsync(Permissions.CAMERA);
+    this.setState({
+      hasCameraPermission: status === 'granted',
+    });
+  };
+
+  _handleBarCodeRead = result => {
+    if (result.data !== this.state.lastScannedUrl) {
+      LayoutAnimation.spring();
+      this.setState({ lastScannedUrl: result.data });
+    }
+  };
 
   render() {
     return (
-      <QRCodeScanner
-        onRead={this.onSuccess.bind(this)}
-        topContent={
-          <Text style={styles.centerText}>
-            Go to <Text style={styles.textBold}>wikipedia.org/wiki/QR_code</Text> on your computer and scan the QR code.
-          </Text>
-        }
-        bottomContent={
-          <TouchableOpacity style={styles.buttonTouchable}>
-            <Text style={styles.buttonText}>OK. Got it!</Text>
-          </TouchableOpacity>
-        }
-      />
+      <View style={styles.container}>
+
+        {this.state.hasCameraPermission === null
+          ? <Text>Requesting for camera permission</Text>
+          : this.state.hasCameraPermission === false
+              ? <Text style={{ color: '#fff' }}>
+                  Camera permission is not granted
+                </Text>
+              : <BarCodeScanner
+                  onBarCodeRead={this._handleBarCodeRead}
+                  style={{
+                   height: Dimensions.get('window').height,
+                   width: Dimensions.get('window').width,
+                  }}
+                >
+                <View style={styles.layerTop} />
+                  <View style={styles.layerCenter}>
+                    <View style={styles.layerLeft} />
+                    <View style={styles.focused} />
+                    <View style={styles.layerRight} />
+                  </View>
+                <View style={styles.layerBottom} />
+                </BarCodeScanner>}
+
+        {this._maybeRenderUrl()}
+
+        <StatusBar barStyle="light-content"/>
+      </View>
     );
   }
-}
 
+  _handlePressUrl = () => {
+    Alert.alert(
+      'Open this URL?',
+      this.state.lastScannedUrl,
+      [
+        {
+          text: 'Yes',
+          onPress: () => Linking.openURL(this.state.lastScannedUrl),
+        },
+        { text: 'No', onPress: () => {} },
+      ],
+      { cancellable: false }
+    );
+  };
+
+  _handlePressCancel = () => {
+    this.setState({ lastScannedUrl: null });
+  };
+
+  _maybeRenderUrl = () => {
+    if (!this.state.lastScannedUrl) {
+      return;
+    }
+
+    return (
+      <View style={styles.bottomBar}>
+        <TouchableOpacity style={styles.url} onPress={this._handlePressUrl}>
+          <Text numberOfLines={1} style={styles.urlText}>
+            {this.state.lastScannedUrl}
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.cancelButton}
+          onPress={this._handlePressCancel}>
+          <Text style={styles.cancelButtonText}>
+            Cancel
+          </Text>
+        </TouchableOpacity>
+      </View>
+    );
+  };
+}
+const opacity = 'rgba(0, 0, 0, .6)';
 const styles = StyleSheet.create({
-  centerText: {
+  container: {
     flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#000',
+  },
+  bottomBar: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    padding: 15,
+    flexDirection: 'row',
+  },
+  url: {
+    flex: 1,
+  },
+  urlText: {
+    color: '#fff',
+    fontSize: 20,
+  },
+  cancelButton: {
+    marginLeft: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  cancelButtonText: {
+    color: 'rgba(255,255,255,0.8)',
     fontSize: 18,
-    padding: 32,
-    color: '#777',
   },
-  textBold: {
-    fontWeight: '500',
-    color: '#000',
+  layerTop: {
+    flex: 2,
+    backgroundColor: opacity
   },
-  buttonText: {
-    fontSize: 21,
-    color: 'rgb(0,122,255)',
+  layerCenter: {
+    flex: 1,
+    flexDirection: 'row'
   },
-  buttonTouchable: {
-    padding: 16,
+  layerLeft: {
+    flex: 1,
+    backgroundColor: opacity
+  },
+  focused: {
+    flex: 10
+  },
+  layerRight: {
+    flex: 1,
+    backgroundColor: opacity
+  },
+  layerBottom: {
+    flex: 2,
+    backgroundColor: opacity
   },
 });
-
-AppRegistry.registerComponent('default', () => ScanScreen);

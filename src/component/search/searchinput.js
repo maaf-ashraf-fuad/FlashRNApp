@@ -1,22 +1,24 @@
 import React from 'react';
-import { StyleSheet, Text, View, Image,KeyboardAvoidingView,TouchableOpacity} from 'react-native';
+import { StyleSheet, Text, View, Image,KeyboardAvoidingView,TouchableOpacity,} from 'react-native';
 import SearchText from './searchtext';
 
 export default class SearchInput extends React.Component {
   render() {
+    const {navigate} = this.props.navigation;
     return (
       <View style={styles.container}>
           <KeyboardAvoidingView behavior="padding" style={styles.container}>
         <View style={styles.searchcontainer}>
                 <Text style={styles.keytext}>I Want to Search for</Text>
-                <SearchText/>
+                <SearchText navigation={navigate}/>
                 </View>
                 <View style={styles.searchcontainer}>
                 <Text style={styles.keytext}>----------- or -----------</Text>
                 <Text style={styles.keytext}></Text>
                 </View>
                 <View style={styles.qrcontainer}>
-                <TouchableOpacity>
+                <TouchableOpacity 
+                onPress={() => this.props.navigation.navigate('Scan')}>
                 <Image 
             style={styles.qricon}
             source={require('../../img/qricon.png')}/></TouchableOpacity>
