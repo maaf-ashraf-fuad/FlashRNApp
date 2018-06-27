@@ -12,8 +12,6 @@ import SearchInput from './src/component/search/searchinput';
 import DataPage from './src/component/DataPage/DataPage';
 import ScanScreen from './src/component/scan/scanqr1';
 import TESTSOA from './src/component/splash/testsoa';
-import DataPage from './src/component/datapage/DataPage';
-//import ScanScreen from './src/component/scan/scanqr';
 
 export default class App extends React.Component {
   render() {

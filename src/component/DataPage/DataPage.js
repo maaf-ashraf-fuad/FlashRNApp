@@ -159,7 +159,7 @@ renderHeaderBack() {
 
 renderHome() {
     return (
-        <Icon name='home' color='#fff' onPress={() => console.log('Home')}/>
+        <Icon name='home' color='#fff' onPress={() => this.props.navigation.navigate('Menu')}/>
     )
 }
 

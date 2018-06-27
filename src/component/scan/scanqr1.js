@@ -8,7 +8,7 @@ export default class ScanScreen extends React.Component {
   render() {
     return (
       <BarCodeScanner
-        onBarCodeRead={(scan) => alert(scan.data)}
+        onBarCodeRead={(scan) => this.props.navigation.navigate('DataPage')}
         style={[StyleSheet.absoluteFill, styles.container]}
       >
         <View style={styles.layerTop} />
@@ -19,6 +19,7 @@ export default class ScanScreen extends React.Component {
         </View>
         <View style={styles.layerBottom} />
       </BarCodeScanner>
+    
     );
   }
 }
