@@ -5,21 +5,23 @@ import { createStackNavigator } from 'react-navigation';
 import Splash from '../splash/splash';
 import Login from '../login/login';
 import SearchInput from '../search/searchinput';
+import Menu from '../search/menu';
 import DataPage from '../DataPage/DataPage';
 import ScanScreen from '../scan/scanqr1';
 
 //routerstack
 const Application = createStackNavigator({
-    //Home: { screen: Splash },
-    //Login: { screen: Login},
-    //Menu: { screen: SearchInput},
-    //DataPage: { screen: DataPage },
-    //Scan: { screen: ScanScreen},
-    //AddScan: { screen: Splash},
-    Home: { screen: Login },
-    Menu: { screen: SearchInput, title:'Menu'},
-    Scan: { screen: ScanScreen},
+    Home: { screen: Splash },
+    Login: { screen: Login },
+    Menu: { screen: Menu },
+    Search:{ screen: SearchInput },
     DataPage: { screen: DataPage },
+    Scan: { screen: ScanScreen},
+    AddScan: { screen: Splash},
+    //Home: { screen: Login },
+    //Menu: { screen: SearchInput, title:'Menu'},
+    //Scan: { screen: ScanScreen},
+    //DataPage: { screen: DataPage },
 },
     {
         initialRouteName: 'Home',

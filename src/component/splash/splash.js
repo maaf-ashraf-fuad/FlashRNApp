@@ -1,7 +1,28 @@
 import React from 'react';
-import { StyleSheet, Text, View, Image} from 'react-native';
+import { StyleSheet, Text, View, Image, AsyncStorage} from 'react-native';
 
 export default class Splash extends React.Component {
+  componentDidMount(){
+    this._loadInitialState().done();
+  }
+
+  _loadInitialState = async () => {
+      
+      console.log(await AsyncStorage.getItem('flash_name'));
+      var staff_name = await AsyncStorage.getItem('flash_name')
+      if(staff_name !== null){
+        console.log(staff_name)
+        console.log('Auto Login Function');
+        this.props.navigation.navigate('Menu')
+        return;
+      }
+      else
+      {
+        console.log('Auto Login Function');
+        this.props.navigation.navigate('Login')
+      }
+  }
+
   render() {
     return (
       <View style={styles.container}>
@@ -42,7 +63,7 @@ const styles = StyleSheet.create({
     textAlign:'center', 
 },
   logo:{
-      height:100,
-      width:200
+      height:150,
+      width:300
   }
 });

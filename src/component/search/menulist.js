@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, Text, View, Alert, TextInput, TouchableOpacity, StatusBar} from 'react-native';
 
 
-export default class SearchText extends React.Component {
+export default class MenuList extends React.Component {
 
   render() {
     return (
@@ -10,23 +10,25 @@ export default class SearchText extends React.Component {
         style={styles.container}>
         <StatusBar barStyle = 'dark-content'>
         </StatusBar>
-        <TextInput
-        //placeholder='FRAME ID / SHELF ID / CORE ID'
-        placeholder='Enter Value Want to Search'
-        placeholderTextColor='rgba(255,0,0,0.8)'
-        returnKeyType='go'
-        style={styles.searchinput} 
-        autoCapitalize = "none"
-        autoCorrect={false}
-        onSubmitEditing={this._submitValue}
-        onChangeText={searchinput => this.setState({searchinput})}
-        clearButtonMode="always"
-        />
+
         <TouchableOpacity style={styles.buttonsearch}
         >
             <Text style={styles.searchText}
-            onPress={this._submitValue}>SEARCH</Text>
+            onPress={this._submitValue}>Frame ID</Text>
         </TouchableOpacity>
+        <Text> </Text>
+        <TouchableOpacity style={styles.buttonsearch}
+        >
+            <Text style={styles.searchText}
+            onPress={this._submitValue}>Frame Unit ID</Text>
+        </TouchableOpacity>
+        <Text> </Text>
+        <TouchableOpacity style={styles.buttonsearch}
+        >
+            <Text style={styles.searchText}
+            onPress={this._submitValue}>NE ID</Text>
+        </TouchableOpacity>
+        <Text> </Text>
         </View>
     );
 }
@@ -36,25 +38,10 @@ state = {
 
   _submitValue = () => {
     const navigate = this.props.navigation;
-    const { searchinput} = this.state
-    // validate the user input not null
-    if (this.state.searchinput =='') 
-    {
-        Alert.alert('FLASH','Please input value that need to search')
-    } 
-   else {
-       //To validate perform search on the based on SOA rest API
-       console.log(searchinput)
-       Alert.alert('Your Input',searchinput,
-       [
-        {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-        {text: 'OK', onPress: () => navigate('DataPage')},
-      ],
-      { cancelable: false })
-       
-        
+      navigate('Search') ;
+      console.log('Test')  
    }
-  }
+  
 }
 
 
