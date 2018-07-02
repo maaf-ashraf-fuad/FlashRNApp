@@ -1,5 +1,13 @@
 import React, { Component } from 'react';
-import { Text, View, Modal, FlatList, StyleSheet } from 'react-native';
+import {
+  Text,
+  View,
+  Modal,
+  FlatList,
+  StyleSheet,
+  StatusBar,
+  Platform
+} from 'react-native';
 import { Icon, SearchBar, ListItem } from 'react-native-elements';
 import { CardSection } from './CardSection';
 import { Card } from './Card';
@@ -16,10 +24,6 @@ class CenterModal extends Component {
       this.state = {
         details: []
     };
-  }
-
-  componentDidMount(){
-    //console.log(this.props.data);
   }
 
   renderSeparator = () => {
@@ -73,7 +77,7 @@ class CenterModal extends Component {
   };
 
   render(){
-    const { containerStyle, textStyle, cardSectionStyle, headerStyle, qrContainerStyle } = styles;
+    const { containerStyle, textStyle, cardSectionStyle, headerStyle, searchBarStyle } = styles;
     const { visible, headerText, onClose, data} = this.props;
     const { details } = this.state;
 
@@ -98,7 +102,7 @@ class CenterModal extends Component {
               round
               lightTheme
               showLoading
-              containerStyle={{ borderTopWidth: 0, borderBottomWidth: 2, borderBottomColor: '#838383', backgroundColor: '#ecedf2' }}
+              containerStyle={ searchBarStyle }
               inputStyle={{ backgroundColor: '#fff' }}
               searchIcon={{ name: 'search', size: 30 }}
               //clearIcon={{ name: 'close' }}
@@ -125,53 +129,66 @@ containerStyle: {
   flex: 1,
   //justifyContent: 'center',
   //flexDirection: 'row',
-  padding: 15
+  padding: 15,
+  ...Platform.select({
+    ios: {
+      marginTop: Expo.Constants.statusBarHeight,
+    }
+  }),
 },
-  listItemContainerEvenStyle: {
-     borderBottomWidth: 0,
-     backgroundColor: '#fff',
+headerStyle: {
+  //justifyContent: 'space-between',
+  //flexDirection: 'row',
+  //backgroundColor: '#d03c1b',
+  borderBottomWidth: 0,
+  //backgroundColor:'#ecedf2',
+  backgroundColor:'#ECEDF2',
+  borderBottomLeftRadius: 0,
+  borderBottomRightRadius: 0
+},
+searchBarStyle: {
+  borderTopWidth: 0,
+  borderBottomWidth: 2,
+  //borderBottomColor: '#838383',
+  borderBottomColor: '#DDD',
+  backgroundColor: '#ECEDF2',
+},
+listItemContainerEvenStyle: {
+   borderBottomWidth: 0,
+   backgroundColor: '#fff',
+},
+listItemContainerOddStyle: {
+   borderBottomWidth: 0,
+   backgroundColor: '#f5f5f5',
+},
+cardSectionStyle: {
+  justifyContent: 'flex-start',
+  backgroundColor: '#fff',
+  borderRadius: 0,
+  flex: 1,
   },
-  listItemContainerOddStyle: {
-     borderBottomWidth: 0,
-     backgroundColor: '#f5f5f5',
-  },
-  cardSectionStyle: {
-    justifyContent: 'flex-start',
-    backgroundColor: '#fff',
-    borderRadius: 0,
-    flex: 1,
-    },
-  headerStyle: {
-    //justifyContent: 'space-between',
-    //flexDirection: 'row',
-    //backgroundColor: '#d03c1b',
-    borderBottomWidth: 0,
-    backgroundColor:'#ecedf2',
-    borderBottomLeftRadius: 0,
-    borderBottomRightRadius: 0
-  },
-  textStyle: {
-    //flex: 1,
-    fontSize: 15,
-    textAlign: 'center',
-    fontWeight: 'bold',
-    //justifyContent: 'center',
-    //textAlignVertical : 'bottom',
-    //color: '#838383',
-    marginLeft: 5,
-    //alignSelf: 'center',
-    //textShadowColor: '#000',
-    //textShadowOffset: { width: 0, height: 2 },
-    lineHeight: 30
-  },
-  qrContainerStyle: {
-    justifyContent: 'center',
-    borderColor: '#434343',
-    borderRadius: 50,
-    //borderWidth: 1,
-    padding: 16,
-    backgroundColor: '#838383'
-  },
+textStyle: {
+  //flex: 1,
+  fontSize: 15,
+  textAlign: 'center',
+  fontWeight: 'bold',
+  //justifyContent: 'center',
+  //textAlignVertical : 'bottom',
+  //color: '#838383',
+  marginLeft: 5,
+  //alignSelf: 'center',
+  //textShadowColor: '#000',
+  //textShadowOffset: { width: 0, height: 2 },
+  lineHeight: 30
+},
+qrContainerStyle: {
+  justifyContent: 'center',
+  borderColor: '#434343',
+  borderRadius: 50,
+  //borderWidth: 1,
+  padding: 16,
+  backgroundColor: '#838383'
+},
 });
 
 export { CenterModal };

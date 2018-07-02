@@ -5,7 +5,7 @@ import { createStackNavigator } from 'react-navigation';
 import Splash from '../splash/splash';
 import Login from '../login/login';
 import SearchInput from '../search/searchinput';
-import DataPage from '../DataPage/DataPage';
+import DataPage from '../datapage/DataPage';
 import ScanScreen from '../scan/scanqr1';
 
 //routerstack
@@ -17,12 +17,12 @@ const Application = createStackNavigator({
     //Scan: { screen: ScanScreen},
     //AddScan: { screen: Splash},
     Home: { screen: Login },
-    Menu: { screen: SearchInput, title:'Menu'},
+    Menu: { screen: SearchInput, title: 'Menu'},
     Scan: { screen: ScanScreen},
     DataPage: { screen: DataPage },
 },
     {
-        initialRouteName: 'Home',
+        initialRouteName: 'Menu',
         headerMode: 'none',
         //navigationOptions: {
         //    header: false,
@@ -32,7 +32,7 @@ const Application = createStackNavigator({
         //        shadowColor: 'transparent',
         //        elevation:0,
         //    },
-        //    
+        //
         //}
     }
 );
@@ -52,5 +52,3 @@ const styles = StyleSheet.create({
         backgroundColor: '#2c3e50',
     },
 });
-
-

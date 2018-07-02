@@ -1,37 +1,129 @@
 import React, { Component } from 'react';
 import { Header, ListItem, Text, Icon, Divider } from 'react-native-elements';
 import { Popover } from 'react-native-modal-popover';
-import { findNodeHandle, NativeModules, Platform, TouchableOpacity, ScrollView, View, Image, FlatList, StyleSheet } from 'react-native';
-import { Card, CardSection, CenterModal, Button } from '../common'
+import { FileSystem } from 'expo';
+import {
+  findNodeHandle,
+  NativeModules,
+  Platform,
+  TouchableOpacity,
+  ScrollView,
+  View,
+  Image,
+  FlatList,
+  StyleSheet,
+  Easing,
+  TextInput,
+  KeyboardAvoidingView
+  //LayoutAnimation
+} from 'react-native';
 import data from './LibraryList.json';
 import QRCode from 'react-native-qrcode-svg';
 import _ from 'lodash';
+import { Card, CardSection, Button } from '../common';
 
 //const { UIManager } = NativeModules;
-//UIManager.setLayoutAnimationEnabledExperimental(true);
+//NativeModules.UIManager.setLayoutAnimationEnabledExperimental(true);
 
 class  DataPage extends Component {
+
   constructor(props) {
     super(props);
+    this.mapParent(data);
     this.state = {
-      parent: data,
-      child: data.children,
+      parent: undefined,
+      child: undefined,
       back: undefined,
       parentDetails: [],
-      showModal: false,
-      showPopover: false,
-      popoverAnchor: { x: 0, y: 0, width: 0, height: 0 }
+      headerExpended: false,
+      headerMode: null,
+      popoverAnchor: { x: 0, y: 0, width: 0, height: 0 },
+      editCore: { ne_id: '', ne_shelf: '', ne_slot: '', ne_port: '', cct_name: '', status: '' }
   };
 }
 
-componentDidMount() {
-  this.mapParent(data);
-  this.renderData(data, data.children);
+componentDidMount () {
+  this.initData();
 }
 
-/*componentWillUpdate() {
-  LayoutAnimation.spring();
-}*/
+initData (){
+  const { parent, child, parentDetails } = this.state;
+  const qrData = this.props.navigation.getParam('qrData', undefined);
+  const level = this.props.navigation.getParam('level', undefined);
+  const mode = this.props.navigation.getParam('mode', undefined);
+  const item = this.props.navigation.getParam('item', undefined);
+
+  console.log(
+    qrData, level, mode, item
+  );
+
+  let result = undefined;
+  let details = undefined;
+
+  if (level!==undefined && mode!==undefined){
+      if (mode==='Menu'){
+          if (level === 'Frame'){
+            result = data;
+            details = _.map(
+                   _.toPairs(
+                     _.omitBy(result, (val, key) => key === 'children' || key === 'parent')
+                   ), d => _.fromPairs([d])
+                 );
+          } else if (level === 'Shelf'){
+            result = _.find(data.children, { QR_code_id: qrData });
+            if (result!==undefined){
+                details = _.map(
+                       _.toPairs(
+                         _.omitBy(result, (val, key) => key === 'children' || key === 'parent')
+                       ), d => _.fromPairs([d])
+                     );
+          } else {
+            return console.log ('Children not found');
+          }
+        } else {
+          return console.log (level + 'not found.')
+        }
+    } else if (mode==='UpdateQR') {
+      result = item;
+      result.QR_code_id = qrData;
+      details = _.map(
+             _.toPairs(
+               _.omitBy(result, (val, key) => key === 'children' || key === 'parent')
+             ), d => _.fromPairs([d])
+           );
+    }
+}
+
+  /*if (qrData!==undefined){
+    result = _.find(data, { QR_code_id: qrData });
+    console.log ('parent:' + result);
+    if (result!==undefined){
+        details = _.map(
+               _.toPairs(
+                 _.omitBy(result, (val, key) => key === 'children' || key === 'parent')
+               ), d => _.fromPairs([d])
+             );
+    } else {
+        result = _.find(data.children, { QR_code_id: qrData });
+        console.log ('children:' + result);
+        if (result!==undefined){
+            details = _.map(
+                   _.toPairs(
+                     _.omitBy(result, (val, key) => key === 'children' || key === 'parent')
+                   ), d => _.fromPairs([d])
+                 );
+        } else {
+            console.log ('not found!');
+        }
+    }
+  }*/
+
+  this.setState({
+    parent: result,
+    child: result.children,
+    parentDetails: details
+  })
+}
 
 renderData = (parent, child, back, parentDetails) => {
   parentDetails = _.map(
@@ -58,14 +150,6 @@ setButton = (e) => {
   }
 };
 
-openPopover = () => this.setState({ showPopover: true, showModal: false  });
-
-closePopover = () => this.setState({ showPopover: false });
-
-openModal = () => this.setState({ showPopover: false, showModal: true });
-
-closeModal = () => this.setState({ showModal: false });
-
 mapParent = (items) => {
   _.map(items.children, (item) => {
     item.parent = items;
@@ -76,78 +160,73 @@ mapParent = (items) => {
   return items;
 }
 
-renderSeparator = () => {
-  return (
-    <View
-      style={{
-        height: 1,
-        backgroundColor: '#CED0CE',
-        marginLeft: 42
-      }}
-    />
-  );
-};
+updateCore = () => {
+  let {
+    parent,
+    editCore: {
+      ne_id,
+      ne_shelf,
+      ne_slot,
+      ne_port,
+      cct_name,
+      status,
+    }} = this.state;
 
-renderItem = ({ item }) => {
-  const title = <Text><Text style={{ fontWeight: 'bold' }}>ID: </Text>{item.id}</Text>;
-  const subtitle = item.QR_code_id===undefined || item.QR_code_id=== null?
-    <Text style={{ fontWeight: 'bold' }}>QR Code: <Text style={{ fontWeight: 'bold', color: 'red' }}>No QR Code</Text></Text>:
-    <Text><Text style={{ fontWeight: 'bold' }}>QR Code: </Text>{item.QR_code_id}</Text>;
-
-  return (
-    <ListItem
-      //title={`Id: ${item.id}`}
-      title={title}
-      //subtitle={`QR Code: ${item.QR_code_id===undefined?'No QR Code':item.QR_code_id}`}
-      subtitle={subtitle}
-      //leftIcon={{ name: 'level-down', type: 'entypo', color:'#517fa4' }}
-      leftIcon={{ name: 'level-down', type: 'entypo', color:'#ff9a1e' }}
-      containerStyle={{ borderBottomWidth: 0, backgroundColor: '#fff' }}
-      onPress={() => {this.renderData(item, item.children, item.parent)}}
-      //onPress={() => this.setState({ showModal:true })}
-
-    />
-  )
-};
-
-renderFooter = () => {
-  return (
-    <View
-      style={{
-        height: 1,
-        backgroundColor: '#CED0CE'
-      }}
-    />
-  );
-  };
-
-renderChild () {
-  const { child } = this.state;
-  if (child !== undefined){
-    return (
-      <Card>
-        <CardSection style={{ backgroundColor:'#ecedf2' }}>
-          <Text h4> { _.head(child).type }</Text>
-        </CardSection>
-        <FlatList
-          data={child}
-          renderItem={this.renderItem}
-          keyExtractor={this.keyExtractor}
-          ItemSeparatorComponent={this.renderSeparator}
-          ListFooterComponent={this.renderFooter}
-        />
-      </Card>
-    )
+  /*if (ne_id!==null && ne_id!==undefined && ne_id!==''){
+    parent.ne_id = ne_id;
   }
+
+  if (ne_shelf!==null && ne_shelf!==undefined && ne_shelf!==''){
+    parent.ne_shelf = ne_shelf;
+  }
+
+  if (ne_slot!==null && ne_slot!==undefined && ne_slot!==''){
+    parent.ne_slot = ne_slot;
+  }
+
+  if (ne_port!==null && ne_port!==undefined && ne_port!==''){
+    parent.ne_port = ne_port;
+  }
+
+  if (cct_name!==null && cct_name!==undefined && cct_name!==''){
+  parent.cct_name = cct_name;
+  }
+
+  if (status!==null && status!==undefined && status!==''){
+  parent.status = status;
+}*/
+
+  parent.ne_id = ne_id;
+  parent.ne_shelf = ne_shelf;
+  parent.ne_slot = ne_slot;
+  parent.ne_port = ne_port;
+  parent.cct_name = cct_name;
+  parent.status = status;
+
+  let parentDetails = _.map(
+         _.toPairs(
+           _.omitBy(parent, (val, key) => key === 'children' || key === 'parent')
+         ), d => _.fromPairs([d])
+       );
+
+  this.setState({
+    parentDetails,
+    headerExpended: false,
+    editCore: {
+      ne_id: '',
+      ne_shelf: '',
+      ne_slot: '',
+      ne_port: '',
+      cct_name: '',
+      status: ''
+    }});
 }
 
-keyExtractor = (item) => item.id;
-
 renderHeaderBack() {
-  const { back } = this.state;
+  const { back, headerExpended } = this.state;
   if (back!==undefined){
     return (
-        <Icon name='arrow-back' color='#fff' onPress={() =>
+        <Button iconName='arrow-back' disabled={headerExpended} iconColor='#fff' onPress={() =>
           this.renderData(
             back,
             back.children,
@@ -157,18 +236,353 @@ renderHeaderBack() {
   }
 }
 
-renderHome() {
+renderHeaderHome() {
+  const { headerExpended } = this.state;
+  return (
+      <Button iconName='home' disabled={headerExpended} iconColor='#fff' onPress={() =>
+        this.props.navigation.navigate('Menu')
+      }/>
+  )
+}
+
+renderParent () {
+  const { parent, parentDetails, showHeaderMenu, popoverAnchor, headerExpended, headerMode } = this.state;
+  if (parent !== undefined){
     return (
-        <Icon name='home' color='#fff' onPress={() => this.props.navigation.navigate('Menu')}/>
+      <Card>
+        <CardSection style={{ justifyContent: 'space-between', backgroundColor:'#ecedf2' }}>
+          {
+            headerExpended?
+              {
+                View: <Text h4>{parent.type}: View Details</Text>,
+                Edit: <Text h4>{parent.type}: Edit Details</Text>,
+                Transfer: <Text h4>{parent.type}: Current</Text>,
+              }
+            [headerMode]:<Text h4>{parent.type}</Text>
+          }
+          {
+            headerExpended?
+            <Button
+              onPress={() => this.setState({ headerExpended: false })}
+              iconName='close'
+            />:
+            <Button
+              setRef={r => {this.button = r}}
+              onPress={() => this.setState({ showHeaderMenu: true })}
+              onLayout={this.setButton}
+              iconName='dots-vertical'
+              iconType='material-community'
+            />
+          }
+          <Popover
+            contentStyle={styles.content}
+            arrowStyle={styles.arrow}
+            visible={showHeaderMenu}
+            fromRect={popoverAnchor}
+            backgroundStyle={styles.background}
+            onClose={() => this.setState({ showHeaderMenu: false })}
+            onDismiss={() => this.setState({ showHeaderMenu: false })}
+            placement='bottom'
+            supportedOrientations={['portrait', 'landscape']}
+            easing={show => show?Easing.elastic(1):Easing.out(Easing.quad)}
+            //default: easing={(show) => show?Easing.out(Easing.back(1.70158)):Easing.inOut(Easing.quad)}
+            duration={ 300 }
+            useNativeDriver
+          >
+            <Button
+              onPress={() => this.setState({ headerExpended: true, headerMode: 'View', showHeaderMenu: false })}
+              //onPress={this.print(parent)}
+              buttonText={`View ${parent.type} Details`}
+              iconName='view-list'
+            />
+            {parent.type === 'Core'?
+              <Button
+                renderDivider
+                onPress={() => this.setState({
+                  headerExpended: true,
+                  headerMode: 'Edit',
+                  showHeaderMenu: false,
+                  editCore: {
+                    ne_id: parent.ne_id,
+                    ne_shelf: parent.ne_shelf,
+                    ne_slot: parent.ne_slot,
+                    ne_port: parent.ne_port,
+                    cct_name: parent.cct_name,
+                    status: parent.status
+                }})}
+                buttonText={`Edit ${parent.type} Details`}
+                iconName='edit'
+              />:null
+            }
+            {parent.QR_code_id === undefined || parent.QR_code_id === null || parent.QR_code_id === ""?
+              <Button
+                renderDivider
+                onPress={() => this.props.navigation.navigate('Scan'), {
+                  mode: 'UpdateQR',
+                  item: parent,
+                  level: 'Core'
+                }}
+                buttonText='Update QR Code'
+                iconName='qrcode'
+                iconType='font-awesome'
+              />:null
+            }
+            {parent.type === 'Core'?
+              <Button
+                renderDivider
+                onPress={() => this.props.navigation.navigate('Scan')}
+                /*onPress={() => this.setState({
+                  headerExpended: true,
+                  headerMode: 'Transfer',
+                  showHeaderMenu: false
+                })}*/
+                buttonText='Transfer Core'
+                iconName='swap-horiz'
+              />:null
+            }
+          </Popover>
+        </CardSection>
+        <CardSection>
+          <View style={ styles.qr } >
+          {
+            parent.QR_code_id===undefined || parent.QR_code_id=== null?
+            <Icon name='do-not-disturb-alt' size={50} />:
+            <QRCode value={parent.QR_code_id} size={50} />
+          }
+          </View>
+          <View style={{ paddingLeft: 10, justifyContent: 'center' }}>
+            <Text><Text style={{ fontWeight: 'bold' }}>ID: </Text>{parent.id}</Text>
+            {
+              parent.QR_code_id===undefined || parent.QR_code_id=== null?
+              <Text style={{ fontWeight: 'bold' }}>QR Code: <Text style={{ fontWeight: 'bold', color: 'red' }}>No QR Code</Text></Text>:
+              <Text><Text style={{ fontWeight: 'bold' }}>QR Code: </Text>{parent.QR_code_id}</Text>
+            }
+          </View>
+        </CardSection>
+      </Card>
     )
+  }
+}
+
+renderExpendedHeader () {
+  const { headerExpended, headerMode, parent, parentDetails, editCore } = this.state;
+  if (headerExpended) {
+    if (headerMode==='View'){
+      return(
+          <Card>
+          <FlatList
+            data={parentDetails}
+            renderItem={this.renderItemHeader}
+            keyExtractor={this.keyExtractorHeader}
+            ItemSeparatorComponent={this.renderSeparator}
+            ListFooterComponent={this.renderFooter}
+            /*getItemLayout={(data, index) => ({
+              length: ITEM_HEIGHT,
+              offset: ITEM_HEIGHT * index,
+              index
+            })}*/
+          />
+          </Card>
+      )
+    } else if (headerMode==='Edit') {
+      return(
+        <Card>
+          <CardSection style={styles.editRowOdd}>
+            <Text style={styles.textBold}>NE_ID</Text>
+            <TextInput
+              underlineColorAndroid = 'transparent'
+              style={styles.input}
+              placeholder={parent.ne_id}
+              autoCorrect={false}
+              autoCapitalize={'none'}
+              value={editCore.ne_id}
+              onChangeText={ne_id => this.setState({ editCore: Object.assign({}, editCore, { ne_id })})}
+              //onChangeText={ne_id => this.setState({ editCore: { ne_id }})}
+            />
+          </CardSection>
+          <CardSection style={styles.editRowEven}>
+            <Text style={styles.textBold}>NE_SHELF</Text>
+            <TextInput
+              underlineColorAndroid = 'transparent'
+              style={styles.input}
+              placeholder={parent.ne_shelf}
+              autoCorrect={false}
+              autoCapitalize={'none'}
+              value={editCore.ne_shelf}
+              onChangeText={ne_shelf => this.setState({ editCore: Object.assign({}, editCore, { ne_shelf })})}
+            />
+          </CardSection>
+          <CardSection style={styles.editRowOdd}>
+            <Text style={styles.textBold}>NE_SLOT</Text>
+            <TextInput
+              underlineColorAndroid = 'transparent'
+              style={styles.input}
+              placeholder={parent.ne_slot}
+              autoCorrect={false}
+              autoCapitalize={'none'}
+              value={editCore.ne_slot}
+              onChangeText={ne_slot => this.setState({ editCore: Object.assign({}, editCore, { ne_slot })})}
+          />
+          </CardSection>
+          <CardSection style={styles.editRowEven}>
+            <Text style={styles.textBold}>NE_PORT</Text>
+            <TextInput
+              underlineColorAndroid = 'transparent'
+              style={styles.input}
+              placeholder={parent.ne_port}
+              autoCorrect={false}
+              autoCapitalize={'none'}
+              value={editCore.ne_port}
+              onChangeText={ne_port => this.setState({ editCore: Object.assign({}, editCore, { ne_port })})}
+            />
+          </CardSection>
+          <CardSection style={styles.editRowOdd}>
+            <Text style={styles.textBold}>CIRCUIT_NAME</Text>
+            <TextInput
+              underlineColorAndroid = 'transparent'
+              style={styles.input}
+              placeholder={parent.cct_name}
+              autoCorrect={false}
+              autoCapitalize={'none'}
+              value={editCore.cct_name}
+              onChangeText={cct_name => this.setState({ editCore: Object.assign({}, editCore, { cct_name })})}
+            />
+          </CardSection>
+          <CardSection style={styles.editRowEven}>
+            <Text style={styles.textBold}>STATUS</Text>
+            <TextInput
+              underlineColorAndroid = 'transparent'
+              style={styles.input}
+              placeholder={parent.status}
+              autoCorrect={false}
+              autoCapitalize={'none'}
+              value={editCore.status}
+              onChangeText={status => this.setState({ editCore: Object.assign({}, editCore, { status })})}
+            />
+          </CardSection>
+          <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center' }}>
+            <Button border buttonText='Clear' onPress={() => this.setState({
+              editCore: {
+                ne_id: '',
+                ne_shelf: '',
+                ne_slot: '',
+                ne_port: '',
+                cct_name: '',
+                status: ''
+              }
+             })} />
+            <Button border buttonText='Update' onPress={() => this.updateCore()}/>
+          </View>
+        </Card>
+      )
+    } else if (headerMode==='Transfer') {
+      return(
+        <View style={{ justifyContent: 'center', flexDirection: 'column' }}>
+          <Icon name='swap-vert' size={ 50 } iconStyle={{ padding: 15 }}/>
+          <Card>
+            <CardSection style={{ backgroundColor:'#ecedf2' }}>
+              <Text h4>{ parent.type }: New</Text>
+            </CardSection>
+          </Card>
+        </View>
+      )
+    }
+  }
+}
+
+renderItemHeader = ({ item, index }) => {
+  const title=<Text style={{ fontWeight: 'bold' }}>{ Object.keys(item)[0].toUpperCase() }</Text>;
+
+  return (
+      <ListItem
+        title={ title }
+        //subtitle={`QR Code: ${item.QR_code_id===undefined?'No QR Code':item.QR_code_id}`}
+        //subtitle={Object.values(item)[0]}
+        textInput
+        textInputEditable={false}
+        //textInputValue={ ':      ' + Object.values(item)[0] }
+        textInputValue={Object.values(item)[0]}
+        textInputStyle={{ textAlign: 'left' }}
+        //textInputContainerStyle={{ flex:1, backgroundColor: '#fff', borderColor: '#ddd', borderWidth: 1 }}
+        //leftIcon={{ name: 'chevron-right', color:'grey' }}
+        containerStyle={index%2?{ borderBottomWidth: 0, backgroundColor: '#fff' }:{ borderBottomWidth: 0, backgroundColor: '#f5f5f5' }}
+        //onPress={() => {this.renderData(item, item.children, item.parent)}}
+        hideChevron
+      />
+  )
+}
+
+keyExtractorHeader = (item) => Object.keys(item)[0];
+
+renderChild () {
+  const { child, headerExpended } = this.state;
+  if (child !== undefined && !headerExpended){
+    return (
+      <Card>
+        <CardSection style={{ backgroundColor:'#ecedf2' }}>
+          <Text h4>{ _.head(child).type }</Text>
+        </CardSection>
+        <FlatList
+          data={child}
+          renderItem={this.renderItemChildren}
+          keyExtractor={this.keyExtractorChild}
+          ItemSeparatorComponent={this.renderSeparator}
+          ListFooterComponent={this.renderFooter}
+        />
+      </Card>
+    )
+  }
+}
+
+renderItemChildren = ({ item, index }) => {
+  const title = <Text><Text style={{ fontWeight: 'bold' }}>ID: </Text>{item.id}</Text>;
+  const subtitle = item.QR_code_id===undefined || item.QR_code_id=== null?
+    <Text style={{ fontWeight: 'bold' }}>QR Code: <Text style={{ fontWeight: 'bold', color: 'red' }}>No QR Code</Text></Text>:
+    <Text><Text style={{ fontWeight: 'bold' }}>QR Code: </Text>{item.QR_code_id}</Text>;
+
+  return (
+    <ListItem
+      title={title}
+      subtitle={subtitle}
+      leftIcon={{ name: 'level-down', type: 'entypo', color:'#ff9a1e', style:{ opacity: (200-index)/200 }}}
+      //containerStyle={index%2?{ borderBottomWidth: 0, backgroundColor: '#f5f5f5' }:{ borderBottomWidth: 0, backgroundColor: '#fff' }}
+      containerStyle={{ borderBottomWidth: 0, backgroundColor: '#fff' }}
+      onPress={() => {this.renderData(item, item.children, item.parent)}}
+    />
+  )
+}
+
+keyExtractorChild = (item) => item.id;
+
+renderSeparator = () => {
+  const margin = this.state.headerExpended?0:42;
+
+  return (
+    <View
+      style={{
+        height: 1,
+        backgroundColor: '#CED0CE',
+        marginLeft: margin
+      }}
+    />
+  )
+}
+
+renderFooter = () => {
+  return (
+    <View
+      style={{
+        height: 1,
+        backgroundColor: '#CED0CE'
+      }}
+    />
+  )
 }
 
 render() {
-  const { parent, parentDetails, showPopover, popoverAnchor, showModal } = this.state;
-
   return (
-    <View style={{ flex: 1, backgroundColor:'#f5f5f5' }}>
-      <Image source= { require('../../img/bg2.png')} style= {{position:'absolute', top: 68, resizeMode: 'cover', flex: 1}} />
+    <KeyboardAvoidingView behavior='padding' style={{ flex: 1, backgroundColor:'#f5f5f5' }}>
+      <Image source= { require('../../img/bg2.png')} style= {{ position:'absolute', top: 68, resizeMode: 'cover'}} />
       <Header
         backgroundColor='#d03c1b'
         outerContainerStyles={{ borderBottomWidth:0 }}
@@ -176,110 +590,15 @@ render() {
         centerComponent={<Image source={ require('../../img/flash.png') }
         style={{ resizeMode: 'stretch', height: 20, width: 100 }}/>}
         //rightComponent={{ icon: 'home', color: '#fff' }}
-        rightComponent={ this.renderHome() }
+        rightComponent={ this.renderHeaderHome() }
       />
       <ScrollView>
         <View style={{ height: 70 }} />
-        <Card>
-          <CardSection style={{ justifyContent: 'space-between', backgroundColor:'#ecedf2' }}>
-            <Text h4> {parent.type}</Text>
-            <Button
-              //buttonStyle={{ justifyContent: 'center' }}
-              setRef={r => {this.button = r}}
-              onPress={this.openPopover}
-              onLayout={this.setButton}
-              iconName='dots-vertical'
-              iconType='material-community'
-              //iconStyle={{ color: 'grey' }}
-            />
-            <Popover
-              contentStyle={styles.content}
-              arrowStyle={styles.arrow}
-              visible={showPopover}
-              fromRect={popoverAnchor}
-              backgroundStyle={styles.background}
-              //onClose={this.closePopover}
-              onClose={this.closePopover}
-              onDismiss={this.closePopover}
-              placement='bottom'
-              supportedOrientations={['portrait', 'landscape']}
-            >
-              <Button
-                onPress={this.openModal}
-                //onPress={this.print(parent)}
-                buttonText={`${parent.type==='Core'?'View/Edit':'View'} ${parent.type} Details`}
-                iconName='edit'
-                iconType='font-awesome'
-              />
-              {parent.QR_code_id === undefined || parent.QR_code_id === null || parent.QR_code_id === ""?
-                <Button
-                  renderDivider
-                  onPress={this.openModal}
-                  buttonText='Update QR Code'
-                  iconName='qrcode'
-                  iconType='font-awesome'
-                  iconStyle={{ paddingRight: 5 }}
-                />:null
-              }
-              {parent.type === 'Core'?
-                <Button
-                  renderDivider
-                  onPress={this.openModal}
-                  buttonText='Transfer Core'
-                  iconName='swap-horiz'
-                />:null
-              }
-            </Popover>
-            {/*}<PopoverController>
-              {({ openPopover, closePopover, popoverVisible, setPopoverAnchor, popoverAnchorRect }) => (
-                <Fragment>
-                  <TouchableOpacity style={{ justifyContent: 'center' }} ref={setPopoverAnchor} onPress={openPopover}>
-                    <Icon name='menu' color='grey' />
-                  </TouchableOpacity>
-                  <Popover
-                    contentStyle={styles.content}
-                    arrowStyle={styles.arrow}
-                    backgroundStyle={styles.background}
-                    visible={popoverVisible}
-                    onClose={closePopover}
-                    fromRect={popoverAnchorRect}
-                    placement='bottom'
-                    supportedOrientations={['portrait', 'landscape']}
-                  >
-                    <Text>Hello from inside popover!</Text>
-                  </Popover>
-                </Fragment>
-              )}
-            </PopoverController>*/}
-          </CardSection>
-          <CardSection>
-            <View style={ styles.qr } >
-            {
-              parent.QR_code_id===undefined || parent.QR_code_id=== null?
-              <Icon name='do-not-disturb-alt' size={50} />:
-              <QRCode value={parent.QR_code_id} size={50} />
-            }
-            </View>
-            <View style={{ paddingLeft: 10, justifyContent: 'center' }}>
-              <Text><Text style={{ fontWeight: 'bold' }}>ID: </Text>{parent.id}</Text>
-              {
-                parent.QR_code_id===undefined || parent.QR_code_id=== null?
-                <Text style={{ fontWeight: 'bold' }}>QR Code: <Text style={{ fontWeight: 'bold', color: 'red' }}>No QR Code</Text></Text>:
-                <Text><Text style={{ fontWeight: 'bold' }}>QR Code: </Text>{parent.QR_code_id}</Text>
-              }
-            </View>
-          </CardSection>
-        </Card>
+        {this.renderParent()}
+        {this.renderExpendedHeader()}
         {this.renderChild()}
       </ScrollView>
-      <CenterModal
-        visible={showModal}
-        headerText={`View ${parent.type} Details`}
-        onClose={() => this.setState({ showModal: false })}
-        onDismiss={() => this.setState({ showModal: false })}
-        data={parentDetails}
-      />
-    </View>
+    </KeyboardAvoidingView>
   );
 }}
 
@@ -292,7 +611,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     //borderBottomWidth: 0,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 20 },
+    shadowOffset: { width: 2, height: 2 },
     shadowOpacity: 0.8,
     shadowRadius: 3,
     elevation: 1,
@@ -302,10 +621,34 @@ const styles = StyleSheet.create({
     borderColor: '#434343',
     borderWidth: 1,
     padding: 3,
-    backgroundColor: '#838383'
+    backgroundColor: '#838383',
+    borderRadius: 3,
   },
   arrow: {
     borderTopColor: '#fff',
+  },
+  textBold: {
+    textAlignVertical: 'center',
+    fontWeight: 'bold',
+  },
+  input: {
+      width: '50%',
+      paddingLeft: 10,
+      backgroundColor: '#fff',
+      borderColor: '#ddd',
+      borderWidth: 1,
+  },
+  editRowOdd: {
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    padding: 5,
+  },
+  editRowEven: {
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#f5f5f5',
+    padding: 5,
   },
   background: {
     backgroundColor: 'rgba(0, 0, 255, 0)',

@@ -1,56 +1,73 @@
-import React from 'react';
+import React, { Component } from 'react';
 import { Dimensions, StyleSheet, Text, View } from 'react-native';
 import { BarCodeScanner } from 'expo';
 
-const { width } = Dimensions.get('window');
 
-export default class ScanScreen extends React.Component {
+export default class ScanScreen extends Component {
+  constructor(props) {
+    super(props);
+    const { height, width } = Dimensions.get('window');
+    this.state = {
+      maskRowHeight: Math.round((height - 300) / 20),
+      maskColWidth: (width - 300) / 2
+    };
+  }
+
   render() {
+    const { maskRowHeight, maskColWidth } = this.state;
+    const level = this.props.navigation.getParam('level', undefined);
+    const item = this.props.navigation.getParam('item', undefined);
+    const mode = this.props.navigation.getParam('mode', undefined);
+
     return (
       <BarCodeScanner
-        onBarCodeRead={(scan) => this.props.navigation.navigate('DataPage')}
-        style={[StyleSheet.absoluteFill, styles.container]}
+        onBarCodeRead={(scan) => this.props.navigation.navigate('DataPage', { qrData: scan.data, level, item, mode } )}
+        style={ styles.container }
+        barCodeTypes={[BarCodeScanner.Constants.BarCodeType.qr]}
       >
-        <View style={styles.layerTop} />
-        <View style={styles.layerCenter}>
-          <View style={styles.layerLeft} />
-          <View style={styles.focused} />
-          <View style={styles.layerRight} />
+        <View style={styles.maskOutter}>
+          <View style={[{ flex: maskRowHeight  }, styles.maskRow, styles.maskFrame]} />
+          <View style={[{ flex: 30 }, styles.maskCenter]}>
+            <View style={[{ width: maskColWidth }, styles.maskFrame]} />
+            <View style={styles.maskInner} />
+            <View style={[{ width: maskColWidth }, styles.maskFrame]} />
+          </View>
+          <View style={[{ flex: maskRowHeight }, styles.maskRow, styles.maskFrame]} />
         </View>
-        <View style={styles.layerBottom} />
       </BarCodeScanner>
-    
+
     );
   }
 }
 
-const opacity = 'rgba(0, 0, 0, .6)';
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    flexDirection: 'column'
   },
-  layerTop: {
-    flex: 2,
-    backgroundColor: opacity
-  },
-  layerCenter: {
+  cameraView: {
     flex: 1,
-    flexDirection: 'row'
+    justifyContent: 'flex-start',
   },
-  layerLeft: {
-    flex: 1,
-    backgroundColor: opacity
+  maskOutter: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '100%',
+    alignItems: 'center',
+    justifyContent: 'space-around',
   },
-  focused: {
-    flex: 10
+  maskInner: {
+    width: 300,
+    backgroundColor: 'transparent',
+    borderColor: 'white',
+    borderWidth: 1,
   },
-  layerRight: {
-    flex: 1,
-    backgroundColor: opacity
+  maskFrame: {
+    backgroundColor: 'rgba(1,1,1,0.6)',
   },
-  layerBottom: {
-    flex: 2,
-    backgroundColor: opacity
+  maskRow: {
+    width: '100%',
   },
+  maskCenter: { flexDirection: 'row' },
 });
