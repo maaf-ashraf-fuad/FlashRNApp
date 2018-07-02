@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert, } from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert, AsyncStorage} from 'react-native';
 
 export default class LoginForm extends React.Component {
   render() {
@@ -11,6 +11,7 @@ export default class LoginForm extends React.Component {
           placeholder='Staff ID'
           placeholderTextColor='rgba(255,0,0,0.8)'
           underlineColorAndroid='transparent'
+          clearButtonMode="always"
           returnKeyType='next'
           onSubmitEditing={() => this.passwordInput.focus()}
           style={styles.logininput}
@@ -24,6 +25,7 @@ export default class LoginForm extends React.Component {
           placeholder='Password'
           placeholderTextColor='rgba(255,0,0,0.8)'
           underlineColorAndroid='transparent'
+          clearButtonMode="always"
           secureTextEntry
           returnKeyType='go'
           style={styles.logininput}
@@ -48,9 +50,7 @@ export default class LoginForm extends React.Component {
     f_name: '',
   }
 
-  _entermenu= () => {
-    
-  }
+ 
   _submitForm = () => {
     const navigate = this.props.navigation;
     const { f_user, f_pass } = this.state
@@ -83,6 +83,7 @@ export default class LoginForm extends React.Component {
             return;
           }
           else {
+            console.log('LDAP Pass')
            f_name = responseJson.fullName;
               //SOA Check
       fetch('http://10.54.1.21:8001/FLASH/verifyAccess/Proxy_Services/PS_Flash_verifyAccess2',
@@ -101,21 +102,23 @@ export default class LoginForm extends React.Component {
       
       .then((response) => response.json())
       .then((responseJson) => {
-        console.log(responseJson);
-        console.log(responseJson.xmlns);
+        //console.log(responseJson);
         console.log(responseJson["ns2:ErrorCode"]);
-        if (responseJson["ns2:ErrorCode"]== '01') {
-          Alert.alert("Flash", f_name + ", Kindly Contact Your System Admin");
-          return;
-        }
-        else {
-           Alert.alert("Welcome", f_name,
+        if (responseJson["ns2:ErrorCode"]== '00') {
+          AsyncStorage.setItem('flash_user',f_user);
+          AsyncStorage.setItem('flash_pass',f_pass);
+          AsyncStorage.setItem('flash_name',f_name);
+          Alert.alert("Welcome", f_name,
             [
               {
                 text: 'OK', onPress: () => navigate('Menu')
               }
             ]
           );
+        }
+        else {
+          Alert.alert("Flash", f_name + ", Kindly Contact Your System Admin");
+          return;
         }
       })
       .catch((error) => {
@@ -127,6 +130,7 @@ export default class LoginForm extends React.Component {
         })
         .catch((error) => {
           console.error(error);
+          alert(error);
         })
         .done()
     }

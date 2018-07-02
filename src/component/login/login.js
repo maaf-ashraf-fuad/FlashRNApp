@@ -10,7 +10,7 @@ export default class Login extends React.Component {
         <View style={styles.logoContainer}>
         <Image 
             style={styles.loginlogo}
-            source={require('../../img/TM.png')}/>
+            source={require('../../img/TMLOGO.png')}/>
         <Text style={styles.description}>Login To Access FLASH</Text>
         </View>
        
@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
     marginTop:30, 
 },
   loginlogo:{
-      height:80,
-      width:300
+    height:150,
+    width:300
   }
 });
