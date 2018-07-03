@@ -1,5 +1,15 @@
 {
   "expo": {
-    "sdkVersion": "27.0.0"
+    "sdkVersion": "27.0.0",
+    "name": "FLASH@TM",
+    "icon": "./src/icon.png",
+    "version": "0.0.1",
+    "slug": "your-app-slug",
+    "ios": {
+      "bundleIdentifier": "com.TM.FLASH"
+    },
+    "android": {
+      "package": "com.TM.FLASH"
+    }
   }
 }
