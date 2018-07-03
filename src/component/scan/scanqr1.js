@@ -16,12 +16,14 @@ export default class ScanScreen extends Component {
   render() {
     const { maskRowHeight, maskColWidth } = this.state;
     const level = this.props.navigation.getParam('level', undefined);
-    const item = this.props.navigation.getParam('item', undefined);
+    const id = this.props.navigation.getParam('id', undefined);
     const mode = this.props.navigation.getParam('mode', undefined);
+    const item = this.props.navigation.getParam('item', undefined);
+    console.log ('scanqr - level: ' + level, 'mode: ' + mode, 'id: ' + id);
 
     return (
       <BarCodeScanner
-        onBarCodeRead={(scan) => this.props.navigation.navigate('DataPage', { qrData: scan.data, level, item, mode } )}
+        onBarCodeRead={(scan) => this.props.navigation.navigate('DataPage', { qrData: scan.data, level, id, item, mode } )}
         style={ styles.container }
         barCodeTypes={[BarCodeScanner.Constants.BarCodeType.qr]}
       >

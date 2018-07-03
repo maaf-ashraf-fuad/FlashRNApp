@@ -8,6 +8,7 @@ import SearchInput from '../search/searchinput';
 import Menu from '../search/menu';
 import DataPage from '../datapage/DataPage';
 import ScanScreen from '../scan/scanqr1';
+import {ScreenOrientation} from 'expo';
 
 //routerstack
 const Application = createStackNavigator({
@@ -40,6 +41,10 @@ const Application = createStackNavigator({
 );
 // create a component
 export default class Router extends React.Component {
+  constructor(props) {
+    super(props);
+    ScreenOrientation.allow (ScreenOrientation.Orientation.PORTRAIT_UP);
+  }
     render() {
         return <Application />;
     }

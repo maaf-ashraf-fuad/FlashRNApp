@@ -16,7 +16,7 @@ import TESTSOA from './src/component/splash/testsoa';
 export default class App extends React.Component {
   render() {
     return (
-      <TESTSOA />
+      <Router />
       //<ScanScreen />
       //<DataPage />
     );

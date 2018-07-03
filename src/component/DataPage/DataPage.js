@@ -14,7 +14,8 @@ import {
   StyleSheet,
   Easing,
   TextInput,
-  KeyboardAvoidingView
+  KeyboardAvoidingView,
+  Alert
   //LayoutAnimation
 } from 'react-native';
 import data from './LibraryList.json';
@@ -47,30 +48,48 @@ componentDidMount () {
 }
 
 initData (){
-  const { parent, child, parentDetails } = this.state;
+  const { parent, child, parentDetails, back } = this.state;
   const qrData = this.props.navigation.getParam('qrData', undefined);
   const level = this.props.navigation.getParam('level', undefined);
   const mode = this.props.navigation.getParam('mode', undefined);
   const item = this.props.navigation.getParam('item', undefined);
+  const id = this.props.navigation.getParam('id', undefined);
+  console.log ('DataPage - level: ' + level, 'mode: ' + mode, 'id: ' + id, 'qrData: ' + qrData);
 
-  console.log(
-    qrData, level, mode, item
-  );
+  /*console.log(
+    qrData, level, mode, item, id
+  );*/
 
   let result = undefined;
   let details = undefined;
 
   if (level!==undefined && mode!==undefined){
-      if (mode==='Menu'){
+      if (mode==='Menu' && (qrData!==undefined || id!==undefined)){
           if (level === 'Frame'){
-            result = data;
-            details = _.map(
-                   _.toPairs(
-                     _.omitBy(result, (val, key) => key === 'children' || key === 'parent')
-                   ), d => _.fromPairs([d])
-                 );
+            //result = data;
+            //qrData!==undefined?result = _.find(data.children, { QR_code_id: qrData }):result = _.find(data.children, { id });
+            if (qrData!==undefined) {
+              if (data.QR_code_id===qrData){
+                result = data;
+                details = _.map(
+                       _.toPairs(
+                         _.omitBy(result, (val, key) => key === 'children' || key === 'parent')
+                       ), d => _.fromPairs([d])
+                     );
+              }
+            } else {
+              if (data.id===id){
+                result = data;
+                details = _.map(
+                       _.toPairs(
+                         _.omitBy(result, (val, key) => key === 'children' || key === 'parent')
+                       ), d => _.fromPairs([d])
+                     );
+            }
+          }
           } else if (level === 'Shelf'){
-            result = _.find(data.children, { QR_code_id: qrData });
+
+            qrData!==undefined?result = _.find(data.children, { QR_code_id: qrData }):result = _.find(data.children, { id });
             if (result!==undefined){
                 details = _.map(
                        _.toPairs(
@@ -78,22 +97,79 @@ initData (){
                        ), d => _.fromPairs([d])
                      );
           } else {
-            return console.log ('Children not found');
+            console.log ('Menu: Children not found');
           }
         } else {
-          return console.log (level + 'not found.')
+          console.log ('Menu: ' + level + ' not found.')
         }
     } else if (mode==='UpdateQR') {
+      /*result = _.find(data.children, { id });
+      result.QR_code_id = qrData;
+      details = _.map(
+               _.toPairs(
+                 _.omitBy(result, (val, key) => key === 'children' || key === 'parent')
+               ), d => _.fromPairs([d])
+             );*/
       result = item;
       result.QR_code_id = qrData;
       details = _.map(
-             _.toPairs(
-               _.omitBy(result, (val, key) => key === 'children' || key === 'parent')
-             ), d => _.fromPairs([d])
-           );
+               _.toPairs(
+                 _.omitBy(result, (val, key) => key === 'children' || key === 'parent')
+               ), d => _.fromPairs([d])
+             );
+    } else if (mode==='Transfer') {
+
+      let ne_id = '', ne_shelf = '', ne_slot = '', ne_port = '';
+
+      result = item;
+
+      ne_id = result.ne_id;
+      ne_shelf = result.ne_shelf;
+      ne_slot = result.ne_slot;
+      ne_port = result.ne_port;
+
+      //console.log (ne_id, ne_shelf, ne_slot, ne_port);
+
+      let temp = _.find(result.parent.children, { QR_code_id: qrData });
+      if (temp === undefined) {
+          Alert.alert('FLASH', 'Target Core QR Code is not valid.');
+      } else {
+        result.ne_id = temp.ne_id;
+        result.ne_shelf = temp.ne_shelf;
+        result.ne_slot = temp.ne_slot;
+        result.ne_port = temp.ne_port;
+
+        temp.ne_id = ne_id;
+        temp.ne_shelf = ne_shelf;
+        temp.ne_slot = ne_slot;
+        temp.ne_port = ne_port;
+
+        details = _.map(
+                 _.toPairs(
+                   _.omitBy(result, (val, key) => key === 'children' || key === 'parent')
+                 ), d => _.fromPairs([d])
+               );
+      }
     }
 }
 
+if (result===undefined) {
+  if (id!==undefined) {
+    //Alert.alert ('FLASH', 'No ' + {level} +' network element found for searched Id: ' + {id} + '. Please go back to Main Menu to retry.');
+    Alert.alert ('FLASH', `No ${level} network element found for searched Id: '${id}'. Please go back to Main Menu to retry.`);
+  } else if (qrData!==undefined){
+    Alert.alert ('FLASH', `No ${level} network element found for scanned QR. Please go back to Main Menu to retry.`);
+  } else {
+    Alert.alert ('FLASH', 'No network element found. Please go back to Main Menu to retry.');
+  }
+} else {
+  this.setState({
+    parent: result,
+    child: result.children,
+    back: result.parent,
+    parentDetails: details
+  })
+}
   /*if (qrData!==undefined){
     result = _.find(data, { QR_code_id: qrData });
     console.log ('parent:' + result);
@@ -117,12 +193,6 @@ initData (){
         }
     }
   }*/
-
-  this.setState({
-    parent: result,
-    child: result.children,
-    parentDetails: details
-  })
 }
 
 renderData = (parent, child, back, parentDetails) => {
@@ -317,11 +387,12 @@ renderParent () {
             {parent.QR_code_id === undefined || parent.QR_code_id === null || parent.QR_code_id === ""?
               <Button
                 renderDivider
-                onPress={() => this.props.navigation.navigate('Scan'), {
+                onPress={() => this.props.navigation.navigate('Scan', {
                   mode: 'UpdateQR',
+                  //id: parent.parent.id,
                   item: parent,
                   level: 'Core'
-                }}
+                })}
                 buttonText='Update QR Code'
                 iconName='qrcode'
                 iconType='font-awesome'
@@ -330,7 +401,12 @@ renderParent () {
             {parent.type === 'Core'?
               <Button
                 renderDivider
-                onPress={() => this.props.navigation.navigate('Scan')}
+                onPress={() => this.props.navigation.navigate('Scan', {
+                  mode: 'Transfer',
+                  //id: parent.parent.id,
+                  item: parent,
+                  level: 'Core'
+                })}
                 /*onPress={() => this.setState({
                   headerExpended: true,
                   headerMode: 'Transfer',
@@ -350,17 +426,47 @@ renderParent () {
             <QRCode value={parent.QR_code_id} size={50} />
           }
           </View>
-          <View style={{ paddingLeft: 10, justifyContent: 'center' }}>
+          {/*}<View style={{ paddingLeft: 10, justifyContent: 'center' }}>
             <Text><Text style={{ fontWeight: 'bold' }}>ID: </Text>{parent.id}</Text>
             {
               parent.QR_code_id===undefined || parent.QR_code_id=== null?
               <Text style={{ fontWeight: 'bold' }}>QR Code: <Text style={{ fontWeight: 'bold', color: 'red' }}>No QR Code</Text></Text>:
               <Text><Text style={{ fontWeight: 'bold' }}>QR Code: </Text>{parent.QR_code_id}</Text>
             }
-          </View>
+          </View>*/}
+          {this.renderHeaderMain()}
         </CardSection>
       </Card>
     )
+  }
+}
+
+renderHeaderMain () {
+  const { parent } = this.state;
+
+  if (parent.type === 'Core'){
+  return (
+        <View style={{ paddingLeft: 10, justifyContent: 'center' }}>
+          <Text><Text style={{ fontWeight: 'bold' }}>ID: </Text>{parent.id}</Text>
+          {
+            parent.QR_code_id===undefined || parent.QR_code_id=== null?
+            <Text style={{ fontWeight: 'bold' }}>QR Code: <Text style={{ fontWeight: 'bold', color: 'red' }}>No QR Code</Text></Text>:
+            <Text><Text style={{ fontWeight: 'bold' }}>QR Code: </Text>{parent.QR_code_id}</Text>
+          }
+          <Text><Text style={{ fontWeight: 'bold' }}>NE Id: </Text>{parent.ne_id}</Text>
+        </View>
+      )
+  } else {
+  return (
+        <View style={{ paddingLeft: 10, justifyContent: 'center' }}>
+          <Text><Text style={{ fontWeight: 'bold' }}>ID: </Text>{parent.id}</Text>
+          {
+            parent.QR_code_id===undefined || parent.QR_code_id=== null?
+            <Text style={{ fontWeight: 'bold' }}>QR Code: <Text style={{ fontWeight: 'bold', color: 'red' }}>No QR Code</Text></Text>:
+            <Text><Text style={{ fontWeight: 'bold' }}>QR Code: </Text>{parent.QR_code_id}</Text>
+          }
+        </View>
+      )
   }
 }
 
@@ -535,15 +641,36 @@ renderChild () {
 }
 
 renderItemChildren = ({ item, index }) => {
-  const title = <Text><Text style={{ fontWeight: 'bold' }}>ID: </Text>{item.id}</Text>;
+
+  let title = '';
+  if (item.type === 'Core'){
+  title=
+        <View>
+          <Text><Text style={{ fontWeight: 'bold' }}>ID: </Text>{item.id}</Text>
+          {item.QR_code_id===undefined || item.QR_code_id === null?
+            <Text style={{ fontWeight: 'bold' }}>QR Code: <Text style={{ fontWeight: 'bold', color: 'red' }}>No QR Code</Text></Text>:
+            <Text><Text style={{ fontWeight: 'bold' }}>QR Code: </Text>{item.QR_code_id}</Text>}
+          <Text><Text style={{ fontWeight: 'bold' }}>NE Id: </Text>{item.ne_id}</Text>
+        </View>;
+  } else {
+    title=
+        <View>
+          <Text><Text style={{ fontWeight: 'bold' }}>ID: </Text>{item.id}</Text>
+          {item.QR_code_id===undefined || item.QR_code_id=== null?
+            <Text style={{ fontWeight: 'bold' }}>QR Code: <Text style={{ fontWeight: 'bold', color: 'red' }}>No QR Code</Text></Text>:
+            <Text><Text style={{ fontWeight: 'bold' }}>QR Code: </Text>{item.QR_code_id}</Text>}
+        </View>;
+  }
+
+  /*const title = <Text><Text style={{ fontWeight: 'bold' }}>ID: </Text>{item.id}</Text>;
   const subtitle = item.QR_code_id===undefined || item.QR_code_id=== null?
     <Text style={{ fontWeight: 'bold' }}>QR Code: <Text style={{ fontWeight: 'bold', color: 'red' }}>No QR Code</Text></Text>:
-    <Text><Text style={{ fontWeight: 'bold' }}>QR Code: </Text>{item.QR_code_id}</Text>;
+    <Text><Text style={{ fontWeight: 'bold' }}>QR Code: </Text>{item.QR_code_id}</Text>;*/
 
   return (
     <ListItem
       title={title}
-      subtitle={subtitle}
+      //subtitle={subtitle}
       leftIcon={{ name: 'level-down', type: 'entypo', color:'#ff9a1e', style:{ opacity: (200-index)/200 }}}
       //containerStyle={index%2?{ borderBottomWidth: 0, backgroundColor: '#f5f5f5' }:{ borderBottomWidth: 0, backgroundColor: '#fff' }}
       containerStyle={{ borderBottomWidth: 0, backgroundColor: '#fff' }}

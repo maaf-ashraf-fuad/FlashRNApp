@@ -6,7 +6,7 @@ export default class SearchText extends React.Component {
 
   render() {
     return (
-        <View 
+        <View
         style={styles.container}>
         <StatusBar barStyle = 'dark-content'>
         </StatusBar>
@@ -15,7 +15,7 @@ export default class SearchText extends React.Component {
         placeholder='Enter Value Want to Search'
         placeholderTextColor='rgba(255,0,0,0.8)'
         returnKeyType='go'
-        style={styles.searchinput} 
+        style={styles.searchinput}
         autoCapitalize = "none"
         autoCorrect={false}
         onSubmitEditing={this._submitValue}
@@ -38,10 +38,10 @@ state = {
     const navigate = this.props.navigation;
     const { searchinput} = this.state
     // validate the user input not null
-    if (this.state.searchinput =='') 
+    if (this.state.searchinput =='')
     {
         Alert.alert('FLASH','Please input value that need to search')
-    } 
+    }
    else {
        //To validate perform search on the based on SOA rest API
        console.log(searchinput)
@@ -51,8 +51,8 @@ state = {
         {text: 'OK', onPress: () => navigate('DataPage')},
       ],
       { cancelable: false })
-       
-        
+
+
    }
   }
 }

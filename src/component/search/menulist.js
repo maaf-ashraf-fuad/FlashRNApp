@@ -6,27 +6,26 @@ export default class MenuList extends React.Component {
 
   render() {
     return (
-        <View 
+        <View
         style={styles.container}>
         <StatusBar barStyle = 'dark-content'>
         </StatusBar>
 
-        <TouchableOpacity style={styles.buttonsearch}
+        <TouchableOpacity style={styles.buttonsearch} onPress={() => this._submitValue('Frame')}
         >
-            <Text style={styles.searchText}
-            onPress={this._submitValue}>Frame ID</Text>
+            <Text style={styles.searchText}>Frame</Text>
         </TouchableOpacity>
         <Text> </Text>
         <TouchableOpacity style={styles.buttonsearch}
         >
             <Text style={styles.searchText}
-            onPress={this._submitValue}>Frame Unit ID</Text>
+            onPress={() => this._submitValue('Shelf')}>Shelf</Text>
         </TouchableOpacity>
         <Text> </Text>
         <TouchableOpacity style={styles.buttonsearch}
         >
             <Text style={styles.searchText}
-            onPress={this._submitValue}>NE ID</Text>
+            onPress={() => this._submitValue('NE Id')}>NE ID</Text>
         </TouchableOpacity>
         <Text> </Text>
         </View>
@@ -36,12 +35,12 @@ state = {
     searchinput: ''
   }
 
-  _submitValue = () => {
+  _submitValue = (level) => {
     const navigate = this.props.navigation;
-      navigate('Search') ;
-      console.log('Test')  
+      navigate('Search', { mode: 'Menu', level }) ;
+      console.log('Test')
    }
-  
+
 }
 
 
