@@ -9,7 +9,7 @@ import Router from './src/component/router/router';
 import Login from './src/component/login/login';
 import Splash from './src/component/splash/splash';
 import SearchInput from './src/component/search/searchinput';
-import DataPage from './src/component/datapage/DataPage';
+import DataPage from './src/component/DataPage/DataPage';
 import ScanScreen from './src/component/scan/scanqr1';
 import TESTSOA from './src/component/splash/testsoa';
 
