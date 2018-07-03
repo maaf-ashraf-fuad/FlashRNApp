@@ -6,7 +6,7 @@ import Splash from '../splash/splash';
 import Login from '../login/login';
 import SearchInput from '../search/searchinput';
 import Menu from '../search/menu';
-import DataPage from '../datapage/DataPage';
+import DataPage from '../DataPage/DataPage';
 import ScanScreen from '../scan/scanqr1';
 import {ScreenOrientation} from 'expo';
 

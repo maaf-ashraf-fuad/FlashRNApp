@@ -3,6 +3,7 @@
   "type": "Frame",
   "name": "PUJ_ODF001",
   "QR_code_id": "QRFrame01",
+  "Location": "Grd Floor",
   "children":
   [
     {
@@ -40,7 +41,7 @@
             "ne_slot": "2",
             "ne_port": "0",
             "cct_name": "",
-            "QR_code_id": "QRPair02",
+            "QR_code_id": "QRCore02",
             "cable_core_id": "34",
             "cable_name": "BUG_F02",
             "cable_core_no": "3"
@@ -56,7 +57,7 @@
             "ne_slot": "3",
             "ne_port": "0",
             "cct_name": "",
-            "QR_code_id": "QRPair03",
+            "QR_code_id": "QRCore03",
             "cable_core_id": "35",
             "cable_name": "BUG_F03",
             "cable_core_no": "2"
@@ -83,7 +84,7 @@
           "ne_slot": "1",
           "ne_port": "0",
           "cct_name": "",
-          "QR_code_id": "QRPair04",
+          "QR_code_id": "QRCore04",
           "cable_core_id": "37",
           "cable_name": "BUG_F05",
           "cable_core_no": "3"
@@ -99,7 +100,7 @@
           "ne_slot": "2",
           "ne_port": "0",
           "cct_name": "",
-          "QR_code_id": "QRPair05",
+          "QR_code_id": "QRCore05",
           "cable_core_id": "35",
           "cable_name": "BUG_F06",
           "cable_core_no": "3"

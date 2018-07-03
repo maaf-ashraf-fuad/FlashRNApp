@@ -156,12 +156,13 @@ initData (){
 if (result===undefined) {
   if (id!==undefined) {
     //Alert.alert ('FLASH', 'No ' + {level} +' network element found for searched Id: ' + {id} + '. Please go back to Main Menu to retry.');
-    Alert.alert ('FLASH', `No ${level} network element found for searched Id: '${id}'. Please go back to Main Menu to retry.`);
+    Alert.alert ('FLASH', `No ${level} network element found for searched Id: '${id}'. Kindly retry.`);
   } else if (qrData!==undefined){
-    Alert.alert ('FLASH', `No ${level} network element found for scanned QR. Please go back to Main Menu to retry.`);
+    Alert.alert ('FLASH', `No ${level} network element found for scanned QR. Kindly retry.`);
   } else {
-    Alert.alert ('FLASH', 'No network element found. Please go back to Main Menu to retry.');
+    Alert.alert ('FLASH', 'No network element found. Kindly retry.');
   }
+  //this.props.navigation.navigate('Menu');
 } else {
   this.setState({
     parent: result,
@@ -444,16 +445,28 @@ renderParent () {
 renderHeaderMain () {
   const { parent } = this.state;
 
-  if (parent.type === 'Core'){
+  if (parent.type === 'Frame'){
   return (
         <View style={{ paddingLeft: 10, justifyContent: 'center' }}>
+          <Text><Text style={{ fontWeight: 'bold' }}>Name: </Text>{parent.name}</Text>
           <Text><Text style={{ fontWeight: 'bold' }}>ID: </Text>{parent.id}</Text>
           {
             parent.QR_code_id===undefined || parent.QR_code_id=== null?
             <Text style={{ fontWeight: 'bold' }}>QR Code: <Text style={{ fontWeight: 'bold', color: 'red' }}>No QR Code</Text></Text>:
             <Text><Text style={{ fontWeight: 'bold' }}>QR Code: </Text>{parent.QR_code_id}</Text>
           }
+        </View>
+      )
+  } else if (parent.type === 'Core'){
+  return (
+        <View style={{ paddingLeft: 10, justifyContent: 'center' }}>
+          <Text><Text style={{ fontWeight: 'bold' }}>ID: </Text>{parent.id}</Text>
           <Text><Text style={{ fontWeight: 'bold' }}>NE Id: </Text>{parent.ne_id}</Text>
+          {
+            parent.QR_code_id===undefined || parent.QR_code_id=== null?
+            <Text style={{ fontWeight: 'bold' }}>QR Code: <Text style={{ fontWeight: 'bold', color: 'red' }}>No QR Code</Text></Text>:
+            <Text><Text style={{ fontWeight: 'bold' }}>QR Code: </Text>{parent.QR_code_id}</Text>
+          }
         </View>
       )
   } else {
@@ -647,10 +660,11 @@ renderItemChildren = ({ item, index }) => {
   title=
         <View>
           <Text><Text style={{ fontWeight: 'bold' }}>ID: </Text>{item.id}</Text>
+          <Text><Text style={{ fontWeight: 'bold' }}>NE Id: </Text>{item.ne_id}</Text>
           {item.QR_code_id===undefined || item.QR_code_id === null?
             <Text style={{ fontWeight: 'bold' }}>QR Code: <Text style={{ fontWeight: 'bold', color: 'red' }}>No QR Code</Text></Text>:
-            <Text><Text style={{ fontWeight: 'bold' }}>QR Code: </Text>{item.QR_code_id}</Text>}
-          <Text><Text style={{ fontWeight: 'bold' }}>NE Id: </Text>{item.ne_id}</Text>
+            <Text><Text style={{ fontWeight: 'bold' }}>QR Code: </Text>{item.QR_code_id}</Text>
+          }
         </View>;
   } else {
     title=
