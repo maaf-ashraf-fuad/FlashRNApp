@@ -1,7 +1,6 @@
 import React from 'react';
 import { StyleSheet, TextInput, Text, View, Image, KeyboardAvoidingView, TouchableOpacity, AsyncStorage } from 'react-native';
-import { Header } from 'react-native-elements';
-import SearchText from './searchtext';
+
 
 export default class SearchInput extends React.Component {
 
@@ -43,7 +42,7 @@ export default class SearchInput extends React.Component {
       <View style={styles.container}>
         <KeyboardAvoidingView behavior="padding" style={styles.container}>
           <View style={styles.searchcontainer}>
-            <Text style={styles.keytext}>I Want to Search for</Text>
+            
             <View style={{ padding: 30 }}>
               <TextInput
                 //placeholder='FRAME ID / SHELF ID / CORE ID'
@@ -74,18 +73,18 @@ export default class SearchInput extends React.Component {
               <Image
                 style={styles.qricon}
                 source={require('../../img/qricon.png')} /></TouchableOpacity>
-            <Text style={styles.keytext}>I Want to Scan A QR Code</Text>
+            
             <Text style={styles.keytext}> </Text>
             <Text style={styles.keytext}> </Text>
-            <Text onPress={this._logout}>Back</Text>
+            <Text onPress={this._return}>Cancel</Text>
           </View>
         </KeyboardAvoidingView>
       </View>
     );
   }
-  _logout = () => {
+  _return = () => {
 
-    AsyncStorage.clear();
+    //AsyncStorage.clear();
     this.props.navigation.navigate('Menu');
 
   }

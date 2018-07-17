@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert, } from 'rea
 
 export default class LoginForm extends React.Component {
   render() {
-    
+
     return (
       <View
         style={styles.container}>
@@ -46,8 +46,8 @@ export default class LoginForm extends React.Component {
     f_name: '',
   }
 
-  _entermenu= () => {
-    
+  _entermenu = () => {
+
   }
   _submitForm = () => {
     const navigate = this.props.navigation;
@@ -81,46 +81,47 @@ export default class LoginForm extends React.Component {
             return;
           }
           else {
-           f_name = responseJson.fullName;
-              //SOA Check
-      fetch('http://10.54.1.21:8001/FLASH/verifyAccess/Proxy_Services/PS_Flash_verifyAccess2',
-      {
-        method: 'POST',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(
-          {
-            STAFF_ID: f_user,
-          }
-        )
-      })
-      
-      .then((response) => response.json())
-      .then((responseJson) => {
-        console.log(responseJson);
-        console.log(responseJson.xmlns);
-        console.log(responseJson["ns2:ErrorCode"]);
-        if (responseJson["ns2:ErrorCode"]== '01') {
-          Alert.alert("Flash", f_name + ", Kindly Contact Your System Admin");
-          return;
-        }
-        else {
-           Alert.alert("Welcome", f_name,
-            [
+            f_name = responseJson.fullName;
+            //SOA Check
+            fetch('http://58.27.85.176/FLASH/VerifyUser',
               {
-                text: 'OK', onPress: () => navigate('Menu')
-              }
-            ]
-          );
-        }
-      })
-      .catch((error) => {
-        console.error(error);
-      })
-      .done()
-      //End SoA CHECK
+                method: 'POST',
+                headers: {
+                  Accept: 'application/json',
+                  'Content-Type': 'application/json',
+                  'Authorization': 'Basic RkxBU0g6ZjE0NWg=',
+                },
+                body: JSON.stringify(
+                  {
+                    STAFF_ID: f_user,
+                  }
+                )
+              })
+
+              .then((response) => response.text())
+              .then((responseJson) => {
+                console.log(responseJson);
+                console.log(responseJson.xmlns);
+                console.log(responseJson["ns2:ErrorCode"]);
+                if (responseJson["ns2:ErrorCode"] == '01') {
+                  Alert.alert("Flash", f_name + ", Kindly Contact Your System Admin");
+                  return;
+                }
+                else {
+                  Alert.alert("Welcome", f_name,
+                    [
+                      {
+                        text: 'OK', onPress: () => navigate('Menu')
+                      }
+                    ]
+                  );
+                }
+              })
+              .catch((error) => {
+                console.error(error);
+              })
+              .done()
+            //End SoA CHECK
           }
         })
         .catch((error) => {
@@ -135,8 +136,8 @@ export default class LoginForm extends React.Component {
 const styles = StyleSheet.create({
   container: {
     padding: 20,
-    flex:1,
-    justifyContent:'center',
+    flex: 1,
+    justifyContent: 'center',
 
   },
   logininput: {

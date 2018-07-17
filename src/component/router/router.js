@@ -8,24 +8,25 @@ import SearchInput from '../search/searchinput';
 import Menu from '../search/menu';
 import DataPage from '../DataPage/DataPage';
 import ScanScreen from '../scan/scanqr1';
-import {ScreenOrientation} from 'expo';
+import { ScreenOrientation } from 'expo';
+//import LoginForm from '../splash/testsoa';
 
 //routerstack
 const Application = createStackNavigator({
     Home: { screen: Splash },
     Login: { screen: Login },
     Menu: { screen: Menu },
-    Search:{ screen: SearchInput },
+    Search: { screen: SearchInput },
     DataPage: { screen: DataPage },
-    Scan: { screen: ScanScreen},
-    AddScan: { screen: Splash},
+    Scan: { screen: ScanScreen },
+    AddScan: { screen: Splash },
     //Home: { screen: Login },
     //Menu: { screen: SearchInput, title:'Menu'},
     //Scan: { screen: ScanScreen},
     //DataPage: { screen: DataPage },
 },
     {
-        initialRouteName: 'Menu',
+        initialRouteName: 'Home',
         headerMode: 'none',
         //navigationOptions: {
         //    header: false,
@@ -41,10 +42,10 @@ const Application = createStackNavigator({
 );
 // create a component
 export default class Router extends React.Component {
-  constructor(props) {
-    super(props);
-    ScreenOrientation.allow (ScreenOrientation.Orientation.PORTRAIT_UP);
-  }
+    constructor(props) {
+        super(props);
+        ScreenOrientation.allow(ScreenOrientation.Orientation.PORTRAIT_UP);
+    }
     render() {
         return <Application />;
     }

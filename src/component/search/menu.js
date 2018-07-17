@@ -39,6 +39,15 @@ export default class SearchInput extends React.Component {
                  <Button border buttonText='NE Id' onPress={() => Alert.alert ('FLASH', 'This function is not yet implemented :(')}/>
             </View>
           </View>
+                 <Button border buttonText='Logout' onPress={() => Alert.alert(
+  'Flash',
+  'Are sure you want to Logout?',
+  [
+    {text: 'No', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+    {text: 'Yes', onPress: () => this._logout()},
+  ],
+  { cancelable: false }
+)}/>
           <View style={{ flex: 2 }} />
           </View>
       {/*<View style={styles.container}>
@@ -65,7 +74,7 @@ export default class SearchInput extends React.Component {
   _logout= () => {
 
     AsyncStorage.clear();
-    this.props.navigation.navigate('Login')
+    this.props.navigation.navigate('Home')
 
   }
 }

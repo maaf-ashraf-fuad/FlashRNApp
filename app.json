@@ -2,7 +2,7 @@
   "expo": {
     "sdkVersion": "27.0.0",
     "name": "FLASH@TM",
-    "icon": "./src/icon.png",
+    "icon": "./src/img/icon.png",
     "version": "0.0.1",
     "slug": "your-app-slug",
     "ios": {

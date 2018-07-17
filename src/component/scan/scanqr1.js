@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Dimensions, StyleSheet, Text, View } from 'react-native';
-import { BarCodeScanner } from 'expo';
+import { BarCodeScanner,Permissions } from 'expo';
 
 
 export default class ScanScreen extends Component {
@@ -12,6 +12,17 @@ export default class ScanScreen extends Component {
       maskColWidth: (width - 300) / 2
     };
   }
+
+  componentDidMount() {
+    this._requestCameraPermission();
+  }
+
+  _requestCameraPermission = async () => {
+    const { status } = await Permissions.askAsync(Permissions.CAMERA);
+    this.setState({
+      hasCameraPermission: status === 'granted',
+    });
+  };
 
   render() {
     const { maskRowHeight, maskColWidth } = this.state;
