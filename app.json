@@ -4,7 +4,7 @@
     "name": "FLASH@TM",
     "icon": "./src/img/icon.png",
     "version": "0.0.1",
-    "slug": "your-app-slug",
+    "slug": "TM_FLASH",
     "ios": {
       "bundleIdentifier": "com.TM.FLASH"
     },
