@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { Dimensions, StyleSheet, Text, View } from 'react-native';
-import { BarCodeScanner,Permissions } from 'expo';
+import { Dimensions, StyleSheet, Text, View, } from 'react-native';
+import { BarCodeScanner, Permissions } from 'expo';
 
 
 export default class ScanScreen extends Component {
@@ -30,25 +30,47 @@ export default class ScanScreen extends Component {
     const id = this.props.navigation.getParam('id', undefined);
     const mode = this.props.navigation.getParam('mode', undefined);
     const item = this.props.navigation.getParam('item', undefined);
-    console.log ('scanqr - level: ' + level, 'mode: ' + mode, 'id: ' + id);
+    console.log('scanqr - level: ' + level, 'mode: ' + mode, 'id: ' + id);
 
     return (
-      <BarCodeScanner
-        onBarCodeRead={(scan) => this.props.navigation.navigate('DataPage', { qrData: scan.data, level, id, item, mode } )}
-        style={ styles.container }
-        barCodeTypes={[BarCodeScanner.Constants.BarCodeType.qr]}
-      >
-        <View style={styles.maskOutter}>
-          <View style={[{ flex: maskRowHeight  }, styles.maskRow, styles.maskFrame]} />
-          <View style={[{ flex: 30 }, styles.maskCenter]}>
-            <View style={[{ width: maskColWidth }, styles.maskFrame]} />
-            <View style={styles.maskInner} />
-            <View style={[{ width: maskColWidth }, styles.maskFrame]} />
-          </View>
-          <View style={[{ flex: maskRowHeight }, styles.maskRow, styles.maskFrame]} />
+      <View style={styles.container}>
+       <View style={styles.topBar}/>
+        <View style={styles.topBar}>
+          <Text style={styles.cancelButtonText}>
+            KINDLY POINT YOUR
+          </Text>
         </View>
-      </BarCodeScanner>
+        <View style={styles.topBar}>
+          <Text style={styles.cancelButtonText}>
+            QR CODE TO THE BOX
+          </Text>
+        </View>
 
+        <BarCodeScanner
+          onBarCodeRead={(scan) => this.props.navigation.navigate('DataPage', { qrData: scan.data, level, id, item, mode })}
+          style={styles.barcode}
+          barCodeTypes={[BarCodeScanner.Constants.BarCodeType.qr]}
+        >
+
+          <View style={styles.maskOutter}>
+            <View style={[{ flex: maskRowHeight }, styles.maskRow, styles.maskFrame]} />
+            <View style={[{ flex: 30 }, styles.maskCenter]}>
+              <View style={[{ width: maskColWidth }, styles.maskFrame]} />
+              <View style={styles.maskInner} />
+              <View style={[{ width: maskColWidth }, styles.maskFrame]} />
+            </View>
+            <View style={[{ flex: maskRowHeight }, styles.maskRow, styles.maskFrame]} />
+          </View>
+          <View style={styles.bottomBar} 
+        //onPress={this.props.navigation.navigate())
+        >
+            <Text style={styles.cancelButtonText}>
+              SWIPE TO CANCEL
+          </Text>
+        </View>
+        </BarCodeScanner>
+       
+      </View>
     );
   }
 }
@@ -56,6 +78,35 @@ export default class ScanScreen extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  cancelButton: {
+    marginLeft: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  barcode: {
+    flex: 1,
+  },
+  bottomBar: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'white',
+    padding: 15,
+    flexDirection: 'row',
+    justifyContent:'center',
+  },
+  topBar: {
+    position: 'relative',
+    top: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'white',
+    padding: 15,
+    flexDirection: 'row',
+    justifyContent:'center',
+    alignItems:'center',
   },
   cameraView: {
     flex: 1,

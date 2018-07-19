@@ -76,7 +76,7 @@ export default class SearchInput extends React.Component {
             
             <Text style={styles.keytext}> </Text>
             <Text style={styles.keytext}> </Text>
-            <Text onPress={this._return}>Cancel</Text>
+            <Text onPress={this._return} style={styles.description}> Cancel </Text>
           </View>
         </KeyboardAvoidingView>
       </View>
@@ -97,6 +97,12 @@ const styles = StyleSheet.create({
     flex: 2,
     backgroundColor: '#FFC312',
     justifyContent: 'center',
+  },
+  description: {
+    color: '#FFFF',
+    fontSize: 25,
+    fontWeight: '300',
+    textAlign: 'center',
   },
   searchcontainer: {
     justifyContent: 'center',
