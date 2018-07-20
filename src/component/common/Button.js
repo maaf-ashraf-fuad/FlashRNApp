@@ -4,10 +4,6 @@ import { Icon, Divider } from 'react-native-elements';
 
 class Button extends Component {
 
-setRef(ref) {
-        this.inputRef = ref;
-    }
-
 render() {
   const {
     onPress,

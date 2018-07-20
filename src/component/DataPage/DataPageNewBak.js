@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Header, ListItem, Text, Icon} from 'react-native-elements';
+import { Popover } from 'react-native-modal-popover';
 import {
   findNodeHandle,
   NativeModules,
@@ -21,9 +22,8 @@ import QRCode from 'react-native-qrcode-svg';
 import _ from 'lodash';
 import { Card, CardSection, Button } from '../common';
 import Parent from './Parent';
-import Children from './Children';
 import { connect } from 'react-redux';
-import { frameFetch, shelfFetch  } from '../../actions';
+import { frameFetch } from '../../actions';
 
 //const { UIManager } = NativeModules;
 //NativeModules.UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -32,11 +32,7 @@ class  DataPage extends Component {
 
   constructor(props) {
     super(props);
-    this.props.frameFetch('PUJ1_FDFRW4_V3','');
-    //this.props.frameFetch('PUJ_ODF003','');
-    //this.props.shelfFetch('30768','');
-    //this.props.shelfFetch('30364','');
-    //NE Id: PUJ_F999_OHC1
+    this.props.frameFetch('PUJ_ODF006','');
     this.state = {
       parent: undefined,
       child: undefined,
@@ -48,13 +44,16 @@ class  DataPage extends Component {
       editCore: { ne_id: '', ne_shelf: '', ne_slot: '', ne_port: '', cct_name: '', status: '' }
   }}
 
-  /*componentWillReceiveProps(nextProps) {
-        this.setState({ parent: nextProps.parent, child: nextProps.child });//console.log(nextProps.parent);
-  }*/
+  componentWillMount(){
+    //console.log('Fetching');
+  }
+
+  componentWillReceiveProps(nextProps) {
+        this.setState({ parent: nextProps.parent });//console.log(nextProps.parent);
+  }
 
   render(){
-    console.log('Render: DataPage');
-    //console.log(this.props);
+    console.log('Render');
     return (
       <KeyboardAvoidingView behavior='padding' style={{ flex: 1, backgroundColor:'#f5f5f5' }}>
           <Image source= { require('../../img/bg2.png')} style= {{ position:'absolute', top: 68, resizeMode: 'cover'}} />
@@ -67,9 +66,10 @@ class  DataPage extends Component {
             //rightComponent={{ icon: 'home', color: '#fff' }}
             //rightComponent={ this.renderHeaderHome() }
           />
-          { this.props.parent && <Parent /> }
-          { this.props.child && <Children /> }
-          <View style={{ height: 36 }} />
+          { this.state.parent?
+            <Parent parent={this.state.parent} />:
+            null
+          }
         </KeyboardAvoidingView>
     )
   }
@@ -83,4 +83,4 @@ const mapStateToProps = (state) => {
   return state.data;
 };
 
-export default connect(mapStateToProps, { frameFetch, shelfFetch })(DataPage);
+export default connect(mapStateToProps, { frameFetch })(DataPage);

@@ -1,4 +1,8 @@
 import React, { Component } from 'react';
+import { Provider } from 'react-redux';
+import { createStore, applyMiddleware } from 'redux';
+import ReduxThunk from 'redux-thunk';
+import reducers from './src/reducers';
 import {
   Platform,
   StyleSheet,
@@ -13,12 +17,14 @@ import DataPage from './src/component/DataPage/DataPage';
 import ScanScreen from './src/component/scan/scanqr1';
 import TESTSOA from './src/component/splash/testsoa';
 
-export default class App extends React.Component {
+export default class App extends Component {
   render() {
+    const store = createStore(reducers, {}, applyMiddleware(ReduxThunk));
+
     return (
-      <Router />
-      //<ScanScreen />
-      //<DataPage />
+      <Provider store={store}>
+        <DataPage />
+      </Provider>
     );
   }
 }
