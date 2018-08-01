@@ -1,114 +1,127 @@
-import React from 'react';
-import { StyleSheet, Text, View, Image,KeyboardAvoidingView,TouchableOpacity, AsyncStorage, Alert} from 'react-native';
-import { Header } from 'react-native-elements';
-import MenuList from './menulist';
-import { Button } from '../common';
+import React, { component } from 'react';
+import {
+  StyleSheet,
+  Text,
+  View,
+  Image,
+  KeyboardAvoidingView,
+  TouchableOpacity,
+  Picker,
+  AsyncStorage,
+  Alert
+} from 'react-native';
+import {FormLabel, FormInput, FormValidationMessage} from 'react-native-elements';
+import { Button, Card, CardSection } from '../common';
+import { Type } from '../DataPage/types';
+import { connect } from 'react-redux';
+import { fetchHelper, setMenuState, logout } from '../../actions';
 
-export default class SearchInput extends React.Component {
-  render() {
-    const {navigate} = this.props.navigation;
+class menu extends React.Component {
+
+  componentDidMount(){
+    //this.props.setMenuState({ searchText: 'PUJ1_FDFRW4_V3' });
+    this.props.navigation.setParams({ logout: this.props.logout });
+  }
+
+  static navigationOptions = ({navigation}) => {
+    const { logout } = navigation.state.params;
+    //console.log(navigation.state.params);
+    const onPress = () => {
+      //console.log(back);
+      logout&&logout();
+      //navigation.goBack();
+
+      //fetchHelper({ action: { type: 'push', routeName: 'DataPage' }, next: { type: searchType, id: searchText }, back: { type: 'Reset' }});
+    }
+    return ({
+      headerRight: (
+        <Button iconName='sign-out' iconType='octicon' iconColor='#fff' iconStyle={{ marginRight: 15 }} onPress={onPress} />
+      )
+    })
+  };
+
+  handleSearchTypeInput = (searchType) => this.props.setMenuState({searchType});
+
+  handleSearchTextInput = (searchText) => this.props.setMenuState({searchText});
+
+  handleSearchButtonPress = () => {
+    const {navigation, fetchHelper, searchType, searchText, error} = this.props;
+    //fetchHelper({type: searchType, id: searchText });
+    fetchHelper({ action: { type: 'push', routeName: 'DataPage' }, next: { type: searchType, id: searchText }, back: { type: 'Reset' }});
+    /*if (searchText === ''||searchText === null){
+      navigation.navigate('DataPage', { next: { type: searchType, id: searchText }, back: { type: 'Reset' }, fetchHelper });
+    }*/
+  }
+
+  handleQRButtonPress = () => this.props.navigation.navigate('Scan', { next: {type: this.props.searchType}});
+
+  render(){
+    const { searchType, searchText, error, loading } = this.props;
+    //console.log(this.props);
     return (
-      <View style={{ flex:1, backgroundColor:'#FFC312', justifyContent: 'space-between', flexDirection: 'column'}} >
-        <Image source= { require('../../img/bg2.png')} style= {{ position:'absolute', top: 68, resizeMode: 'cover'}} />
-        <Header
-          backgroundColor='#d03c1b'
-          outerContainerStyles={{ borderBottomWidth:0 }}
-          //leftComponent={{ icon: 'back', color: '#fff' }}
-          centerComponent={<Image source={ require('../../img/flash.png') }
-          style={{ resizeMode: 'stretch', height: 20, width: 100 }}/>}
-          //rightComponent={{ icon: 'home', color: '#fff' }}
-          //rightComponent={ this.renderHeaderHome() }
-        />
-        <View style={{ flex:1, justifyContent: 'space-between', flexDirection: 'column'}} >
-          <View style={{ flex:1 }} />
-          <View style={{ flex: 2, flexDirection: 'column', justifyContent: 'space-between' }} >
-            <Text style={styles.keytext}>Start With</Text>
-            <View style={{ flex: 2, flexDirection: 'column', justifyContent: 'space-around', paddingLeft: 30, paddingRight: 30}} >
-              <Button border buttonText='Frame' onPress={() => this.props.navigation.navigate('Search', {
-                 mode: 'Menu',
-                 level: 'Frame'
-               })}/>
-               <Button border buttonText='Shelf' onPress={() => this.props.navigation.navigate('Search', {
-                  mode: 'Menu',
-                  level: 'Shelf'
-                })}/>
-                {/*<Button border buttonText='NE Id' onPress={() => this.props.navigation.navigate('Search', {
-                   mode: 'Menu',
-                   level: 'NE Id'
-                 })}/>*/}
-                 <Button border buttonText='NE Id' onPress={() => Alert.alert ('FLASH', 'This function is not yet implemented :(')}/>
+        <KeyboardAvoidingView enabled behavior='padding' style={{ flex: 1, backgroundColor:'#ffd294' }}>
+        <Image source= { require('../../img/bg2.png')} style= {{ position: 'absolute', top: -5, resizeMode: 'cover'}} />
+          <Card style={{ marginTop: 75, borderRadius: 5, paddingBottom: 20 }}>
+            <CardSection style={{ padding: 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#ecedf2' }}>
+              <Text style={{ fontSize: 16 }}>Search Type:</Text>
+              <Picker
+                selectedValue={searchType}
+                style={{ height: 50, width: 110 }}
+                onValueChange={this.handleSearchTypeInput}>
+                <Picker.Item label='Frame' value='Frame' />
+                <Picker.Item label='Shelf' value='Shelf' />
+                <Picker.Item label='NE' value='NE' />
+              </Picker>
+            </CardSection>
+            <View>
+              <View style={{ height: 150, justifyContent: 'space-between', marginHorizontal: 20 }}>
+                <FormLabel labelStyle={{ fontSize: 14 }}>{searchType} {searchType==='Frame'?'Name':'ID'}</FormLabel>
+                <FormInput
+                  value={searchText}
+                  inputStyle={{ paddingLeft: 5 }}
+                  underlineColorAndroid='black'
+                  placeholder={Type[searchType].menuPlaceholder}
+                  onChangeText={this.handleSearchTextInput}
+                  returnKeyType='go'
+                  keyboardType={searchType==='Shelf'?'numeric':'default'}
+                  //style={{ marginBottom: 0 }}
+                  autoCapitalize = 'none'
+                  autoCorrect={false}
+                  clearButtonMode='always'
+                  onSubmitEditing={this.handleSearchButtonPress}
+                />
+                <FormValidationMessage containerStyle={{ marginBottom: 10}} labelStyle={{ textAlign: 'center' }}>{error}</FormValidationMessage>
+                <Button border loading={loading} disabled={loading}
+                  buttonStyle={{ margin: 15, borderRadius: 10 }}
+                  buttonText='Search'
+                  onPress={this.handleSearchButtonPress}
+                />
+              </View>
+              {searchType === 'NE'?null:
+                <View style={{ justifyContent: 'space-between', alignItems: 'center', margin: 5, marginHorizontal: 25 }}>
+                  <Text style={{ textAlign: 'center', fontSize: 25, fontWeight: 'bold', marginBottom: 15 }}>
+                    ------------ or ------------
+                  </Text>
+                  <TouchableOpacity onPress={this.handleQRButtonPress}>
+                    <Image style={{ height: 100, width: 100, alignItems: 'center'}}
+                      source={require('../../img/qricon.png')}
+                    />
+                  </TouchableOpacity>
+                </View>
+              }
             </View>
-          </View>
-                 <Button border buttonText='Logout' onPress={() => Alert.alert(
-  'Flash',
-  'Are sure you want to Logout?',
-  [
-    {text: 'No', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-    {text: 'Yes', onPress: () => this._logout()},
-  ],
-  { cancelable: false }
-)}/>
-          <View style={{ flex: 2 }} />
-          </View>
-      {/*<View style={styles.container}>
-
-        <View style={styles.searchcontainer}>
-                <Text style={styles.keytext}>Start With</Text>
-                <MenuList navigation={navigate}/>
-                <Button border buttonText='Frame' onPress={() => this.props.navigation.navigate('Search', {
-                   mode: 'Menu',
-                   level: 'Frame'
-                 })}/>
-                </View>
-                <View style={styles.searchcontainer}>
-                <Text style={styles.keytext}></Text>
-                <Text style={styles.keytext}></Text>
-                </View>
-                <View style={styles.qrcontainer}>
-                <Text onPress={this._logout}>Logout</Text>
-                </View>
-      </View>*/}
-      </View>
-    );
-  }
-  _logout= () => {
-
-    AsyncStorage.clear();
-    this.props.navigation.navigate('Home')
-
+          </Card>
+        </KeyboardAvoidingView>
+    )
   }
 }
 
+const mapStateToProps = (state) => {
+  const { searchText, searchType, error, loading } = state.data;
+  //let data = _.omitBy(state.data, (val, key) => key === 'ns2:LIST_FRAME_UNIT' || key === 'parent');
+  //data = _.mapKeys(data, (val, key) => key.replace('ns2:',''));
+  //const a = state.data['ns2:LONGITUDE'];
+  return { searchText, searchType, error, loading };
+};
 
-
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: '#FFC312',
-    justifyContent: 'center',
-    flexDirection: 'column',
-  },
-  searchcontainer: {
-    justifyContent: 'center',
-    backgroundColor: '#FFC312',
-    marginBottom: 20,
-},
-qrcontainer: {
-    justifyContent: 'center',
-    alignItems:'center',
-    backgroundColor: '#FFC312',
-    marginBottom:20,
-},
- keytext:{
-    flex:1,
-     textAlign:'center',
-     fontSize:25,
-     fontWeight:'bold'
-
- },
- qricon:{
-    height:100,
-    width:100,
-    alignItems: 'center',
-    marginBottom:5,
-}
-});
+export default connect(mapStateToProps, { fetchHelper, setMenuState, logout })(menu);

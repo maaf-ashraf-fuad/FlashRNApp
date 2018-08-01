@@ -1,5 +1,6 @@
 import React from 'react';
 import { StyleSheet, TextInput, Text, View, Image, KeyboardAvoidingView, TouchableOpacity, AsyncStorage } from 'react-native';
+import { Card, CardSection, Button } from '../common';
 
 
 export default class SearchInput extends React.Component {
@@ -39,18 +40,17 @@ export default class SearchInput extends React.Component {
     console.log ('searchinput - level: ' + level, 'mode: ' + mode, 'id: ' + id);
 
     return (
-      <View style={styles.container}>
-        <KeyboardAvoidingView behavior="padding" style={styles.container}>
+      <View >//style={styles.container}>
+        <Image source= { require('../../img/bg2.png')} style= {{ position: 'absolute', top: -5, resizeMode: 'cover'}} />
           <View style={styles.searchcontainer}>
-            
-            <View style={{ padding: 30 }}>
+            <View style={{ margin: 30 }}>
               <TextInput
                 //placeholder='FRAME ID / SHELF ID / CORE ID'
                 placeholder='Enter Value Want to Search'
                 placeholderTextColor='rgba(255,0,0,0.8)'
                 returnKeyType='go'
-                style={styles.searchinput}
-                autoCapitalize = "none"
+                //style={styles.searchinput}
+                autoCapitalize = 'none'
                 autoCorrect={false}
                 value={searchinput}
                 onSubmitEditing={() => this.props.navigation.navigate('DataPage', { mode, level, id: searchinput })}
@@ -73,12 +73,10 @@ export default class SearchInput extends React.Component {
               <Image
                 style={styles.qricon}
                 source={require('../../img/qricon.png')} /></TouchableOpacity>
-            
+
             <Text style={styles.keytext}> </Text>
             <Text style={styles.keytext}> </Text>
-            <Text onPress={this._return} style={styles.description}> Cancel </Text>
           </View>
-        </KeyboardAvoidingView>
       </View>
     );
   }
@@ -98,6 +96,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFC312',
     justifyContent: 'center',
   },
+  input: {
+    paddingLeft: 10,
+    backgroundColor: '#fff',
+    borderColor: '#ddd',
+    borderWidth: 1,
+    //flex: 1.5,
+  },
   description: {
     color: '#FFFF',
     fontSize: 25,
@@ -106,7 +111,7 @@ const styles = StyleSheet.create({
   },
   searchcontainer: {
     justifyContent: 'center',
-    backgroundColor: '#FFC312',
+    //backgroundColor: '#FFC312',
     marginBottom: 20,
   },
   qrcontainer: {
@@ -129,7 +134,7 @@ const styles = StyleSheet.create({
   },
   searchinput:{
     height:40,
-    backgroundColor:'rgba(255,0,0,0.2)',
+    //backgroundColor:'rgba(255,0,0,0)',
     marginBottom:10,
     color:'white',
     paddingHorizontal:25,

@@ -1,8 +1,8 @@
 import { combineReducers } from 'redux';
 import DataReducer from './DataReducer';
-import MenuReducer from './MenuReducer';
+//import MenuReducer from './MenuReducer';
 
 export default combineReducers({
-  data: DataReducer,
-  menu: MenuReducer
+  data: DataReducer/*,
+  menu: MenuReducer*/
 });

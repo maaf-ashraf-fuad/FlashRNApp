@@ -12,6 +12,11 @@ export default (state = INITIAL_STATE, action) => {
       return { ...state,
           ...action.payload
       };
+    case 'Reset_Menu_State':
+      //console.log(action.payload);
+      return { ...state,
+          ...INITIAL_STATE
+      };
     case 'Update_Menu_Anchor':
       /*console.log('action.payload.popoverAnchor-------------------------------');
       console.log(action.payload.popoverAnchor);

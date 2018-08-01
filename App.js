@@ -7,43 +7,82 @@ import {
   Platform,
   StyleSheet,
   Text,
-  View
+  View,
+  Image
 } from 'react-native';
-import Router from './src/component/router/router';
-import Login from './src/component/login/login';
 import Splash from './src/component/splash/splash';
+import Login from './src/component/login/login';
 import SearchInput from './src/component/search/searchinput';
+import Menu from './src/component/search/menu';
 import DataPage from './src/component/DataPage/DataPage';
 import ScanScreen from './src/component/scan/scanqr1';
-import TESTSOA from './src/component/splash/testsoa';
+import NavigationService from './src/navigation/NavigationService';
+import { createStackNavigator } from 'react-navigation';
+import { Button } from './src/component/common';
+import { ScreenOrientation } from 'expo';
+
+const TopLevelNavigator = createStackNavigator({
+    Splash: { screen: Splash },
+    Login: { screen: Login },
+    Menu: { screen: Menu },
+    Search: { screen: SearchInput },
+    DataPage: { screen: DataPage },
+    Scan: { screen: ScanScreen },
+    AddScan: { screen: Splash },
+    //Home: { screen: Login },
+    //Menu: { screen: SearchInput, title:'Menu'},
+    //Scan: { screen: ScanScreen},
+    //DataPage: { screen: DataPage },
+},
+    {
+        initialRouteName:
+        //'Splash',
+        'Splash',
+        //'Menu',
+        //headerMode: 'none',
+        headerLayoutPreset: 'center',
+        headerBackTitleVisible : false,
+        navigationOptions: ({navigation}) => ({
+            headerTitle: <Image source={ require('./src/img/flash.png')} style={{ resizeMode: 'stretch', height: 20, width: 100 }}/>,
+            /*headerLeft: (
+              <Button iconName='arrow-back' iconColor='#fff' iconStyle={{ marginLeft: 15 }} onPress={() => {
+                console.log(this);
+                this.props.fetchHelper(navigation.state.params.type, navigation.state.params.input);
+                navigation.goBack(null);
+              }} />
+            ),*/
+            headerTintColor: '#fff',
+            headerStyle: {
+                backgroundColor: '#d03c1b',
+                borderBottomWidth: 0,
+                shadowColor: 'transparent',
+                elevation: 0,
+            },
+            /*headerTitleContainerStyle: {
+                justifyContent: 'center',
+            },*/
+
+        })
+    }
+);
 
 export default class App extends Component {
+  constructor(props) {
+      super(props);
+      ScreenOrientation.allow(ScreenOrientation.Orientation.PORTRAIT_UP);
+  }
+
   render() {
     const store = createStore(reducers, {}, applyMiddleware(ReduxThunk));
 
     return (
       <Provider store={store}>
-        <DataPage />
+        <TopLevelNavigator
+          ref={navigatorRef => {
+            NavigationService.setTopLevelNavigator(navigatorRef);
+          }}
+        />
       </Provider>
     );
   }
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5FCFF',
-  },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
-  },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5,
-  },
-});

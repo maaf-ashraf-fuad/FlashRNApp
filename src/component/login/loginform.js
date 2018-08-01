@@ -1,15 +1,29 @@
-import React from 'react';
+import React, { Component } from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert, AsyncStorage } from 'react-native';
+import { FormValidationMessage} from 'react-native-elements';
+import { login, updateUserValues } from '../../actions';
+import { connect } from 'react-redux';
+import { Spinner } from '../common';
 
-export default class LoginForm extends React.Component {
+class LoginForm extends Component {
+
+handleLoginInput = (staff_user) => this.props.updateUserValues({ prop: 'staff_user', value: staff_user });
+
+handlePasswordInput = (staff_pass) => this.props.updateUserValues({ prop: 'staff_pass', value: staff_pass });
+
+handleSubmit = () => {
+  const { staff_user, staff_pass, login } = this.props;
+  login ( 'login', staff_user, staff_pass );
+}
+
   render() {
+    const { error, loading, staff_user, staff_pass } = this.props;
 
     return (
-      <View
-        style={styles.container}>
+      <View style={styles.container}>
         <TextInput
           placeholder='Staff ID'
-          placeholderTextColor='rgba(255,0,0,0.8)'
+          placeholderTextColor='black'
           underlineColorAndroid='transparent'
           clearButtonMode="always"
           returnKeyType='next'
@@ -17,39 +31,32 @@ export default class LoginForm extends React.Component {
           style={styles.logininput}
           autoCapitalize="none"
           autoCorrect={false}
-          value={this.state.f_user}
-          onChangeText={f_user => this.setState({ f_user })}
+          value={staff_user}
+          onChangeText={this.handleLoginInput}
         />
-
         <TextInput
           placeholder='Password'
-          placeholderTextColor='rgba(255,0,0,0.8)'
+          //placeholderTextColor='rgba(255,0,0,0.8)'
+          placeholderTextColor='black'
           underlineColorAndroid='transparent'
           clearButtonMode="always"
           secureTextEntry
           returnKeyType='go'
           style={styles.logininput}
           ref={(logininput) => this.passwordInput = logininput}
-          value={this.state.f_pass}
-          onChangeText={f_pass => this.setState({ f_pass })}
-          onSubmitEditing={this._submitForm}
+          value={staff_pass}
+          onChangeText={this.handlePasswordInput}
+          onSubmitEditing={this.handleSubmit}
         />
-
-        <TouchableOpacity style={styles.buttonLogin}
-          onPress={this._submitForm}
+        <FormValidationMessage containerStyle={{ marginBottom: 10}} labelStyle={{ textAlign: 'center' }}>{error}</FormValidationMessage>
+        <TouchableOpacity disabled={loading} style={styles.buttonLogin}
+          onPress={this.handleSubmit}
         >
-          <Text style={styles.loginText}>LOGIN</Text>
+          {loading?<Spinner />:<Text style={styles.loginText}>LOGIN</Text>}
         </TouchableOpacity>
       </View>
     )
   }
-
-  state = {
-    f_user: '',
-    f_pass: '',
-    f_name: '',
-  }
-
 
   _submitForm = () => {
     const navigate = this.props.navigation;
@@ -167,3 +174,15 @@ const styles = StyleSheet.create({
     borderRadius: 50
   },
 });
+
+const mapStateToProps = (state) => {
+  const { error, loading, user: { staff_user, staff_pass }} = state.data;
+  //let data = _.omitBy(state.data, (val, key) => key === 'ns2:LIST_FRAME_UNIT' || key === 'parent');
+  //data = _.mapKeys(data, (val, key) => key.replace('ns2:',''));
+  //const a = state.data['ns2:LONGITUDE'];
+  //console.log ('loginform:183');
+  //console.log ( 'error: ', error, 'loading: ', loading, 'staff_user: ', staff_user, 'staff_pass: ', staff_pass );
+  return { error, loading, staff_user, staff_pass };
+};
+
+export default connect(mapStateToProps, { login, updateUserValues })(LoginForm);

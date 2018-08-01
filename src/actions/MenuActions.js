@@ -5,9 +5,8 @@ export const setMenuState = (menuState) => {
   };
 };
 
-export const setMenuAnchor = ( coordinate ) => {
+export const resetMenuState = () => {
   return {
-    type: 'Update_Menu_Anchor',
-    payload: coordinate
+    type: 'Reset_Menu_State'
   };
 };

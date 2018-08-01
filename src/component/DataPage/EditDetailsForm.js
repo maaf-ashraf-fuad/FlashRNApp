@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { Header, ListItem, Text, Icon} from 'react-native-elements';
-import { Popover } from 'react-native-modal-popover';
 import {
   findNodeHandle,
   NativeModules,
@@ -16,45 +15,50 @@ import {
   KeyboardAvoidingView,
   Alert
 } from 'react-native';
-import data from './LibraryList.json';
-import QRCode from 'react-native-qrcode-svg';
 import _ from 'lodash';
 import { Card, CardSection, Button } from '../common';
 import { Type } from './types';
+import { connect } from 'react-redux';
+import { coreSetValues, coreResetValues, coreUpdateDetails, setMenuState } from '../../actions';
 
 class EditDetailsForm extends Component {
 
-  constructor(props) {
-    super(props);
-    console.log(this.props);
-    this.state = {
-      parent: props.parent,
-      child: undefined,
-      back: undefined,
-      parentDetails: _.map(
-             _.toPairs(props.parent), d => _.fromPairs([d])
-           ),
-      headerExpended: false,
-      headerMode: null,
-      popoverAnchor: { x: 0, y: 0, width: 0, height: 0 },
-      editCore: { ne_id: '', ne_shelf: '', ne_slot: '', ne_port: '', cct_name: '', status: '' }
-  }}
+  handleCoreUpdateDetails = () => {
+    const { ne_id, ne_shelf, ne_slot, ne_port, cct_name, coreUpdateDetails, pair_id, qr_code_id, frame_unit_id, staff_user } = this.props;
+    coreUpdateDetails( frame_unit_id, pair_id, qr_code_id, ne_id, ne_shelf, ne_slot, ne_port, cct_name, staff_user);
+  }
 
   render(){
-    const { headerExpended, headerMode, parent, parentDetails, editCore } = this.state;
+    //console.log(this.props);
+    const {
+      ne_id,
+      ne_shelf,
+      ne_slot,
+      ne_port,
+      cct_name,
+      status,
+      coreResetValues,
+      coreSetValues,
+      coreUpdateDetails,
+      coreLoading
+    } = this.props;
     return (
-      <Card>
+      <View>
+        <CardSection style={{justifyContent: 'space-between', backgroundColor:'#ecedf2', borderTopWidth: 1 }}>
+          <Text style={{ fontSize: 20, fontWeight: 'bold' }}>Edit Details</Text>
+        </CardSection>
         <CardSection style={styles.editRowOdd}>
           <Text style={styles.textBold}>NE_ID</Text>
           <TextInput
             underlineColorAndroid = 'transparent'
             style={styles.input}
-            placeholder={parent.ne_id}
             autoCorrect={false}
             autoCapitalize={'none'}
-            value={editCore.ne_id}
-            onChangeText={ne_id => this.setState({ editCore: Object.assign({}, editCore, { ne_id })})}
+            value={ne_id}
+            onChangeText={ne_id => coreSetValues({prop: 'ne_id', value: ne_id})}
             //onChangeText={ne_id => this.setState({ editCore: { ne_id }})}
+            returnKeyType='next'
+            onSubmitEditing={() => this.ne_shelf.focus()}
           />
         </CardSection>
         <CardSection style={styles.editRowEven}>
@@ -62,11 +66,14 @@ class EditDetailsForm extends Component {
           <TextInput
             underlineColorAndroid = 'transparent'
             style={styles.input}
-            placeholder={parent.ne_shelf}
+            //placeholder={parent.ne_shelf}
             autoCorrect={false}
             autoCapitalize={'none'}
-            value={editCore.ne_shelf}
-            onChangeText={ne_shelf => this.setState({ editCore: Object.assign({}, editCore, { ne_shelf })})}
+            value={ne_shelf}
+            onChangeText={ne_shelf => coreSetValues({prop: 'ne_shelf', value: ne_shelf})}
+            returnKeyType='next'
+            onSubmitEditing={() => this.ne_slot.focus()}
+            ref={(logininput) => this.ne_shelf = logininput}
           />
         </CardSection>
         <CardSection style={styles.editRowOdd}>
@@ -74,11 +81,14 @@ class EditDetailsForm extends Component {
           <TextInput
             underlineColorAndroid = 'transparent'
             style={styles.input}
-            placeholder={parent.ne_slot}
+            //placeholder={parent.ne_slot}
             autoCorrect={false}
             autoCapitalize={'none'}
-            value={editCore.ne_slot}
-            onChangeText={ne_slot => this.setState({ editCore: Object.assign({}, editCore, { ne_slot })})}
+            value={ne_slot}
+            onChangeText={ne_slot => coreSetValues({prop: 'ne_slot', value: ne_slot})}
+            returnKeyType='next'
+            onSubmitEditing={() => this.ne_port.focus()}
+            ref={(logininput) => this.ne_slot = logininput}
         />
         </CardSection>
         <CardSection style={styles.editRowEven}>
@@ -86,11 +96,14 @@ class EditDetailsForm extends Component {
           <TextInput
             underlineColorAndroid = 'transparent'
             style={styles.input}
-            placeholder={parent.ne_port}
+            //placeholder={parent.ne_port}
             autoCorrect={false}
             autoCapitalize={'none'}
-            value={editCore.ne_port}
-            onChangeText={ne_port => this.setState({ editCore: Object.assign({}, editCore, { ne_port })})}
+            value={ne_port}
+            onChangeText={ne_port => coreSetValues({prop: 'ne_port', value: ne_port})}
+            returnKeyType='next'
+            onSubmitEditing={() => this.cct_name.focus()}
+            ref={(logininput) => this.ne_port = logininput}
           />
         </CardSection>
         <CardSection style={styles.editRowOdd}>
@@ -98,39 +111,33 @@ class EditDetailsForm extends Component {
           <TextInput
             underlineColorAndroid = 'transparent'
             style={styles.input}
-            placeholder={parent.cct_name}
+            //placeholder={parent.cct_name}
             autoCorrect={false}
             autoCapitalize={'none'}
-            value={editCore.cct_name}
-            onChangeText={cct_name => this.setState({ editCore: Object.assign({}, editCore, { cct_name })})}
+            value={cct_name}
+            onChangeText={cct_name => coreSetValues({prop: 'cct_name', value: cct_name})}
+            returnKeyType='go'
+            onSubmitEditing={this.handleCoreUpdateDetails}
+            ref={(logininput) => this.cct_name = logininput}
           />
         </CardSection>
-        <CardSection style={styles.editRowEven}>
+        {/*<CardSection style={styles.editRowEven}>
           <Text style={styles.textBold}>STATUS</Text>
           <TextInput
             underlineColorAndroid = 'transparent'
             style={styles.input}
-            placeholder={parent.status}
+            //placeholder={parent.status}
             autoCorrect={false}
             autoCapitalize={'none'}
-            value={editCore.status}
-            onChangeText={status => this.setState({ editCore: Object.assign({}, editCore, { status })})}
+            value={status}
+            onChangeText={status => coreSetValues({prop: 'status', value: status})}
           />
-        </CardSection>
-        <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center' }}>
-          <Button border buttonText='Clear' onPress={() => this.setState({
-            editCore: {
-              ne_id: '',
-              ne_shelf: '',
-              ne_slot: '',
-              ne_port: '',
-              cct_name: '',
-              status: ''
-            }
-           })} />
-          <Button border buttonText='Update' onPress={() => this.updateCore()}/>
+        </CardSection>*/}
+        <View style={{ height: 50, flexDirection: 'row', justifyContent: 'center' }}>
+          <Button border disabled={coreLoading} buttonText='Reset' onPress={coreResetValues} />
+          <Button border disabled={coreLoading} buttonText='Update' onPress={this.handleCoreUpdateDetails} />
         </View>
-      </Card>
+      </View>
     )
   }
 }
@@ -163,13 +170,15 @@ const styles = StyleSheet.create({
   textBold: {
     textAlignVertical: 'center',
     fontWeight: 'bold',
+    flex: 1
   },
   input: {
-      width: '50%',
-      paddingLeft: 10,
-      backgroundColor: '#fff',
-      borderColor: '#ddd',
-      borderWidth: 1,
+    width: '50%',
+    paddingLeft: 10,
+    backgroundColor: '#fff',
+    borderColor: '#ddd',
+    borderWidth: 1,
+    flex: 1.5,
   },
   editRowOdd: {
     justifyContent: 'space-between',
@@ -188,4 +197,9 @@ const styles = StyleSheet.create({
   },
 });
 
-export default EditDetailsForm;
+const mapStateToProps = (state) => {
+  const { error, coreLoading, user: { staff_user }, parent: { pair_id, qr_code_id, frame_unit_id }} = state.data;
+  return { error, coreLoading, pair_id, qr_code_id, frame_unit_id, staff_user, ...state.data.editCore};
+};
+
+export default connect(mapStateToProps, { coreUpdateDetails, coreSetValues, coreResetValues, setMenuState })(EditDetailsForm);

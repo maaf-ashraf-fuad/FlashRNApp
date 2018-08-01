@@ -12,11 +12,12 @@ const Spinner = ({ size }) => {
 const styles = {
   spinnerStyle: {
     position: 'absolute',
-    backgroundColor: '#FFFCFF88',
+    backgroundColor: 'transparent',//'#FFFCFF88',
     bottom: 0,
     right: 0,
     left: 0,
     top: 0,
+    flex: 1,
     opacity: 0.5,
     justifyContent: 'center',
     alignItems: 'center'

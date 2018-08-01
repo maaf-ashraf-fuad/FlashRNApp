@@ -13,6 +13,7 @@ import { Type } from './types';
 import List from './List';
 import DropDownMenu from './DropDownMenu';
 import EditDetailsForm from './EditDetailsForm';
+import TransferForm from './TransferForm';
 
 class Parent extends Component {
 
@@ -22,18 +23,16 @@ class Parent extends Component {
       if (headerMode==='View'){
         return(
           <View>
-            <CardSection style={{ justifyContent: 'space-between', backgroundColor:'#ecedf2', borderTopWidth: 1 }}>
+            <CardSection style={{justifyContent: 'space-between', backgroundColor:'#ecedf2', borderTopWidth: 1 }}>
               <Text style={{ fontSize: 20, fontWeight: 'bold' }}>View Details</Text>
             </CardSection>
             <List data={parentDetails} flag />
           </View>
         )
       } else if (headerMode==='Edit') {
-        return(
-          <EditDetailsForm />
-        )
+        return <EditDetailsForm />
       } else if (headerMode==='Transfer') {
-        return(
+        /*return(
           <View style={{ justifyContent: 'center', flexDirection: 'column' }}>
             <Icon name='swap-vert' size={ 50 } iconStyle={{ padding: 15 }}/>
             <Card>
@@ -42,9 +41,11 @@ class Parent extends Component {
               </CardSection>
             </Card>
           </View>
-        )
+        )*/
+        return <TransferForm />
       }
     }
+    return null;
   }
 
   setMenuState = ( menuState ) => {
@@ -52,10 +53,11 @@ class Parent extends Component {
   }
 
   render(){
-    const { parent, headerExpended, parent_type } = this.props;
-    console.log ('render Parent');
+    const { parent, headerExpended, parent_type, navigate } = this.props;
+
+    if (parent!==undefined){
       return (
-        <Card>
+        <Card style={{ borderBottomWidth: 1 }}>
           <CardSection style={{ justifyContent: 'space-between', backgroundColor:'#ecedf2' }}>
             <Text h4>{parent_type}</Text>
             <DropDownMenu
@@ -63,6 +65,7 @@ class Parent extends Component {
               qr_code_id={parent.qr_code_id}
               headerExpended={headerExpended}
               setMenuState={this.setMenuState}
+              navigate={navigate}
             />
           </CardSection>
           <CardSection style={{ margin: 5, borderBottomWidth: 0 }}>
@@ -86,6 +89,9 @@ class Parent extends Component {
             {this.renderExpendedHeader()}
         </Card>
       )
+    }
+
+    return null;
   }
 }
 
@@ -100,13 +106,16 @@ const styles = StyleSheet.create({
   }
 });
 
+//const mapStateToProps = ({ data: { parent, parent_type, headerExpended, headerMode}}) => {
 const mapStateToProps = (state) => {
+  const { parent, parent_type, headerExpended, headerMode} = state.data;
   //let data = _.omitBy(state.data, (val, key) => key === 'ns2:LIST_FRAME_UNIT' || key === 'parent');
   //data = _.mapKeys(data, (val, key) => key.replace('ns2:',''));
   //const a = state.data['ns2:LONGITUDE'];
-  const parentDetails = _.map(_.toPairs(state.data.parent), d => _.fromPairs([d]));
+  const parentDetails = _.map(_.toPairs(parent), d => _.fromPairs([d]));
+  //console.log (state);
   //console.log (parentDetails);
-  return {...state.menu, ...state.data, parentDetails: [...parentDetails]};
+  return {  headerExpended, headerMode, parent_type, parent, parentDetails};
 };
 
 export default connect(mapStateToProps, { frameFetch, shelfFetch, setMenuState })(Parent);

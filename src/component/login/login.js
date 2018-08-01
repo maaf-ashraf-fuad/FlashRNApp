@@ -7,15 +7,16 @@ export default class Login extends React.Component {
     const {navigate} = this.props.navigation;
     return (
       <KeyboardAvoidingView behavior="padding" style={styles.container}>
+      <Image source= { require('../../img/bg2.png')} style= {{ position: 'absolute', top: -5, resizeMode: 'cover'}} />
         <View style={styles.logoContainer}>
-        <Image 
+        <Image
             style={styles.loginlogo}
             source={require('../../img/TMLOGO.png')}/>
         <Text style={styles.description}>Login To Access FLASH</Text>
         </View>
-       
+
         <LoginForm navigation={navigate}/>
-        
+
       </KeyboardAvoidingView>
     );
   }
@@ -35,14 +36,14 @@ const styles = StyleSheet.create({
       color:'#FFFF',
       fontSize:30,
       fontWeight:'900',
-      textAlign:'center', 
+      textAlign:'center',
   },
   description:{
     color:'#FFFF',
     fontSize:20,
     fontWeight:'bold',
     textAlign:'center',
-    marginTop:30, 
+    marginTop:30,
 },
   loginlogo:{
     height:150,

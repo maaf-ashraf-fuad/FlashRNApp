@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Text, TouchableOpacity, View, StyleSheet } from 'react-native';
 import { Icon, Divider } from 'react-native-elements';
+import { Spinner } from './Spinner';
 
 class Button extends Component {
 
@@ -8,6 +9,7 @@ render() {
   const {
     onPress,
     disabled = false,
+    loading = false,
     buttonText,
     renderDivider,
     iconName,
@@ -29,9 +31,10 @@ render() {
     <View onLayout={onLayout} style={combinedContainerStyles}>
       { renderDivider?<Divider style={styles.dividerStyle} />:null }
       <TouchableOpacity ref={setRef} disabled={disabled} style={combinedButtonStyles} onPress={onPress}>
-        { buttonText!==undefined?<Text style={ combinedTextStyles }>{buttonText}</Text>:null }
+        { buttonText!==undefined&&loading!==true?<Text style={ combinedTextStyles }>{buttonText}</Text>:null }
         {/*<Icon name={iconName} color={iconColor} type={iconType} iconStyle={ disabled?combinedIconDisabledStyles:iconStyle} />*/}
-        { iconName!==undefined?<Icon name={iconName} color={iconColor} type={iconType} iconStyle={iconStyle} />:null }
+        { iconName!==undefined&&loading!==true?<Icon name={iconName} color={iconColor} type={iconType} iconStyle={iconStyle} />:null }
+        { loading===true?<Spinner />:null}
       </TouchableOpacity>
     </View>
   );

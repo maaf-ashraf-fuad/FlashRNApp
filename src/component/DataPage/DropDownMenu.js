@@ -3,6 +3,7 @@ import { Icon } from 'react-native-elements';
 import { Popover, PopoverController } from 'react-native-modal-popover';
 import { TouchableOpacity, View, StyleSheet, Easing } from 'react-native';
 import { Button } from '../common';
+import _ from 'lodash';
 //import { connect } from 'react-redux';
 //import { setMenuState, setMenuAnchor  } from '../../actions';
 
@@ -12,7 +13,8 @@ class DropDownMenu extends Component {
       type,
       qr_code_id,
       setMenuState,
-      headerExpended
+      headerExpended,
+      navigate
     } = this.props;
     //console.log('render DropDownMenu');
     return(
@@ -20,7 +22,7 @@ class DropDownMenu extends Component {
       {({ openPopover, closePopover, popoverVisible, setPopoverAnchor, popoverAnchorRect }) => {
 
         const handlePressView = () => {
-          setTimeout( closePopover, 1);
+          _.delay(closePopover, 50);
           setMenuState({
              headerExpended: true,
              headerMode: 'View'
@@ -35,7 +37,7 @@ class DropDownMenu extends Component {
         }
 
         const onPressEdit = () => {
-          setTimeout( closePopover, 1);
+          _.delay(closePopover, 50);
           setMenuState({
              headerExpended: true,
              headerMode: 'Edit'
@@ -43,7 +45,7 @@ class DropDownMenu extends Component {
         }
 
         const onPressTransfer = () => {
-          setTimeout( closePopover, 1);
+          _.delay(closePopover, 50);
           setMenuState({
              headerExpended: true,
              headerMode: 'Transfer'
@@ -51,11 +53,12 @@ class DropDownMenu extends Component {
         }
 
         const onPressQR = () => {
-          setTimeout( closePopover, 1);
-          setMenuState({
-             headerExpended: true,
-             headerMode: 'QR'
-          });
+          _.delay(closePopover, 50);
+          navigate('Scan', {
+               next: {
+               type: `Update_${type}_QR`
+              }}
+          );
         }
 
         return (
@@ -78,6 +81,7 @@ class DropDownMenu extends Component {
             onClose={closePopover}
             fromRect={{...popoverAnchorRect, y: popoverAnchorRect.y - 23}}
             placement='bottom'
+            duration={ 0 }
             //easing={show => show?Easing.elastic(1):Easing.out(Easing.quad)}
             supportedOrientations={['portrait', 'landscape']}
           >
@@ -110,7 +114,7 @@ class DropDownMenu extends Component {
                 </View>
               ): null
             }
-            {qr_code_id?
+            {type !== 'Frame' && (qr_code_id === undefined || qr_code_id === null)?
               <Button
                 renderDivider
                 onPress={onPressQR}
