@@ -3,7 +3,7 @@
     "sdkVersion": "27.0.0",
     "name": "FLASH@TM",
     "icon": "./src/img/icon.png",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "slug": "TM_FLASH",
     "ios": {
       "bundleIdentifier": "com.TM.FLASH"
