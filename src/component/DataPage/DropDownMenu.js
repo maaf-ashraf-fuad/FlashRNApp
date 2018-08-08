@@ -1,22 +1,19 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import { Icon } from 'react-native-elements';
 import { Popover, PopoverController } from 'react-native-modal-popover';
 import { TouchableOpacity, View, StyleSheet, Easing } from 'react-native';
 import { Button } from '../common';
 import _ from 'lodash';
-//import { connect } from 'react-redux';
-//import { setMenuState, setMenuAnchor  } from '../../actions';
+import NavigationService from '../../navigation/NavigationService.js';
 
-class DropDownMenu extends Component {
+class DropDownMenu extends PureComponent {
   render() {
     const {
       type,
       qr_code_id,
       setMenuState,
-      headerExpended,
-      navigate
+      headerExpended
     } = this.props;
-    //console.log('render DropDownMenu');
     return(
     <PopoverController>
       {({ openPopover, closePopover, popoverVisible, setPopoverAnchor, popoverAnchorRect }) => {
@@ -54,7 +51,7 @@ class DropDownMenu extends Component {
 
         const onPressQR = () => {
           _.delay(closePopover, 50);
-          navigate('Scan', {
+          NavigationService.navigate('Scan', {
                next: {
                type: `Update_${type}_QR`
               }}
@@ -65,7 +62,6 @@ class DropDownMenu extends Component {
         <React.Fragment>
           <TouchableOpacity
             ref={setPopoverAnchor}
-            //onLayout={this.handleLayout}
             onPress={headerExpended?handlePressClose:openPopover}
           >
             {headerExpended?
@@ -82,22 +78,14 @@ class DropDownMenu extends Component {
             fromRect={{...popoverAnchorRect, y: popoverAnchorRect.y - 23}}
             placement='bottom'
             duration={ 0 }
-            //easing={show => show?Easing.elastic(1):Easing.out(Easing.quad)}
             supportedOrientations={['portrait', 'landscape']}
           >
             <Button
-              /*onPress={() => {
-                closePopover();
-                setMenuState({
-                 headerExpended: true,
-                 headerMode: 'View'
-                });
-              }}*/
               onPress={handlePressView}
               buttonText={`View ${type} Details`}
               iconName='view-list'
             />
-            {type === 'Core'?(
+            {type === 'Core'?
                 <View>
                   <Button
                     renderDivider
@@ -111,104 +99,23 @@ class DropDownMenu extends Component {
                     buttonText='Transfer Core'
                     iconName='swap-horiz'
                   />
-                </View>
-              ): null
+                </View>:null
             }
-            {type !== 'Frame' && (qr_code_id === undefined || qr_code_id === null)?
+            {!qr_code_id?
               <Button
                 renderDivider
                 onPress={onPressQR}
                 buttonText='Update QR Code'
                 iconName='qrcode'
                 iconType='font-awesome'
-              />:null
+              />
+              :null
             }
           </Popover>
         </React.Fragment>
       );}}
     </PopoverController>
-  )
-
-    /*return (
-      <View>
-        <TouchableOpacity
-          ref={this.setRef}
-          //onLayout={this.handleLayout}
-          onPress={() => setMenuState({ showHeaderMenu: true })}
-        >
-          <Icon name='dots-vertical' type='material-community' />
-        </TouchableOpacity>
-        <Popover
-          contentStyle={styles.content}
-          arrowStyle={styles.arrow}
-          visible={showHeaderMenu}
-          fromRect={popoverAnchor}
-          backgroundStyle={styles.background}
-          onClose={() => setMenuState({ showHeaderMenu: false })}
-          onDismiss={() => setMenuState({ showHeaderMenu: false })}
-          placement='bottom'
-          supportedOrientations={['portrait', 'landscape']}
-          easing={show => show?Easing.elastic(1):Easing.out(Easing.quad)}
-          //default: easing={(show) => show?Easing.out(Easing.back(1.70158)):Easing.inOut(Easing.quad)}
-          //duration={ 300 }
-        >
-          <Button
-            onPress={() => setMenuState({
-              headerExpended: true,
-              headerMode: 'View',
-              showHeaderMenu: false
-            })}
-            buttonText={`View ${type} Details`}
-            iconName='view-list'
-          />
-          {type === 'Core'?
-            <Button
-              renderDivider
-              onPress={() => setMenuState({
-                headerExpended: true,
-                headerMode: 'Edit',
-                showHeaderMenu: false
-              })}
-              buttonText={`Edit ${type} Details`}
-              iconName='edit'
-            />:null
-          }
-          {parent.qr_code_id === undefined || parent.qr_code_id === null || parent.qr_code_id === ""?
-            <Button
-              renderDivider
-              onPress={() => this.props.navigation.navigate('Scan', {
-                mode: 'UpdateQR',
-                //id: parent.parent.id,
-                item: parent,
-                level: 'Core'
-              })}
-              buttonText='Update QR Code'
-              iconName='qrcode'
-              iconType='font-awesome'
-            />:null
-          }
-          {type === 'Core'?
-            <Button
-              renderDivider
-              onPress={() => this.props.navigation.navigate('Scan', {
-                mode: 'Transfer',
-                //id: parent.parent.id,
-                item: parent,
-                level: 'Core'
-              })}
-              /*onPress={() => this.setState({
-                headerExpended: true,
-                headerMode: 'Transfer',
-                showHeaderMenu: false
-              })}
-              buttonText='Transfer Core'
-              iconName='swap-horiz'
-            />:null
-          }
-        </Popover>
-      </View>
-    )*/
-  }
+  )}
 }
 
 const styles = StyleSheet.create({
@@ -231,14 +138,3 @@ const styles = StyleSheet.create({
 });
 
 export default DropDownMenu;
-/*
-const mapStateToProps = (state) => {
-  //let data = _.omitBy(state.data, (val, key) => key === 'ns2:LIST_FRAME_UNIT' || key === 'parent');
-  //data = _.mapKeys(data, (val, key) => key.replace('ns2:',''));
-  //const a = state.data['ns2:LONGITUDE'];
-  console.log (state.menu);
-  return {...state.menu, parent: {...state.data.parent}};
-};*/
-
-//export default connect(mapStateToProps, { setMenuState, setMenuAnchor })(DropDownMenu);
-//export default connect(null, { setMenuState, setMenuAnchor })(DropDownMenu);

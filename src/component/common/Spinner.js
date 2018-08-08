@@ -1,10 +1,10 @@
 import React from 'react';
 import { View, ActivityIndicator } from 'react-native';
 
-const Spinner = ({ size }) => {
+const Spinner = ({ size, border = false, color = '#000' }) => {
   return (
     <View pointerEvents='none' style={styles.spinnerStyle}>
-      <ActivityIndicator size={size || 'large'} />
+      <ActivityIndicator color={color} style={ border && styles.containerStyle } size={size || 'large'} />
     </View>
   );
 };
@@ -21,6 +21,18 @@ const styles = {
     opacity: 0.5,
     justifyContent: 'center',
     alignItems: 'center'
+  },
+  containerStyle: {
+    padding: 5,
+    borderColor: 'transparent',
+    borderWidth: 1,
+    borderRadius: 50,
+    backgroundColor: '#fff',
+    shadowColor: '#000',
+    //shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.8,
+    shadowRadius: 3,
+    elevation: 10,
   }
 };
 

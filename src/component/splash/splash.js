@@ -21,7 +21,7 @@ class Splash extends Component {
     const {loading} = this.props;
     return (
       <View style={styles.container}>
-        <Image source= { require('../../img/bg2.png')} style= {{ position: 'absolute', top: -5, resizeMode: 'cover'}} />
+        <Image source= { require('../../img/bg2.png')} style= {{ position: 'absolute', top: -1, resizeMode: 'cover'}} />
         <View style={styles.logoContainer}>
           <TouchableOpacity disabled={loading} onPress={this.handleLogin}>
             <Image style={styles.logo} source={require('../../img/TMLOGO.png')} />
@@ -29,7 +29,7 @@ class Splash extends Component {
             <Text style={styles.description}>Your Fiber Tagging App</Text>
             <Text style={styles.appTitle}> </Text>
             <Text style={styles.description}>Touch to START</Text>
-            { loading?<Spinner />: null }
+            { loading?<Spinner border/>: null }
           </TouchableOpacity>
         </View>
       </View>

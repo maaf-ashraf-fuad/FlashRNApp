@@ -37,8 +37,7 @@ const TopLevelNavigator = createStackNavigator({
     {
         initialRouteName:
         //'Splash',
-        'Splash',
-        //'Menu',
+        'Menu',
         //headerMode: 'none',
         headerLayoutPreset: 'center',
         headerBackTitleVisible : false,

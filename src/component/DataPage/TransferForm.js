@@ -1,67 +1,148 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import {
   View,
   StyleSheet,
   TextInput,
   Text,
-  Alert
+  TouchableOpacity,
+  Image,
+  Picker
 } from 'react-native';
-import { Card, CardSection, Button } from '../common';
+import { CardSection, Button } from '../common';
 import { connect } from 'react-redux';
-import { updateTransferCoreValues, transferCore } from '../../actions';
+import { updateTransferCoreValues, transferCore, transferCoreResetValues, setMenuState } from '../../actions';
+import NavigationService from '../../navigation/NavigationService.js';
 
-class TranferForm extends Component {
+class TransferForm extends PureComponent {
 
   handleTransferCoreDetails = () => {
-    const { transferCore, To_frame_unit_id, pair_id, To_pair_id, qr_code_id, frame_unit_id } = this.props;
-    transferCore( frame_unit_id, To_frame_unit_id, pair_id, To_pair_id);
+    const { transferCore, toCore } = this.props;
+    transferCore(toCore);
   }
 
-  componentDidMount(){
-    this.props.updateTransferCoreValues({prop: 'To_frame_unit_id', value: '30826'});
-    this.props.updateTransferCoreValues({prop: 'To_pair_id', value: '33086'});
+  handleQRButtonPress = () => {
+    this.props.setMenuState({ error: '' });
+    NavigationService.navigate('Scan', { next: { type: 'Transfer_Core_Shelf_QR' }});
   }
 
   render(){
-    //console.log(this.props);
     const {
-      To_frame_unit_id,
-      To_pair_id,
-      updateTransferCoreValues
+      toCore: {
+        to_pair_id,
+        frame_name,
+        cable_name,
+        cable_core_no,
+      },
+      toCoreDetails,
+      coreLoading,
+      updateTransferCoreValues,
+      transferCoreResetValues
     } = this.props;
+
     return (
       <View>
         <CardSection style={{justifyContent: 'space-between', backgroundColor:'#ecedf2', borderTopWidth: 1 }}>
           <Text style={{ fontSize: 20, fontWeight: 'bold' }}>Transfer Core</Text>
         </CardSection>
-        <CardSection style={styles.editRowOdd}>
-          <Text style={styles.textBold}>SHELF ID</Text>
+        {/*}<CardSection style={styles.editRowOdd}>
+          <Text style={styles.textBold}>TO PAIR ID</Text>
           <TextInput
             underlineColorAndroid = 'transparent'
             style={styles.input}
             //placeholder={parent.ne_id}
             autoCorrect={false}
             autoCapitalize={'none'}
-            value={To_frame_unit_id}
-            onChangeText={value => updateTransferCoreValues({prop: 'To_frame_unit_id', value})}
-            //onChangeText={ne_id => this.setState({ editCore: { ne_id }})}
+            value={to_pair_id}
+            onChangeText={value => updateTransferCoreValues({prop: 'to_pair_id', value})}
+            returnKeyType='next'
+            onSubmitEditing={() => this.frame_name.focus()}
           />
+        </CardSection>*/}
+        <CardSection style={{ flex: 1, justifyContent: 'center', flexDirection: 'column' }}>
+          <TouchableOpacity disabled={coreLoading} style={{ justifyContent: 'center', alignSelf: 'center', margin: 10 }} onPress={this.handleQRButtonPress}>
+            <Image style={{ height: 100, width: 100, alignItems: 'center'}}
+              source={require('../../img/qricon.png')}
+            />
+          </TouchableOpacity>
+          <Text style={{ textAlign: 'center', textAlignVertical: 'center' }}>Tap to scan Shelf</Text>
         </CardSection>
         <CardSection style={styles.editRowEven}>
-          <Text style={styles.textBold}>PAIR ID</Text>
+          <Text style={styles.textBold}>FRAME NAME</Text>
           <TextInput
             underlineColorAndroid = 'transparent'
             style={styles.input}
             //placeholder={parent.ne_id}
             autoCorrect={false}
-            autoCapitalize={'none'}
-            value={To_pair_id}
-            onChangeText={value => updateTransferCoreValues({prop: 'To_pair_id', value})}
-            //onChangeText={ne_id => this.setState({ editCore: { ne_id }})}
+            autoCapitalize='characters'
+            clearButtonMode='always'
+            value={frame_name}
+            onChangeText={value => updateTransferCoreValues({prop: 'frame_name', value})}
+            returnKeyType='next'
+            onSubmitEditing={() => !toCoreDetails.cable_name?null:this.cable_name.focus()}
           />
         </CardSection>
-        <View style={{ height: 50, flexDirection: 'row', justifyContent: 'center' }}>
-          <Button border buttonText='Transfer Core' onPress={this.handleTransferCoreDetails} />
+        <CardSection style={styles.editRowOdd}>
+          <Text style={styles.textBold}>CABLE NAME</Text>
+          {!toCoreDetails.cable_name?
+            <TextInput
+              underlineColorAndroid = 'transparent'
+              style={styles.input}
+              //placeholder={parent.ne_id}
+              autoCorrect={false}
+              autoCapitalize='characters'
+              clearButtonMode='always'
+              value={cable_name}
+              onChangeText={value => updateTransferCoreValues({prop: 'cable_name', value})}
+              returnKeyType='next'
+              onSubmitEditing={() => this.cable_core_no.focus()}
+              ref={(logininput) => this.cable_name = logininput}
+            />:
+            <View style={styles.picker}>
+              <Picker
+                selectedValue={cable_name}
+                style={{ height: 28, width: '100%' }}
+                itemStyle={{ fontSize: 16 }}
+                onValueChange={value => updateTransferCoreValues({prop: 'cable_name', value})}>
+                {
+                  toCoreDetails.cable_name.map(val => <Picker.Item key={val} label={val} value={val} />)
+                }
+              </Picker>
+            </View>
+          }
+        </CardSection>
+        <CardSection style={styles.editRowEven}>
+          <Text style={styles.textBold}>CABLE CORE NO</Text>
+          {!toCoreDetails.cable_core_no?
+            <TextInput
+              underlineColorAndroid = 'transparent'
+              style={styles.input}
+              //placeholder={parent.ne_id}
+              autoCorrect={false}
+              keyboardType='numeric'
+              clearButtonMode='always'
+              value={cable_core_no}
+              onChangeText={value => updateTransferCoreValues({prop: 'cable_core_no', value})}
+              returnKeyType='go'
+              onSubmitEditing={this.handleTransferCoreDetails}
+              ref={(logininput) => this.cable_core_no = logininput}
+            />:
+            <View style={styles.picker}>
+              <Picker
+                selectedValue={cable_core_no}
+                //style={styles.input}
+                style={{ height: 28, width: '100%' }}
+                itemStyle={{ fontSize: 16 }}
+                onValueChange={value => updateTransferCoreValues({prop: 'cable_core_no', value})}>
+                {
+                  toCoreDetails.cable_core_no[cable_name].map(val => <Picker.Item key={val} label={val} value={val} />)
+                }
+              </Picker>
+            </View>
+          }
+        </CardSection>
+        <View style={{ height: 50, flexDirection: 'row', justifyContent: 'space-between' }}>
+          <Button border disabled={coreLoading} buttonText='Reset' containerStyle={{ flex: 1 }} onPress={transferCoreResetValues} />
+          <Button border disabled={coreLoading} buttonText='Transfer Core' containerStyle={{ flex: 1 }} onPress={this.handleTransferCoreDetails} />
         </View>
       </View>
     )
@@ -69,30 +150,6 @@ class TranferForm extends Component {
 }
 
 const styles = StyleSheet.create({
-  content: {
-    padding: 7,
-    //borderWidth: 1,
-    borderRadius: 3,
-    //borderColor: '#ddd',
-    backgroundColor: '#fff',
-    //borderBottomWidth: 0,
-    shadowColor: '#000',
-    shadowOffset: { width: 2, height: 2 },
-    shadowOpacity: 0.8,
-    shadowRadius: 3,
-    elevation: 1,
-  },
-  qr: {
-    justifyContent: 'center',
-    borderColor: '#434343',
-    borderWidth: 1,
-    padding: 3,
-    backgroundColor: '#838383',
-    borderRadius: 3,
-  },
-  arrow: {
-    borderTopColor: '#fff',
-  },
   textBold: {
     textAlignVertical: 'center',
     fontWeight: 'bold',
@@ -101,6 +158,15 @@ const styles = StyleSheet.create({
   input: {
     width: '50%',
     paddingLeft: 10,
+    fontSize: 16,
+    backgroundColor: '#fff',
+    borderColor: '#ddd',
+    borderWidth: 1,
+    flex: 1.5,
+  },
+  picker: {
+    width: '50%',
+    marginLeft: -8,
     backgroundColor: '#fff',
     borderColor: '#ddd',
     borderWidth: 1,
@@ -109,23 +175,19 @@ const styles = StyleSheet.create({
   editRowOdd: {
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: '#f5f5f5',
     padding: 5,
   },
   editRowEven: {
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#fff',
     padding: 5,
-  },
-  background: {
-    backgroundColor: 'rgba(0, 0, 255, 0)',
   },
 });
 
-const mapStateToProps = (state) => {
-  const { pair_id, qr_code_id, frame_unit_id } = state.data.parent;
-  return { pair_id, qr_code_id, frame_unit_id, ...state.data.toCore };
+const mapStateToProps = ({ data: { toCore, coreLoading, toCoreDetails }}) => {
+  return { toCore, coreLoading, toCoreDetails };
 };
 
-export default connect(mapStateToProps, { updateTransferCoreValues, transferCore })(TranferForm);
+export default connect(mapStateToProps, { updateTransferCoreValues, transferCore, setMenuState, transferCoreResetValues })(TransferForm);

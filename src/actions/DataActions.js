@@ -1,25 +1,33 @@
 import NavigationService from '../navigation/NavigationService.js';
 import { AsyncStorage, Alert } from 'react-native';
+import { Permissions } from 'expo';
 
 export const fetchHelper = (nav) => {
   const { type, id, qr, staff, item } = nav.next;
-  console.log('DataAction:fetchHelper');
-  console.log(nav.next);
+  //@commented@console.log('DataAction:fetchHelper');
+  //@commented@console.log(nav.next);
 
   if (nav.action&&nav.action.type==='back'){
     NavigationService.back();
   }
 
   return (dispatch, getState) => {
-    //console.log('DataAction:13');
-    //console.log(getState().data);//.otherRedducer;
     switch (type) {
       case 'Frame':
-        dispatch({ type: 'Fetching_Data'});
-        if (id!==undefined && (id === '' || id === null)){
+        dispatch({ type: 'Fetching_Data' });
+        if (id!==undefined && (id === '' || id === null) ){
           return dispatch({ type: 'Frame_Fetch_Failed', payload: 'Please enter a value.' });
         }
-        return frameFetch(dispatch, id, qr, nav);
+        frameFetch(id, qr, getState().data.user.staff_user).then(
+          ({ result, payload, ErrorMessage }) => {
+            if (result==='Success'){
+              return dispatch({ type: 'Frame_Fetch_Success', payload, nav: { ...nav, next: {...nav.next, type: 'Frame' }}});
+            }
+            return dispatch({ type: 'Frame_Fetch_Failed', payload: ErrorMessage })
+          })
+        .catch((error) => dispatch({ type: 'Frame_Fetch_Failed', payload: error.message }))
+        .done();
+        break;
       case 'Shelf':
         dispatch({ type: 'Fetching_Data'});
         if (id!==undefined && isNaN(id)){
@@ -27,7 +35,16 @@ export const fetchHelper = (nav) => {
         } else if (id!==undefined && (id === '' || id === null)){
           return dispatch({ type: 'Shelf_Fetch_Failed', payload: 'Please enter a value.' });
         }
-        return shelfFetch(dispatch, id, qr, nav);
+        shelfFetch(id, qr, getState().data.user.staff_user).then(
+          ({ result, payload, ErrorMessage }) => {
+            if (result==='Success'){
+              return dispatch({ type: 'Shelf_Fetch_Success', payload, nav: { ...nav, next: {...nav.next, type: 'Shelf' }}});
+            }
+            return dispatch({ type: 'Shelf_Fetch_Failed', payload: ErrorMessage })
+          })
+        .catch((error) => dispatch({ type: 'Shelf_Fetch_Failed', payload: error.message }))
+        .done();
+        break;
       case 'Core':
         dispatch({ type: 'Fetching_Data'});
         return coreFetch(dispatch, item, nav);
@@ -39,32 +56,38 @@ export const fetchHelper = (nav) => {
         return neFetch(dispatch, id, nav);
       case 'Reset':
         return dispatch({ type: 'Reset_Data', nav });
+      case 'QR':
+        dispatch({ type: 'QR_Fetching_Data'});
+        frameFetch(id, qr, getState().data.user.staff_user).then(
+          ({ result, payload }) => {
+            if (result==='Success'){
+                return dispatch({ type: 'Frame_Fetch_Success', payload, nav: { ...nav, next: {...nav.next, type: 'Frame' }}});
+            }
+          shelfFetch(id, qr, getState().data.user.staff_user).then (
+            ({ result, payload }) => {
+              if (result==='Success'){
+                return dispatch({ type: 'Shelf_Fetch_Success', payload, nav: { ...nav, next: {...nav.next, type: 'Shelf' }}});
+              }
+              throw new Error('No frame/shelf found on QR CODE ' + qr );
+            })
+          .catch((error) => dispatch({ type: 'QR_Fetch_Failed', payload: error.message }))
+          .done();
+        })
+        .catch((error) => dispatch({ type: 'QR_Fetch_Failed', payload: error.message }))
+        .done();
+        break;
       default:
     }
   }
 };
 
-/*async getItem => () => {
-  return await AsyncStorage.getItem(a);
-}*/
-
 export const login = (source = 'splash',  staff_user, staff_pass, staff_name ) => {
-  //return { type: 'Navigate_To_Login' };
-  console.log(source, staff_user, staff_pass, staff_name);
-  if (source==='splash'){
-    /*staff_name = await AsyncStorage.getItem('staff_name');
-    staff_user = await AsyncStorage.getItem('flash_user');
-    staff_pass = await AsyncStorage.getItem('flash_pass');
-    console.log( source, staff_user, staff_pass, staff_name );*/
-    if (staff_name===null||staff_name===undefined){
-      //console.log( 'loginnn' );
-      return { type: 'Navigate_To_Login' };
-    }
+  if (source==='splash'&&!staff_name){
+    return { type: 'Navigate_To_Login' };
   }
-  //return async (dispatch, getState) => {
   return (dispatch) => {
     dispatch({ type: 'Fetching_Data' });
-    
+
     if (source==='login'&&((staff_user===null||staff_user===undefined) && (staff_pass===null||staff_pass===undefined))){
       return dispatch({ type: 'Login_Failed', payload: 'Please enter your TM Staff Id and Password' });
     } else  if (source==='login'&&(staff_user===null||staff_user===undefined)) {
@@ -72,8 +95,6 @@ export const login = (source = 'splash',  staff_user, staff_pass, staff_name ) =
     } else  if (source==='login'&&(staff_pass===null||staff_pass===undefined)){
       return dispatch({ type: 'Login_Failed', payload: 'Please enter your Password' });
     }
-    //this.props.navigation.navigate('Menu')
-    //return Login._submitForm();
     fetch('https://tmbill.tm.com.my/EZiBillWeb/Login/json/ldap',
     {
         method: 'POST',
@@ -88,83 +109,72 @@ export const login = (source = 'splash',  staff_user, staff_pass, staff_name ) =
           }
         )
       })
-      .then((response) => //response.json())
+      .then((response) =>
       {
-        console.log('DataActions:84');
-        console.log(response);
         if (response.status===800){
           return response.json();
         }
         throw new Error ('LDAP/Login Network Error [' + response.status + ']. Please try again later');
       })
       .then((responseJson) => {
-        console.log('DataActions:loginLDAP');
-        console.log(responseJson);
-        if (responseJson.fullName === null) {
-          //Alert.alert("Flash", staff_name + " need to re-login");
+        if (!responseJson.fullName) {
           if (source === 'splash'){
             return dispatch({ type: 'Navigate_To_Login' });
           }
           return dispatch({ type: 'Login_Failed', payload: 'Invalid TM Staff Id/password. Please try again.' });
         }
-        else if (responseJson.fullName !== null) {
-          //console.log('LDAP Pass');
-          staff_name = responseJson.fullName;
-          //SOA Check
-          fetch('http://58.27.85.176/FLASH/VerifyUser',
-            {
-              method: 'POST',
-              headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-                'Authorization': 'Basic RkxBU0g6ZjE0NWg=',
-              },
-              body: JSON.stringify(
-                {
-                  STAFF_ID: staff_user,
-                }
-              )
-            })
-            .then((response) => {
-              //console.log('DataActions:83');
-              //console.log(response);
-              if (response.ok===true){
-                return response.json();
+        staff_name = responseJson.fullName;
+        fetch('http://58.27.85.176/FLASH/VerifyUser',
+        //fetch('http://10.54.1.15:8001/FLASH/verifyAccess/Proxy_Services/PS_Flash_verifyAccess2',
+          {
+            method: 'POST',
+            headers: {
+              Accept: 'application/json',
+              'Content-Type': 'application/json',
+              'Authorization': 'Basic RkxBU0g6ZjE0NWg=',
+            },
+            body: JSON.stringify(
+              {
+                STAFF_ID: staff_user,
               }
-              throw new Error ('FLASH/VerifyUser Network Error [' + response.status + ']. Please try again later');
-            })
-            .then((responseJson) => {
-              console.log('DataActions:loginFlash');
-              console.log(responseJson);
-              if (responseJson.ErrorCode === '00') {
-                Alert.alert("Welcome", staff_name,
-                  [
-                    {
-                      text: 'OK', onPress: () => {
-                        AsyncStorage.setItem('flash_user', staff_user);
-                        AsyncStorage.setItem('flash_pass', staff_pass);
-                        AsyncStorage.setItem('flash_name', staff_name);
-                        return dispatch({type: 'Login_Success'});
-                      }
+            )
+          })
+          .then((response) => {
+            if (response.ok===true){
+              return response.json();
+            }
+            throw new Error ('FLASH/VerifyUser Network Error [' + response.status + ']. Please try again later');
+          })
+          .then((responseJson) => {
+            //@commented@console.log('DataActions:loginFlash');
+            //@commented@console.log(responseJson);
+            if (responseJson.ErrorCode === '00') {
+              Alert.alert("Welcome", staff_name,
+                [
+                  {
+                    text: 'OK', onPress: () => {
+                      AsyncStorage.setItem('flash_user', staff_user);
+                      AsyncStorage.setItem('flash_pass', staff_pass);
+                      AsyncStorage.setItem('flash_name', staff_name);
+                      return dispatch({type: 'Login_Success'});
                     }
-                  ]
-                );
-              }
-              else if (source==='splash'){
-                return dispatch({ type: 'Navigate_To_Login' });
-              } else {
-                throw new Error ('You are not authorized for Flash 2.0. Please contact your system administrator');
-              }
-            })
-            .catch((error) => {
-              if (source==='splash'){
-                return dispatch({ type: 'Navigate_To_Login' });
-              }
-                return dispatch({ type: 'Login_Failed', payload: error.message });
-            })
-            .done()
-          //End SoA CHECK
-        }
+                  }
+                ]
+              );
+            }
+            else if (source==='splash'){
+              return dispatch({ type: 'Navigate_To_Login' });
+            } else {
+              throw new Error ('You are not authorized for Flash 2.0. Please contact your system administrator');
+            }
+          })
+          .catch((error) => {
+            if (source==='splash'){
+              return dispatch({ type: 'Navigate_To_Login' });
+            }
+              return dispatch({ type: 'Login_Failed', payload: error.message });
+          })
+          .done()
       })
       .catch((error) => {
         if (source==='splash'){
@@ -195,6 +205,12 @@ export const coreResetValues = () => {
   }
 }
 
+export const transferCoreResetValues = () => {
+  return {
+    type: 'Transfer_Core_Reset_Value'
+  }
+}
+
 export const coreSetValues = ({ prop, value }) => {
   return {
     type: 'Core_Set_Values',
@@ -216,10 +232,10 @@ export const updateUserValues = ({ prop, value }) => {
   };
 };
 
-export const frameFetch = (dispatch, id, qr, nav) => {
-    //fetch('http://10.54.1.15:8001/FLASH/listFrameUnit/Proxy_Services/PS_listFrameUnit',
-    fetch('http://58.27.85.176/FLASH/QueryFrame',
-    {
+export async function frameFetch (id, qr, user) {
+  try {
+    //const response = await fetch('http://10.54.1.15:8001/FLASH/listFrameUnit/Proxy_Services/PS_listFrameUnit', {
+    const response = await fetch('http://58.27.85.176/FLASH/QueryFrame', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -229,36 +245,36 @@ export const frameFetch = (dispatch, id, qr, nav) => {
       body: JSON.stringify(
         {
           FRAME_NAME: id,
-          QR_CODE: qr
+          QR_CODE: qr,
+          USER: user
         }
       )
     })
-    .then((response) => {
-      //console.log('DataActions:83');
-      //console.log(response);
-      if (response.ok===true){
-        return response.json();
-      }
-      throw new Error ('FLASH/QueryFrame Network Error [' + response.status + ']. Please try again later');
-    })
-    .then((responseJson) => {
-      console.log('DataAction:frameFetch');
-      console.log(responseJson);
-      if (responseJson.ErrorCode === '00'){
-        return dispatch({ type: 'Frame_Fetch_Success', payload: responseJson, nav });
-      }
-      throw new Error(responseJson.ErrorMessage);
-    })
-    .catch((error) => {
-      //console.error(error);
-      dispatch({ type: 'Frame_Fetch_Failed', payload: error.message});
-    })
-    .done();
-};
 
-export const shelfFetch = (dispatch, id, qr, nav) => {
-    fetch('http://58.27.85.176/FLASH/QueryShelf',
-    {
+    if (response.ok!==true){
+      throw new Error ('FLASH/QueryFrame Network Error [' + response.status + ']. Please try again later');
+    }
+
+    const responseJson = await response.json();
+
+    //@commented@console.log('DataAction:frameFetch');
+    //@commented@console.log(responseJson);
+
+    if (responseJson.ErrorCode === '00'){
+      return Promise.resolve({ result: 'Success', payload: responseJson });
+    }
+
+    return Promise.resolve({ result: 'Not Found', ErrorCode: responseJson.ErrorCode, ErrorMessage: responseJson.ErrorMessage });
+
+  } catch (error) {
+    return Promise.reject(new Error(error.message));
+  }
+}
+
+export async function shelfFetch (id, qr, user) {
+  try {
+    //const response = await fetch('http://10.54.1.15:8001/FLASH/listFrameUnitDetail/Proxy_Services/PS_listFrameUnitDetail', {
+    const response = await fetch('http://58.27.85.176/FLASH/QueryShelf', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -269,31 +285,30 @@ export const shelfFetch = (dispatch, id, qr, nav) => {
         {
           frame_unit_id: id,
           QR_CODE: qr,
+          User: user
         }
       )
     })
-    .then((response) => {
-      //console.log('DataActions:83');
-      //console.log(response);
-      if (response.ok===true){
-        return response.json();
-      }
+
+    if (response.ok!==true){
       throw new Error ('FLASH/QueryShelf Network Error [' + response.status + ']. Please try again later');
-    })
-    .then((responseJson) => {
-      console.log('DataAction:shelfFetch');
-      console.log(responseJson);
-      if (responseJson.ErrorCode === '00'){
-        return dispatch({ type: 'Shelf_Fetch_Success', payload: responseJson, nav });
-      }
-      throw new Error(responseJson.ErrorMessage);
-    })
-    .catch((error) => {
-      //console.error(error);
-      dispatch({ type: 'Shelf_Fetch_Failed', payload: error.message});
-    })
-    .done();
-};
+    }
+
+    const responseJson = await response.json();
+
+    //@commented@console.log('DataAction:shelfFetch');
+    //@commented@console.log(responseJson);
+
+    if (responseJson.ErrorCode === '00'){
+      return Promise.resolve({ result: 'Success', payload: responseJson });
+    }
+
+    return Promise.resolve({ result: 'Not Found', ErrorCode: responseJson.ErrorCode, ErrorMessage: responseJson.ErrorMessage });
+
+  } catch (error) {
+    return Promise.reject(new Error(error.message));
+  }
+}
 
 export const neFetch = (dispatch, id, nav) => {
     //fetch('http://10.54.1.15:8001/FLASH/listFrameUnit/Proxy_Services/PS_listFrameUnit',
@@ -312,23 +327,20 @@ export const neFetch = (dispatch, id, nav) => {
       )
     })
     .then((response) => {
-      //console.log('DataActions:83');
-      //console.log(response);
       if (response.ok===true){
         return response.json();
       }
       throw new Error ('FLASH/QueryNEID Network Error [' + response.status + ']. Please try again later');
     })
     .then((responseJson) => {
-      console.log('DataAction:neFetch');
-      console.log(responseJson);
+      //@commented@console.log('DataAction:neFetch');
+      //@commented@console.log(responseJson);
       if (responseJson.ErrorCode === '00'){
         return dispatch({ type: 'NE_Fetch_Success', payload: responseJson, nav });
       }
       throw new Error(responseJson.ErrorMessage);
     })
     .catch((error) => {
-      //console.error(error);
       dispatch({ type: 'NE_Fetch_Failed', payload: error.message});
     })
     .done();
@@ -342,8 +354,51 @@ export const coreFetch = (dispatch, payload, nav) => {
   return dispatch({ type: 'Core_Fetch_Success', payload, nav });
 };
 
+export const frameUpdateQR = ( IN_FRAME_NAME, QR_CODE) => {
+  return (dispatch, getState) => {
+    dispatch({ type: 'QR_Fetching_Data'});
+    //fetch('http://10.54.1.15:8001/FLASH/updateQrOnFrame/Proxy_Services/PS_Flash_updateQrOnFrame',
+    fetch('http://58.27.85.176/FLASH/updateQrOnFrame',
+    {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': 'Basic RkxBU0g6ZjE0NWg=',
+      },
+      body: JSON.stringify(
+        {
+          IN_FRAME_NAME,
+          QR_CODE,
+          USER_ID: getState().data.user.staff_user
+        }
+      )
+    })
+    .then((response) => {
+      if (response.ok===true){
+        return response.json();
+      }
+      throw new Error ('FLASH/UpdateQROnFrame Network Error [' + response.status + ']. Please try again later');
+    })
+    .then((responseJson) => {
+      //@commented@console.log('DataAction:frameUpdateQR');
+      //@commented@console.log(responseJson);
+      if (responseJson.ErrorCode === '00'){
+        return dispatch({ type: 'Frame_Update_QR_Success', payload: QR_CODE });
+      }
+      throw new Error(responseJson.ErrorMessage);
+    })
+    .catch((error) => {
+      return dispatch({ type: 'Frame_Update_QR_Failed', payload: error.message});
+    })
+    .done();
+  }
+};
+
 export const shelfUpdateQR = ( frame_unit_id, qr_code_id) => {
   return (dispatch, getState) => {
+    dispatch({ type: 'QR_Fetching_Data'});
+    //fetch('http://10.54.1.15:8001/FLASH/updateQrOnFrameUnit/Proxy_Services/PS_updateQrOnFrameUnit',
     fetch('http://58.27.85.176/FLASH/UpdateQROnFrameUnit',
     {
       method: 'POST',
@@ -361,23 +416,20 @@ export const shelfUpdateQR = ( frame_unit_id, qr_code_id) => {
       )
     })
     .then((response) => {
-      //console.log('DataActions:83');
-      //console.log(response);
       if (response.ok===true){
         return response.json();
       }
       throw new Error ('FLASH/UpdateQROnFrameUnit Network Error [' + response.status + ']. Please try again later');
     })
     .then((responseJson) => {
-      console.log('DataAction:shelfUpdateQR');
-      console.log(responseJson);
+      //@commented@console.log('DataAction:shelfUpdateQR');
+      //@commented@console.log(responseJson);
       if (responseJson.ErrorCode === '00'){
         return dispatch({ type: 'Shelf_Update_QR_Success', payload: qr_code_id });
       }
       throw new Error(responseJson.ErrorMessage);
     })
     .catch((error) => {
-      //console.error(error);
       dispatch({ type: 'Shelf_Update_QR_Failed', payload: error.message});
     })
     .done();
@@ -386,7 +438,8 @@ export const shelfUpdateQR = ( frame_unit_id, qr_code_id) => {
 
 export const coreUpdateQR = ( frame_unit_id, pair_id, qr_code_id ) => {
   return (dispatch, getState) => {
-    //fetch('http://10.54.1.15:8001/FLASH/listFrameUnit/Proxy_Services/PS_listFrameUnit',
+    dispatch({ type: 'QR_Fetching_Data'});
+    //fetch('http://10.54.1.15:8001/FLASH/updateQrOnPatching/Proxy_Services/PS_updateQrOnPatching',
     fetch('http://58.27.85.176/FLASH/UpdateQROnPatching',
     {
       method: 'POST',
@@ -400,36 +453,36 @@ export const coreUpdateQR = ( frame_unit_id, pair_id, qr_code_id ) => {
           frame_unit_id,
           pair_id,
           qr_code_id,
-          User: getState().data.user.staff_user
+          STAFF_ID: getState().data.user.staff_user
         }
       )
     })
     .then((response) => {
-      //console.log('DataActions:83');
-      //console.log(response);
       if (response.ok===true){
         return response.json();
       }
       throw new Error ('FLASH/UpdateQROnPatching Network Error [' + response.status + ']. Please try again later');
     })
     .then((responseJson) => {
-      console.log('DataAction:coreUpdateQR');
-      console.log(responseJson);
+      //@commented@console.log('DataAction:coreUpdateQR');
+      //@commented@console.log(responseJson);
       if (responseJson.ErrorCode === '00'){
         return dispatch({ type: 'Core_Update_QR_Success', payload: qr_code_id });
       }
       throw new Error(responseJson.ErrorMessage);
     })
     .catch((error) => {
-      //console.error(error);
       dispatch({ type: 'Core_Update_QR_Failed', payload: error.message});
     })
     .done();
   }
 };
 
-export const coreUpdateDetails = ( frame_unit_id, pair_id, qr_code_id, ne_id, ne_shelf, ne_slot, ne_port, cct_name, User) => {
-  return (dispatch) => {
+export const coreUpdateDetails = ( input ) => {
+  const { frame_unit_id, pair_id, ne_id, ne_shelf, ne_slot, ne_port, cct_name, to_ne_id, to_ne_shelf, to_ne_slot, to_ne_port, to_cct_name, status } = input;
+
+  //@commented@console.log('coreUpdateDetails input:', input);
+  return (dispatch, getState) => {
     dispatch({ type: 'Updating_Core'});
     fetch('http://58.27.85.176/FLASH/UpdateNEOnPatching',
     {
@@ -443,48 +496,51 @@ export const coreUpdateDetails = ( frame_unit_id, pair_id, qr_code_id, ne_id, ne
         {
           frame_unit_id,
           pair_id,
-          qr_code_id,
           New_ne_id: ne_id,
           New_ne_shelf: ne_shelf,
           New_ne_slot: ne_slot,
           New_ne_port: ne_port,
           New_cct_name: cct_name,
-          User
+          TO_NE_ID: to_ne_id,
+          TO_NE_SHELF: to_ne_shelf,
+          TO_NE_SLOT: to_ne_slot,
+          TO_NE_PORT: to_ne_port,
+          TO_CCT_NAME: to_cct_name,
+          TO_CORE_STATUS: status,
+          STAFF_ID: getState().data.user.staff_user
         }
       )
     })
     .then((response) => {
-      //console.log('DataActions:83');
-      //console.log(response);
       if (response.ok===true){
         return response.json();
       }
       throw new Error ('FLASH/UpdateNEOnPatching Network Error [' + response.status + ']. Please try again later');
     })
     .then((responseJson) => {
-      console.log('DataAction:coreUpdateDetails');
-      console.log(responseJson);
+      //@commented@console.log('DataAction:coreUpdateDetails');
+      //@commented@console.log(responseJson);
       if (responseJson.ErrorCode === '00'){
-        return dispatch({ type: 'Core_Update_Details_Success', payload: { ne_id, ne_shelf, ne_slot, ne_port, cct_name }});
+        return dispatch({ type: 'Core_Update_Details_Success', payload: { ...input }});
       }
       throw new Error(responseJson.ErrorMessage);
     })
     .catch((error) => {
-      //console.error(error);
       dispatch({ type: 'Core_Update_Details_Failed', payload: error.message});
     })
     .done();
   }
 };
 
-//export const transferCore = ( From_frame_unit_id, To_frame_unit_id, From_pair_id, To_pair_id, STAFF_ID) => {
-export const transferCore = ( From_frame_unit_id, To_frame_unit_id, From_pair_id, To_pair_id) => {
-  //console.log('From_frame_unit_id: ', From_frame_unit_id);
-  //console.log('To_frame_unit_id: ', To_frame_unit_id);
-  //console.log('From_pair_id: ', From_pair_id);
-  //console.log('To_pair_id: ', To_pair_id);
-  //console.log('STAFF_ID: ', STAFF_ID);
+export const transferCore = (input) => {
+  const { from_pair_id, to_pair_id, frame_name, cable_name, cable_core_no } = input;
+  //@commented@console.log('transferCore input:', input);
   return (dispatch, getState) => {
+    dispatch({ type: 'Updating_Core'});
+    if (!from_pair_id||!frame_name||!cable_name||!cable_core_no){
+      return dispatch({ type: 'Transfer_Core_Failed', payload: 'Please fill in all required fields' });
+    }
+
     fetch('http://58.27.85.176/FLASH/TransferCore',
     {
       method: 'POST',
@@ -495,25 +551,26 @@ export const transferCore = ( From_frame_unit_id, To_frame_unit_id, From_pair_id
       },
       body: JSON.stringify(
         {
-          From_frame_unit_id,
-          To_frame_unit_id,
-          From_pair_id,
-          To_pair_id,
-          User: getState().data.user.staff_user
+          FROM_PAIR_ID: from_pair_id,
+          TO_PAIR_ID: to_pair_id,
+          FRAME_NAME: frame_name,
+          CABLE_NAME: cable_name,
+          CABLE_CORE_NO: cable_core_no,
+          STAFF_ID: getState().data.user.staff_user
         }
       )
     })
     .then((response) => {
-      //console.log('DataActions:83');
-      //console.log(response);
+      //@disableHTTPrespons@console.log('DataAction:transferCore response');
+      //@disableHTTPrespons@console.log(response);
       if (response.ok===true){
         return response.json();
       }
       throw new Error('FLASH/TransferCore Network Error [' + response.status + ']. Please try again later');
     })
     .then((responseJson) => {
-      console.log('DataAction:transferCore');
-      console.log(responseJson);
+      //@commented@console.log('DataAction:transferCore');
+      //@commented@console.log(responseJson);
       if (responseJson.ErrorCode === '00'){
         return dispatch({ type: 'Transfer_Core_Success'});
       }
@@ -523,5 +580,41 @@ export const transferCore = ( From_frame_unit_id, To_frame_unit_id, From_pair_id
       dispatch({ type: 'Transfer_Core_Failed', payload: error.message});
     })
     .done();
+  }
+};
+
+export const transferCoreFetchShelf = (qr) => {
+  return (dispatch, getState) => {
+    dispatch({ type: 'QR_Fetching_Data'});
+    shelfFetch('', qr, getState().data.user.staff_user).then (
+    ({ result, ErrorMessage, payload }) => {
+      if (result==='Success'){
+        return dispatch({ type: 'Transfer_Core_Fetch_Shelf_Success', payload });
+      }
+      throw new Error(ErrorMessage);
+    })
+    .catch((error) => dispatch({ type: 'Transfer_Core_Fetch_Shelf_Failed', payload: error.message }))
+    .done();
+  }
+};
+
+export const requestCameraPermission = () => {
+  return (dispatch, getState) => {
+    if (!getState().data.hasCameraPermission){
+      Permissions.askAsync(Permissions.CAMERA)
+        .then(({ status }) => {
+          if (status==='granted'){
+            return dispatch({ type: 'Camera_Permission_Granted'});
+          }
+          throw new Error('Camera permission not granted. Press OK to retry');
+        }
+      )
+      .catch((error) => {
+        return dispatch({ type: 'Camera_Permission_Denied', payload: error.message});
+      })
+      .done();
+    } else {
+      return dispatch({ type: 'Camera_Permission_Granted'});
+    }
   }
 };

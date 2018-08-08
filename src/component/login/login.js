@@ -1,13 +1,14 @@
 import React from 'react';
 import { StyleSheet, Text, View, Image,KeyboardAvoidingView} from 'react-native';
 import LoginForm from './loginform';
+import { Header } from 'react-navigation';
 
 export default class Login extends React.Component {
   render() {
     const {navigate} = this.props.navigation;
     return (
-      <KeyboardAvoidingView behavior="padding" style={styles.container}>
-      <Image source= { require('../../img/bg2.png')} style= {{ position: 'absolute', top: -5, resizeMode: 'cover'}} />
+      <KeyboardAvoidingView behavior='padding' keyboardVerticalOffset={ Header.HEIGHT + 21 } style={styles.container}>
+      <Image source= { require('../../img/bg2.png')} style= {{ position: 'absolute', top: -1, resizeMode: 'cover'}} />
         <View style={styles.logoContainer}>
         <Image
             style={styles.loginlogo}
@@ -15,7 +16,7 @@ export default class Login extends React.Component {
         <Text style={styles.description}>Login To Access FLASH</Text>
         </View>
 
-        <LoginForm navigation={navigate}/>
+        <LoginForm />
 
       </KeyboardAvoidingView>
     );

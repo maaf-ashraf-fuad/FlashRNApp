@@ -1,18 +1,18 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import { Dimensions, StyleSheet, Text, View, Alert} from 'react-native';
 import { BarCodeScanner, Permissions } from 'expo';
 import { Button, Spinner } from '../common';
 import { Header } from 'react-navigation';
 import { connect } from 'react-redux';
-import { fetchHelper, shelfUpdateQR, coreUpdateQR, setMenuState } from '../../actions';
+import { fetchHelper, frameUpdateQR, shelfUpdateQR, coreUpdateQR, transferCoreFetchShelf, setMenuState, requestCameraPermission } from '../../actions';
 import { FormValidationMessage } from 'react-native-elements';
 import _ from 'lodash';
 
 
-class ScanScreen extends Component {
+class ScanScreen extends PureComponent {
   constructor(props) {
     super(props);
-    this.handleBarCodeRead = _.debounce(this.handleBarCodeRead.bind(this), 1000, {leading:true, trailing:false});
+    this.handleBarCodeRead = _.debounce(this.handleBarCodeRead.bind(this), 250, { 'maxWait': 1000, leading:true, trailing:false });
     const { height, width } = Dimensions.get('window');
     this.state = {
       hasCameraPermission: null,
@@ -22,65 +22,83 @@ class ScanScreen extends Component {
   }
 
   componentDidMount() {
-    this._requestCameraPermission();
+    this.props.requestCameraPermission();
   }
 
   static navigationOptions = ({navigation}) => {
     //const {fetchHelper, back } = navigation.state.params;
     //console.log(navigation.state.params);
-    const onPress = () => {
+    /*const onPress = () => {
       //console.log(back);
       //fetchHelper&&fetchHelper(back);
       navigation.goBack();
-    }
+    }*/
     return ({
       headerLeft: (
-        <Button iconName='arrow-back' iconColor='#fff' iconStyle={{ marginLeft: 15 }} onPress={onPress} />
+        <Button iconName='arrow-back' iconColor='#fff' iconStyle={{ marginLeft: 15 }} onPress={() => navigation.goBack()} />
       ),
       headerRight: null
     })
   };
 
-  _requestCameraPermission = async () => {
-    const { status } = await Permissions.askAsync(Permissions.CAMERA);
-    this.setState({
-      hasCameraPermission: status === 'granted',
-    });
-  };
-
   handleBarCodeRead = ({data}) => {
-    const { shelfUpdateQR, coreUpdateQR, parent, parent_type, navigation: { replace, pop, state: { params: { fetchHelper, next }}}} = this.props;
+    const { shelfUpdateQR, frameUpdateQR, coreUpdateQR, transferCoreFetchShelf, parent, parent_type, navigation: { replace, pop, state: { params: { fetchHelper, next }}}} = this.props;
     if (data!==undefined)
     {
       switch (next.type) {
+        case 'Update_Frame_QR':
+          frameUpdateQR(parent.frame_name, data);
+          break;
         case 'Update_Shelf_QR':
           shelfUpdateQR(parent.frame_unit_id, data);
           break;
         case 'Update_Core_QR':
-        //console.log('something broke :(');
           coreUpdateQR(parent.frame_unit_id, parent.pair_id, data);
+          break;
+        case 'Transfer_Core_Shelf_QR':
+          transferCoreFetchShelf(data);
           break;
         default:
           /*this.props.fetchHelper({ ...next, qr: data });
           replace ('DataPage', { next: { ...next, id: data }, back: { type: 'Reset' }, fetchHelper: this.props.fetchHelper});*/
-          this.props.fetchHelper({ action: { type: 'replace', routeName: 'DataPage' }, next: { ...next, qr: data }, back: { type: 'Reset' }});
+          this.props.fetchHelper({
+            action: { type: 'replace', routeName: 'DataPage' },
+            next: { ...next, qr: data },
+            back: { type: 'Reset' }});
           break;
       }
     }
   }
 
   handleAlert(){
-    const { error, setMenuState } = this.props;
+    const { error, setMenuState, hasCameraPermission, requestCameraPermission, navigation } = this.props;
     if(error!==null&&error!==undefined&&error!==''){
-      Alert.alert('Flash 2.0', error,
-        [
-          {
-            text: 'OK', onPress: () => {
-              setMenuState({ error: '' });
+      if (hasCameraPermission){
+        Alert.alert('Flash 2.0', error,
+          [
+            {
+              text: 'OK', onPress: () => {
+                setMenuState({ qrType: [BarCodeScanner.Constants.BarCodeType.qr] });
+              }
             }
-          }
-        ]
-      );
+          ]
+        );
+      } else {
+        Alert.alert('Flash 2.0', error,
+          [
+            {
+              text: 'OK', onPress: () => {
+                requestCameraPermission();
+              }
+            },
+            {
+              text: 'Back', onPress: () => {
+                navigation.goBack();
+              }
+            }
+          ]
+        );
+      }
     }
     return null;
   }
@@ -91,12 +109,11 @@ class ScanScreen extends Component {
     /*const level = this.props.navigation.getParam('level', undefined);
     const id = this.props.navigation.getParam('id', undefined);
     const mode = this.props.navigation.getParam('mode', undefined);
-    const item = this.props.navigation.getParam('item', undefined);
-    console.log('scanqr - level: ' + level, 'mode: ' + mode, 'id: ' + id);*/
-
+    const item = this.props.navigation.getParam('item', undefined);*/
+    //console.log('qrType: ', qrType[0]);
     return (
         <BarCodeScanner
-          onBarCodeRead={this.handleBarCodeRead}
+          onBarCodeRead={this.handleBarCodeRead}console
           style={styles.barcode}
           barCodeTypes={qrType}
         >
@@ -110,47 +127,15 @@ class ScanScreen extends Component {
               </View>
             <View style={[{ flex: maskRowHeight }, styles.maskRow, styles.maskFrame]} />
           </View>
+          { loading?<Spinner border />:null }
         </BarCodeScanner>
     );
   }
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  cancelButton: {
-    marginLeft: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   barcode: {
     flex: 1,
-  },
-  bottomBar: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: 'white',
-    padding: 15,
-    flexDirection: 'row',
-    justifyContent:'center',
-  },
-  topBar: {
-    position: 'relative',
-    top: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: 'white',
-    padding: 15,
-    flexDirection: 'row',
-    justifyContent:'center',
-    alignItems:'center',
-  },
-  cameraView: {
-    flex: 1,
-    justifyContent: 'flex-start',
   },
   maskOutter: {
     position: 'absolute',
@@ -177,12 +162,8 @@ const styles = StyleSheet.create({
 });
 
 const mapStateToProps = (state) => {
-  const { parent_type, error, parent, loading } = state.data;
-  //let data = _.omitBy(state.data, (val, key) => key === 'ns2:LIST_FRAME_UNIT' || key === 'parent');
-  //data = _.mapKeys(data, (val, key) => key.replace('ns2:',''));
-  //const a = state.data['ns2:LONGITUDE'];
-  //console.log (state.data.children);
-  return { error, parent_type, parent, loading };
+  const { parent_type, error, parent, loading, qrType, hasCameraPermission } = state.data;
+  return { error, parent_type, parent, loading, qrType, hasCameraPermission };
 };
 
-export default connect(mapStateToProps, { fetchHelper, shelfUpdateQR, coreUpdateQR, setMenuState })(ScanScreen);
+export default connect(mapStateToProps, { fetchHelper, frameUpdateQR, shelfUpdateQR, coreUpdateQR, transferCoreFetchShelf, setMenuState, requestCameraPermission })(ScanScreen);

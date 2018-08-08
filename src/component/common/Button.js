@@ -25,7 +25,7 @@ render() {
   } = this.props;
   const combinedButtonStyles = StyleSheet.flatten([ border?styles.buttonStyle:styles.menuStyle, buttonStyle, { opacity: disabled?0.5:1 } ]);
   const combinedTextStyles = StyleSheet.flatten([ border?styles.buttontextStyle:styles.menutextStyle, textStyle, { opacity: disabled?0.5:1 } ]);
-  const combinedContainerStyles = StyleSheet.flatten([ border&&{ flex: 1 }, styles.containerStyle, containerStyle ]);
+  const combinedContainerStyles = StyleSheet.flatten([ styles.containerStyle, containerStyle ]);
 
   return (
     <View onLayout={onLayout} style={combinedContainerStyles}>
@@ -43,6 +43,7 @@ render() {
 const styles = StyleSheet.create({
   containerStyle: {
     justifyContent: 'center',
+    //flex: 1
   },
   menuStyle: {
     flexDirection: 'row',
@@ -53,6 +54,7 @@ const styles = StyleSheet.create({
     marginRight: 20
   },
   buttonStyle: {
+    //...StyleSheet.absoluteFillObject,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#ffb347',

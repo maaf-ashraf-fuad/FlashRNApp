@@ -1,51 +1,55 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import { ListItem, Text } from 'react-native-elements';
 import {
   View,
   FlatList
 } from 'react-native';
 import { Type } from './types';
+import NavigationService from '../../navigation/NavigationService.js';
+import { connect } from 'react-redux';
+import { fetchHelper } from '../../actions';
 
-class List extends Component {
+class List extends PureComponent {
+
+  handleHeaderOnPress = (val) => {
+    const { onPress } = this.props;
+    val&&onPress(val);
+  };
+
   renderItemHeader = ({ item, index }) => {
     const title=<Text style={{ fontWeight: 'bold' }}>{ Object.keys(item)[0].toUpperCase() }</Text>;
     return (
       <ListItem
         title={ title }
-        //subtitle={`QR Code: ${item.QR_code_id===undefined?'No QR Code':item.QR_code_id}`}
-        //subtitle={Object.values(item)[0]}
         textInput
         textInputEditable={false}
-        //textInputValue={ ':      ' + Object.values(item)[0] }
+        onPress={()=>this.handleHeaderOnPress(Object.values(item)[0])}
         textInputValue={Object.values(item)[0]}
         textInputStyle={{ textAlign: 'left' }}
-        //textInputContainerStyle={{ flex:1, backgroundColor: '#fff', borderColor: '#ddd', borderWidth: 1 }}
-        //leftIcon={{ name: 'chevron-right', color:'grey' }}
         containerStyle={index%2?{ borderBottomWidth: 0, backgroundColor: '#f5f5f5' }:{ borderBottomWidth: 0, backgroundColor: '#fff' }}
-        //onPress={() => {this.renderData(item, item.children, item.parent)}}
         hideChevron
       />
     )
   }
 
-  renderItemChildren = ({ item, index }) => {
-    const { type, fetchHelper, navigate } = this.props;
+  renderItemChildren = ({ item }) => {
+    const { type, fetchHelper, current } = this.props;
     const title=(
       <View>
-        <Text><Text style={{ fontWeight: 'bold' }}>{Type[type].htext1.label}: </Text>{item[Type[type].htext1.field]}</Text>
-        <Text><Text style={{ fontWeight: 'bold' }}>{Type[type].htext2.label}: </Text>{item[Type[type].htext2.field]}</Text>
+        {
+          Type[type].child_fields.map( subitem =>
+            <Text key={subitem.key}><Text style={{ fontWeight: 'bold' }}>{subitem.label}</Text>{item[subitem.field]}</Text>
+          )
+        }
       </View>
     );
 
     return (
       <ListItem
         title={title}
-        //subtitle={subtitle}
-        leftIcon={{ name: 'level-down', type: 'entypo', color:'#ff9a1e', style:{ opacity: (100-index)/100 }}}
-        //containerStyle={index%2?{ borderBottomWidth: 0, backgroundColor: '#f5f5f5' }:{ borderBottomWidth: 0, backgroundColor: '#fff' }}
+        leftIcon={{ name: 'level-down', type: 'entypo', color:'#ff9a1e' }}
         containerStyle={{ borderBottomWidth: 0, backgroundColor: '#fff' }}
-        //onPress={() => fetchHelper({type: type, back_type: back_type} , {id: item[Type[type].htext1.field], qr: '', item})}//{ id: item[Type[type].htext1.field], qr: '' })}
-        onPress={() => navigate('DataPage', { next: { type, id: item[Type[type].id], qr: '', item }})}//{ id: item[Type[type].htext1.field], qr: '' })}
+        onPress={() => fetchHelper({ action: { type: 'push', routeName: 'DataPage' }, back: { ...current }, next: { type, id: item[Type[type].id], qr: '', item }})}
       />
     )
   }
@@ -69,15 +73,12 @@ class List extends Component {
   }
 
   render(){
-    //console.log(this.props.navigation);
     return(
       <FlatList
-        //style={{flex:1}}
         data={this.props.data}
         renderItem={this.props.flag?this.renderItemHeader:this.renderItemChildren}
         keyExtractor={this.props.flag?this.keyExtractorHeader:this.keyExtractorChild}
         ItemSeparatorComponent={this.renderSeparator}
-        //ListFooterComponent={this.renderFooter}
         /*getItemLayout={(data, index) => ({
           length: ITEM_HEIGHT,
           offset: ITEM_HEIGHT * index,
@@ -88,4 +89,8 @@ class List extends Component {
   }
 }
 
-export default List;
+const mapStateToProps = ({ data: { loading, error }}) => {
+  return { loading, error };
+};
+
+export default connect(mapStateToProps, { fetchHelper })(List);

@@ -1,10 +1,11 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import {
   ScrollView,
   View,
   Image,
   KeyboardAvoidingView,
-  Alert
+  Alert,
+  BackHandler
 } from 'react-native';
 import { Button, Spinner } from '../common';
 import Parent from './Parent';
@@ -12,25 +13,41 @@ import Children from './Children';
 import { connect } from 'react-redux';
 import { fetchHelper, setMenuState } from '../../actions';
 import { Header } from 'react-navigation';
-//import { FormValidationMessage } from 'react-native-elements';
 
-//const { UIManager } = NativeModules;
-//NativeModules.UIManager.setLayoutAnimationEnabledExperimental(true);
+class DataPage extends PureComponent {
+_didFocusSubscription;
+_willBlurSubscription;
 
-class  DataPage extends Component {
-  componentDidMount() {
-    this.props.navigation.setParams({ fetchHelper: this.props.fetchHelper })
+constructor(props) {
+  super(props);
+  this._didFocusSubscription = props.navigation.addListener('didFocus', () =>
+    BackHandler.addEventListener('hardwareBackPress', this.onBackButtonPressAndroid)
+  );
+}
+
+componentDidMount() {
+    const { fetchHelper, navigation } = this.props;
+    navigation.setParams({ fetchHelper })
+    this._willBlurSubscription = this.props.navigation.addListener('willBlur', () =>
+      BackHandler.removeEventListener('hardwareBackPress', this.onBackButtonPressAndroid)
+    );
+  }
+
+  onBackButtonPressAndroid = () => {
+    const { fetchHelper, navigation: {state: { params: { back }}}} = this.props;
+    fetchHelper({ action: { type: 'back' }, next: back });
+    return true;
+  };
+
+  componentWillUnmount() {
+    this._didFocusSubscription && this._didFocusSubscription.remove();
+    this._willBlurSubscription && this._willBlurSubscription.remove();
   }
 
   static navigationOptions = ({navigation}) => {
     const {fetchHelper, back } = navigation.state.params;
-    //console.log(navigation.state.params);
     const onPress = () => {
-      //console.log(back);
       fetchHelper&&fetchHelper({ action: { type: 'back' }, next: back });
-      //navigation.goBack();
-
-      //fetchHelper({ action: { type: 'push', routeName: 'DataPage' }, next: { type: searchType, id: searchText }, back: { type: 'Reset' }});
     }
     return ({
       headerLeft: (
@@ -52,7 +69,6 @@ class  DataPage extends Component {
     if (pageName==='DataPage'){
       return fetchHelper({ action: { type: 'push', routeName: pageName }, back: { ...navigation.getParam('next', null)}, next });
     }
-    //navigation.push(pageName, { back: { ...navigation.getParam('next', null)}, next, fetchHelper});
     navigation.push(pageName, { back: { ...navigation.getParam('next', null)}, next });
   }
 
@@ -73,32 +89,28 @@ class  DataPage extends Component {
   }
 
   render(){
-    const { loading, error } = this.props;
+    const { loading, error, navigation } = this.props;
 
     return (
       <KeyboardAvoidingView enabled keyboardVerticalOffset={ Header.HEIGHT + 21 } behavior='padding' style={{ flex: 1, backgroundColor:'#ffd294'}}>
-          <Image source= { require('../../img/bg2.png')} style= {{ position:'absolute', top: -5, resizeMode: 'cover'}} />
+          <Image source= { require('../../img/bg2.png')} style= {{ position:'absolute', top: -1, resizeMode: 'cover'}} />
           <View style={{ height: 25 }}/>
           {
             loading?
             <Spinner />:
             <ScrollView>
-              <Parent navigate={this.navigate}/>
-              <Children navigate={this.navigate}/>
+              <Parent/>
+              <Children current={navigation.getParam('next', null)}/>
               <View style={{ height: 20 }}/>
             </ScrollView>
           }
-          { this.handleAlert() }
+          {/* this.handleAlert() */}
         </KeyboardAvoidingView>
     )
   }
 }
 
 const mapStateToProps = ({ data: { loading, error, parent }}) => {
-  //let data = _.omitBy(state.data, (val, key) => key === 'ns2:LIST_FRAME_UNIT' || key === 'parent');
-  //data = _.mapKeys(data, (val, key) => key.replace('ns2:',''));
-  //const a = state.data['ns2:LONGITUDE'];
-  //console.log (state.data.children);
   return { loading, error, parent };
 };
 
