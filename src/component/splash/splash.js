@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet, Text, View, Image, AsyncStorage, TouchableOpacity, Alert } from 'react-native';
+import { StyleSheet, Text, View, Image, AsyncStorage, TouchableOpacity } from 'react-native';
 import { login } from '../../actions';
 import { connect } from 'react-redux';
 import { Spinner } from '../common';

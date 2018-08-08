@@ -28,11 +28,11 @@ const styles = {
     borderWidth: 1,
     borderRadius: 50,
     backgroundColor: '#fff',
-    shadowColor: '#000',
-    //shadowOffset: { width: 0, height: 2 },
+    /*shadowColor: '#000',
+    shadowOffset: { width: 2, height: 2 },
     shadowOpacity: 0.8,
     shadowRadius: 3,
-    elevation: 10,
+    elevation: 10,*/
   }
 };
 

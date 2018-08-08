@@ -4,10 +4,6 @@ import { createStore, applyMiddleware } from 'redux';
 import ReduxThunk from 'redux-thunk';
 import reducers from './src/reducers';
 import {
-  Platform,
-  StyleSheet,
-  Text,
-  View,
   Image
 } from 'react-native';
 import Splash from './src/component/splash/splash';
@@ -18,7 +14,6 @@ import DataPage from './src/component/DataPage/DataPage';
 import ScanScreen from './src/component/scan/scanqr1';
 import NavigationService from './src/navigation/NavigationService';
 import { createStackNavigator } from 'react-navigation';
-import { Button } from './src/component/common';
 import { ScreenOrientation } from 'expo';
 
 const TopLevelNavigator = createStackNavigator({
@@ -29,15 +24,11 @@ const TopLevelNavigator = createStackNavigator({
     DataPage: { screen: DataPage },
     Scan: { screen: ScanScreen },
     AddScan: { screen: Splash },
-    //Home: { screen: Login },
-    //Menu: { screen: SearchInput, title:'Menu'},
-    //Scan: { screen: ScanScreen},
-    //DataPage: { screen: DataPage },
 },
     {
         initialRouteName:
-        //'Splash',
-        'Menu',
+        'Splash',
+        //'Menu',
         //headerMode: 'none',
         headerLayoutPreset: 'center',
         headerBackTitleVisible : false,
@@ -65,10 +56,18 @@ const TopLevelNavigator = createStackNavigator({
     }
 );
 
+/*handleRef = (navigatorRef) => {
+  NavigationService.setTopLevelNavigator(navigatorRef);
+}*/
+
 export default class App extends Component {
   constructor(props) {
       super(props);
       ScreenOrientation.allow(ScreenOrientation.Orientation.PORTRAIT_UP);
+  }
+
+  handleRef = (navigatorRef) => {
+    NavigationService.setTopLevelNavigator(navigatorRef);
   }
 
   render() {
@@ -77,9 +76,7 @@ export default class App extends Component {
     return (
       <Provider store={store}>
         <TopLevelNavigator
-          ref={navigatorRef => {
-            NavigationService.setTopLevelNavigator(navigatorRef);
-          }}
+          ref={this.handleRef}
         />
       </Provider>
     );
