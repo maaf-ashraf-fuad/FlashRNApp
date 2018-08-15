@@ -38,7 +38,7 @@ class List extends PureComponent {
       <View>
         {
           Type[type].child_fields.map( subitem =>
-            <Text key={subitem.key}><Text style={{ fontWeight: 'bold' }}>{subitem.label}</Text>{item[subitem.field]}</Text>
+            <Text key={subitem.key}><Text style={{ fontWeight: 'bold' }}>{subitem.label}</Text>{item[subitem.field]!=='Null'?item[subitem.field]:null}</Text>
           )
         }
       </View>

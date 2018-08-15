@@ -61,11 +61,26 @@ export const Type = {
       },
       {
           key: 2,
-          label: 'NE ID: ',
+          label: 'NE ID From: ',
           field: 'ne_id'
       },
       {
           key: 3,
+          label: 'NE ID To: ',
+          field: 'ne_id'
+      },
+      {
+          key: 4,
+          label: 'CCt From: ',
+          field: 'cct_name'
+      },
+      {
+          key: 5,
+          label: 'CCt To: ',
+          field: 'to_cct_name'
+      },
+      {
+          key: 6,
           label: 'QR Code: ',
           field: 'qr_code_id'
       }

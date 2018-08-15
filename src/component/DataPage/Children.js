@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Text, Icon } from 'react-native-elements';
-import { Card, CardSection, ModalDropdown } from '../common';
+import { Card, CardSection } from '../common';
 import { connect } from 'react-redux';
 import List from './List';
 import { fetchHelper } from '../../actions';
