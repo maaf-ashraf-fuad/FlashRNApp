@@ -56,12 +56,12 @@ export const Type = {
       },
       {
           key: 1,
-          label: 'Cable Core No: ',
+          label: 'Core No: ',
           field: 'Cable_core_no'
       },
       {
           key: 2,
-          label: 'Ne ID: ',
+          label: 'NE ID: ',
           field: 'ne_id'
       },
       {
@@ -83,8 +83,23 @@ export const Type = {
       },
       {
           key: 2,
-          label: 'Ne ID: ',
+          label: 'NE ID From: ',
           field: 'ne_id'
+      },
+      {
+          key: 3,
+          label: 'NE ID To: ',
+          field: 'ne_id'
+      },
+      {
+          key: 4,
+          label: 'CCt From: ',
+          field: 'cct_name'
+      },
+      {
+          key: 5,
+          label: 'CCt To: ',
+          field: 'to_cct_name'
       }
     ]
   },
