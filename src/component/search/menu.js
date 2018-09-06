@@ -69,7 +69,7 @@ constructor(props) {
     })
   };
 
-  handleSearchTypeInput = (searchType) => this.props.setMenuState({ searchType });
+  handleSearchTypeInput = (searchType) => this.props.setMenuState({ searchType, searchText: '' });
 
   handleSearchTextInput = (searchText) => this.props.setMenuState({ searchText });
 
@@ -87,7 +87,7 @@ constructor(props) {
 
   handleQRButtonPress = () => {
     this.props.setMenuState({ error: '' });
-    this.props.navigation.navigate('Scan', { next: {type: 'QR'}});
+    this.props.navigation.navigate('Scan', { next: {type: 'QR'}, QRText: 'Scan Frame, Shelf or Core QR Code here'});
   }
 
   render(){
@@ -118,7 +118,7 @@ constructor(props) {
                   itemStyle={{ fontSize: 14 }}
                   onValueChange={this.handleSearchTypeInput}>
                   <Picker.Item label='Frame Name' value='Frame' />
-                  {/*<Picker.Item label='Shelf Id' value='Shelf' />*/}
+                  <Picker.Item label='NE Id' value='NE' />
                 </Picker>
                 <FormInput
                   value={searchText}
@@ -130,7 +130,8 @@ constructor(props) {
                   returnKeyType='go'
                   //keyboardType={searchType==='Shelf'?'numeric':'default'}
                   //style={{ marginBottom: 0 }}
-                  autoCapitalize = {searchType==='Frame'?'characters':'none'}
+                  //autoCapitalize = {searchType==='Frame'?'characters':'none'}
+                  autoCapitalize = 'characters'
                   autoCorrect={false}
                   clearButtonMode='always'
                   onSubmitEditing={this.handleSearchButtonPress}

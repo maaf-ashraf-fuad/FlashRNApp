@@ -52,9 +52,11 @@ class DropDownMenu extends PureComponent {
         const onPressQR = () => {
           _.delay(closePopover, 50);
           NavigationService.navigate('Scan', {
-               next: {
+              next: {
                type: `Update_${type}_QR`
-              }}
+              },
+              QRText: `Scan ${type} QR Code here`
+             }
           );
         }
 
@@ -101,16 +103,13 @@ class DropDownMenu extends PureComponent {
                   />
                 </View>:null
             }
-            {!qr_code_id?
-              <Button
-                renderDivider
-                onPress={onPressQR}
-                buttonText='Update QR Code'
-                iconName='qrcode'
-                iconType='font-awesome'
-              />
-              :null
-            }
+            <Button
+              renderDivider
+              onPress={onPressQR}
+              buttonText='Update QR Code'
+              iconName='qrcode'
+              iconType='font-awesome'
+            />
           </Popover>
         </React.Fragment>
       );}}

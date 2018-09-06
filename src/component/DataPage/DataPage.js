@@ -58,7 +58,7 @@ componentDidMount() {
           iconName='home'
           iconColor='#fff'
           iconStyle={{ marginRight: 15 }}
-          onPress={() => navigation.popToTop()}
+          onPress={() => fetchHelper&&fetchHelper({ action: { type: 'reset' }, next: { type: 'Reset' } })}
         />
         )
     })
@@ -72,29 +72,12 @@ componentDidMount() {
     navigation.push(pageName, { back: { ...navigation.getParam('next', null)}, next });
   }
 
-  handleAlert(){
-    const { error, setMenuState } = this.props;
-    if(error!==null&&error!==undefined&&error!==''){
-      Alert.alert('Flash 2.0', error,
-        [
-          {
-            text: 'OK', onPress: () => {
-              setMenuState({ error: '' });
-            }
-          }
-        ]
-      );
-    }
-    return null;
-  }
-
   render(){
     const { loading, error, navigation } = this.props;
 
     return (
       <KeyboardAvoidingView enabled keyboardVerticalOffset={ Header.HEIGHT + 21 } behavior='padding' style={{ flex: 1, backgroundColor:'#ffd294'}}>
           <Image source= { require('../../img/bg2.png')} style= {{ position:'absolute', top: -1, resizeMode: 'cover'}} />
-          <View style={{ height: 25 }}/>
           {
             loading?
             <Spinner />:
@@ -103,8 +86,7 @@ componentDidMount() {
               <Children current={navigation.getParam('next', null)}/>
               <View style={{ height: 20 }}/>
             </ScrollView>
-          }
-          {/* this.handleAlert() */}
+        }
         </KeyboardAvoidingView>
     )
   }

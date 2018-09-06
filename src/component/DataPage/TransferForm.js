@@ -22,7 +22,10 @@ class TransferForm extends PureComponent {
 
   handleQRButtonPress = () => {
     this.props.setMenuState({ error: '' });
-    NavigationService.navigate('Scan', { next: { type: 'Transfer_Core_Shelf_QR' }});
+    NavigationService.navigate('Scan', {
+      next: { type: 'Transfer_Core_Shelf_QR' },
+      QRText: 'Scan Shelf QR Code here'
+    });
   }
 
   render(){

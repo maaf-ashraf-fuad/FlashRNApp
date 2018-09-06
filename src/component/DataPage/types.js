@@ -61,8 +61,8 @@ export const Type = {
       },
       {
           key: 2,
-          label: 'NE ID: ',
-          field: 'ne_id'
+          label: 'NE ID To: ',
+          field: 'to_ne_id'
       },
       {
           key: 3,
@@ -89,7 +89,7 @@ export const Type = {
       {
           key: 3,
           label: 'NE ID To: ',
-          field: 'ne_id'
+          field: 'to_ne_id'
       },
       {
           key: 4,
@@ -106,14 +106,38 @@ export const Type = {
   'NE':  {
     id: 'ne_id',
     menuPlaceholder: 'eg. PUJ1_M999_0054',
-    htext1: {
-      label: 'Core Id: ',
-      field: 'Cable_core_id'
-    },
-    htext2: {
-      label: 'Cable Id: ',
-      field: 'Cable_name'
-    }
+    child_fields: [
+      {
+          key: 0,
+          label: 'Cable Name: ',
+          field: 'Cable_name'
+      },
+      {
+          key: 1,
+          label: 'Core No: ',
+          field: 'Cable_core_no'
+      },
+      {
+          key: 2,
+          label: 'NE ID From: ',
+          field: 'ne_id'
+      },
+      {
+          key: 3,
+          label: 'NE ID To: ',
+          field: 'to_ne_id'
+      },
+      {
+          key: 4,
+          label: 'CCt From: ',
+          field: 'cct_name'
+      },
+      {
+          key: 5,
+          label: 'CCt To: ',
+          field: 'to_cct_name'
+      }
+    ]
   },
   excludeFromResponse: [
     'LIST_FRAME_UNIT',

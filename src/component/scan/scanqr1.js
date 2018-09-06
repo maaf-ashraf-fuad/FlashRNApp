@@ -1,11 +1,10 @@
 import React, { PureComponent } from 'react';
 import { Dimensions, StyleSheet, Text, View, Alert} from 'react-native';
 import { BarCodeScanner, Permissions } from 'expo';
-import { Button, Spinner } from '../common';
+import { Button, Spinner, CardSection } from '../common';
 import { Header } from 'react-navigation';
 import { connect } from 'react-redux';
 import { fetchHelper, frameUpdateQR, shelfUpdateQR, coreUpdateQR, transferCoreFetchShelf, setMenuState, requestCameraPermission } from '../../actions';
-import { FormValidationMessage } from 'react-native-elements';
 import _ from 'lodash';
 
 
@@ -22,22 +21,31 @@ class ScanScreen extends PureComponent {
   }
 
   componentDidMount() {
-    this.props.requestCameraPermission();
+    const { setMenuState, navigation, requestCameraPermission, qrFlash } = this.props;
+    requestCameraPermission();
+    navigation.setParams({ setMenuState, qrFlash });
   }
 
   static navigationOptions = ({navigation}) => {
-    //const {fetchHelper, back } = navigation.state.params;
+    const { setMenuState, qrFlash } = navigation.state.params;
     //console.log(navigation.state.params);
-    /*const onPress = () => {
-      //console.log(back);
-      //fetchHelper&&fetchHelper(back);
-      navigation.goBack();
-    }*/
+    const onPressFlash = () => {
+      navigation.setParams({ qrFlash: qrFlash==='off'?'on':'off' });
+      setMenuState&&setMenuState({ qrFlash: qrFlash==='off'?'on':'off' })
+    }
     return ({
       headerLeft: (
         <Button iconName='arrow-back' iconColor='#fff' iconStyle={{ marginLeft: 15 }} onPress={() => navigation.goBack()} />
       ),
-      headerRight: null
+      headerRight: (
+        <Button
+          iconName={qrFlash==='off'?'flash-on':'flash-off'}
+          iconColor='#fff'
+          iconStyle={{ marginRight: 15 }}
+          onPress={onPressFlash}
+        />
+        )
+      //headerRight: null
     })
   };
 
@@ -105,7 +113,7 @@ class ScanScreen extends PureComponent {
 
   render() {
     const { maskRowHeight, maskColWidth } = this.state;
-    const { error, loading, qrType } = this.props;
+    const { error, loading, qrType, navigation, qrFlash } = this.props;
     /*const level = this.props.navigation.getParam('level', undefined);
     const id = this.props.navigation.getParam('id', undefined);
     const mode = this.props.navigation.getParam('mode', undefined);
@@ -113,11 +121,15 @@ class ScanScreen extends PureComponent {
     //console.log('qrType: ', qrType[0]);
     return (
         <BarCodeScanner
-          onBarCodeRead={this.handleBarCodeRead}console
+          onBarCodeRead={this.handleBarCodeRead}
           style={styles.barcode}
           barCodeTypes={qrType}
+          torchMode={qrFlash}
         >
         { this.handleAlert() }
+          <View style={{ padding: 15, backgroundColor: '#ffd294', justifyContent: 'center' }}>
+            <Text style={{ textAlign: 'center', textAlignVertical: 'center' }}>{navigation.getParam('QRText', 'Scan Frame, Shelf or Core QR Code here')}</Text>
+          </View>
           <View style={styles.maskOutter}>
             <View style={[{ flex: maskRowHeight }, styles.maskRow, styles.maskFrame]} />
               <View style={[{ flex: 30 }, styles.maskCenter]}>
@@ -161,9 +173,9 @@ const styles = StyleSheet.create({
   maskCenter: { flexDirection: 'row' },
 });
 
-const mapStateToProps = (state) => {
-  const { parent_type, error, parent, loading, qrType, hasCameraPermission } = state.data;
-  return { error, parent_type, parent, loading, qrType, hasCameraPermission };
+const mapStateToProps = ({data: { parent_type, error, parent, loading, qrType, hasCameraPermission, qrFlash }}) => {
+  //const { parent_type, error, parent, loading, qrType, hasCameraPermission, qrFlash } = state.data;
+  return { error, parent_type, parent, loading, qrType, hasCameraPermission, qrFlash };
 };
 
 export default connect(mapStateToProps, { fetchHelper, frameUpdateQR, shelfUpdateQR, coreUpdateQR, transferCoreFetchShelf, setMenuState, requestCameraPermission })(ScanScreen);

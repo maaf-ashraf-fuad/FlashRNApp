@@ -44,6 +44,7 @@ const INITIAL_STATE = {
   },
   user: { staff_name: undefined, staff_user: undefined, staff_pass: undefined },
   qrType: [ BarCodeScanner.Constants.BarCodeType.qr ],
+  qrFlash: 'off',
   hasCameraPermission: false,
   showCopyModal: false
 };
@@ -95,7 +96,7 @@ export default (state = INITIAL_STATE, action) => {
       //return { ...state, loading: true, error: '', headerExpended: false, headerMode: null };
       return { ...state, coreLoading: true };
     case 'Reset_Data':
-      this.navigationHelper(action.nav);
+      //this.navigationHelper(action.nav);
       return { ...state, ...INITIAL_STATE, user: { ...state.user }};
     case 'Update_Menu_State':
       return { ...state, error: '', ...action.payload };
@@ -376,14 +377,14 @@ export default (state = INITIAL_STATE, action) => {
       parent = !this.isArray(action.payload.FU_Detail)?{[action.payload.FU_Detail.Cable_name]:[action.payload.FU_Detail.Cable_core_no]}:
                 _.reduce(action.payload.FU_Detail, (details, i) => {
                   if (i.Cable_name!==null||i.Cable_name!=='Null') {
-                    if (details[i.Cable_name]===undefined){
-                      details[i.Cable_name] = [];
-                    }
-                    if (i.Cable_core_no!==null||i.Cable_core_no!=='Null') {
+                    if ((i.Cable_core_no!==null||i.Cable_core_no!=='Null')&&(i.status.toLowerCase()==='free'||i.status.toLowerCase()==='spare')) {
+                      if (details[i.Cable_name]===undefined){
+                        details[i.Cable_name] = [];
+                      }
                       details[i.Cable_name].push(i.Cable_core_no);
                     }
                   }
-                    return details;
+                  return details;
                 }, {});
       child = !this.isArray(action.payload.FU_Detail)?[action.payload.FU_Detail.Cable_name]:
                 _.map(parent, (i, j) => j);

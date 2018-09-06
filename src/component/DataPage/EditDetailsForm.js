@@ -59,6 +59,7 @@ class EditDetailsForm extends PureComponent {
           <TextInput
             underlineColorAndroid = 'transparent'
             style={styles.input}
+            keyboardType={'numeric'}
             autoCorrect={false}
             autoCapitalize={'none'}
             value={ne_shelf}
@@ -73,6 +74,7 @@ class EditDetailsForm extends PureComponent {
           <TextInput
             underlineColorAndroid = 'transparent'
             style={styles.input}
+            keyboardType={'numeric'}
             autoCorrect={false}
             autoCapitalize={'none'}
             value={ne_slot}
@@ -87,6 +89,7 @@ class EditDetailsForm extends PureComponent {
           <TextInput
             underlineColorAndroid = 'transparent'
             style={styles.input}
+            keyboardType={'numeric'}
             autoCorrect={false}
             autoCapitalize={'none'}
             value={ne_port}
@@ -132,6 +135,7 @@ class EditDetailsForm extends PureComponent {
           <TextInput
             underlineColorAndroid = 'transparent'
             style={styles.input}
+            keyboardType={'numeric'}
             autoCorrect={false}
             autoCapitalize={'none'}
             value={to_ne_shelf}
@@ -146,6 +150,7 @@ class EditDetailsForm extends PureComponent {
           <TextInput
             underlineColorAndroid = 'transparent'
             style={styles.input}
+            keyboardType={'numeric'}
             autoCorrect={false}
             autoCapitalize={'none'}
             value={to_ne_slot}
@@ -160,6 +165,7 @@ class EditDetailsForm extends PureComponent {
           <TextInput
             underlineColorAndroid = 'transparent'
             style={styles.input}
+            keyboardType={'numeric'}
             autoCorrect={false}
             autoCapitalize={'none'}
             value={to_ne_port}

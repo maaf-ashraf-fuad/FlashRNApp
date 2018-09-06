@@ -14,7 +14,10 @@ class Children extends Component {
       const { child, headerExpended, child_type, current, searchKeys } = this.props;
       if (child !== undefined && !headerExpended){
         return (
-          <Card style={{ borderBottomWidth: 1 }}>
+          <Card style={{
+            //marginBottom: 350,
+            borderBottomWidth: 1
+          }}>
             <CardSection style={{ justifyContent: 'space-between', backgroundColor:'#ecedf2' }}>
               <Text h4>{child_type}</Text>
               {/*}<TouchableOpacity style={{ alignItems: 'center', justifyContent: 'center' }}>
