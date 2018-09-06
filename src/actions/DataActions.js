@@ -605,8 +605,8 @@ export const transferCore = (input) => {
       )
     })
     .then((response) => {
-      //@disableHTTPrespons@//@API response@console.log('DataAction:transferCore response');
-      //@disableHTTPrespons@//@API response@console.log(response);
+      //@disableHTTPrespons@console.log('DataAction:transferCore response');
+      //@disableHTTPrespons@console.log(response);
       if (response.ok===true){
         return response.json();
       }
