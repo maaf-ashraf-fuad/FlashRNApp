@@ -30,7 +30,7 @@ render() {
   return (
     <View onLayout={onLayout} style={combinedContainerStyles}>
       { renderDivider?<Divider style={styles.dividerStyle} />:null }
-      <TouchableOpacity ref={setRef} disabled={disabled} style={combinedButtonStyles} onPress={onPress}>
+      <TouchableOpacity hitSlop={hitSlop} ref={setRef} disabled={disabled} style={combinedButtonStyles} onPress={onPress}>
         { buttonText!==undefined&&loading!==true?<Text style={ combinedTextStyles }>{buttonText}</Text>:null }
         {/*<Icon name={iconName} color={iconColor} type={iconType} iconStyle={ disabled?combinedIconDisabledStyles:iconStyle} />*/}
         { iconName!==undefined&&loading!==true?<Icon name={iconName} color={iconColor} type={iconType} iconStyle={iconStyle} />:null }
@@ -39,6 +39,13 @@ render() {
     </View>
   );
 }}
+
+const hitSlop = {
+  top: 10,
+  bottom: 10,
+  right: 10,
+  left: 10
+};
 
 const styles = StyleSheet.create({
   containerStyle: {

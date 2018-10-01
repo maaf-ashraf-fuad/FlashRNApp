@@ -108,7 +108,7 @@ class EditDetailsForm extends PureComponent {
             autoCapitalize={'none'}
             value={cct_name}
             onChangeText={cct_name => coreSetValues({prop: 'cct_name', value: cct_name})}
-            returnKeyType='go'
+            returnKeyType='next'
             onSubmitEditing={() => this.to_ne_id.focus()}
             ref={(logininput) => this.cct_name = logininput}
           />

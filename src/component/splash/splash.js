@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, Image, AsyncStorage, TouchableOpacity } from 'r
 import { login } from '../../actions';
 import { connect } from 'react-redux';
 import { Spinner } from '../common';
+import { Header } from 'react-native-elements';
 
 class Splash extends Component {
   componentDidMount() {
@@ -21,7 +22,11 @@ class Splash extends Component {
     const {loading} = this.props;
     return (
       <View style={styles.container}>
-        <Image source= { require('../../img/bg2.png')} style= {{ position: 'absolute', top: -1, resizeMode: 'cover'}} />
+        <Image source= { require('../../img/bg2.png')} style= {{ position: 'absolute', top: 52, resizeMode: 'cover'}} />
+        <Header
+          outerContainerStyles={styles.header}
+          centerComponent={<Image source={ require('../../img/flash.png')} style={{ resizeMode: 'stretch', height: 20, width: 100 }}/>}
+        />
         <View style={styles.logoContainer}>
           <TouchableOpacity disabled={loading} onPress={this.handleLogin}>
             <Image style={styles.logo} source={require('../../img/TMLOGO.png')} />
@@ -29,18 +34,24 @@ class Splash extends Component {
             <Text style={styles.description}>Your Fiber Tagging App</Text>
             <Text style={styles.appTitle}> </Text>
             <Text style={styles.description}>Touch to START</Text>
-            { loading?<Spinner border/>: null }
           </TouchableOpacity>
         </View>
+        { loading?<Spinner border/>: null }
       </View>
     );
   }
 }
 
 const styles = StyleSheet.create({
+  header: {
+    backgroundColor: '#d03c1b',
+    borderBottomWidth: 0,
+    shadowColor: 'transparent',
+    elevation: 0,
+  },
   container: {
     flex: 1,
-    backgroundColor: '#FFC312',
+    backgroundColor: '#ffd294',
   },
   logoContainer: {
     alignItems: 'center',
@@ -48,13 +59,13 @@ const styles = StyleSheet.create({
     flexGrow: 1
   },
   appTitle: {
-    color: '#FFFF',
+    color: '#ff7000',
     fontSize: 30,
     fontWeight: '900',
     textAlign: 'center',
   },
   description: {
-    color: '#FFFF',
+    color: '#ff7000',
     fontSize: 20,
     fontWeight: '300',
     textAlign: 'center',
@@ -62,12 +73,6 @@ const styles = StyleSheet.create({
   logo: {
     height: 150,
     width: 300
-  },
-  buttonLogin: {
-    backgroundColor: '#0652DD',
-    paddingVertical: 10,
-    marginBottom: 50,
-    borderRadius: 50
   },
 });
 

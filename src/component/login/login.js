@@ -1,14 +1,57 @@
 import React from 'react';
-import { StyleSheet, Text, View, Image,KeyboardAvoidingView} from 'react-native';
+import { StyleSheet, Text, View, Image,KeyboardAvoidingView, BackHandler } from 'react-native';
 import LoginForm from './loginform';
-import { Header } from 'react-navigation';
+import { Header } from 'react-native-elements';
 
 export default class Login extends React.Component {
+_didFocusSubscription;
+_willBlurSubscription;
+
+constructor(props) {
+  super(props);
+  this._didFocusSubscription = props.navigation.addListener('didFocus', () =>
+    BackHandler.addEventListener('hardwareBackPress', this.onBackButtonPressAndroid)
+  );
+}
+  componentDidMount(){
+    this._willBlurSubscription = this.props.navigation.addListener('willBlur', () =>
+      BackHandler.removeEventListener('hardwareBackPress', this.onBackButtonPressAndroid)
+    );
+  }
+
+  onBackButtonPressAndroid = () => {
+    Alert.alert("Flash 2.0", 'Are you sure you want to exit?',
+      [
+        {
+          text: 'Yes', onPress: () => BackHandler.exitApp()
+        },
+        {
+          text: 'No'
+        }
+      ]
+    );
+    return true;
+  };
+
+  componentWillUnmount() {
+    this._didFocusSubscription && this._didFocusSubscription.remove();
+    this._willBlurSubscription && this._willBlurSubscription.remove();
+  }
+
   render() {
     const {navigate} = this.props.navigation;
     return (
-      <KeyboardAvoidingView behavior='padding' keyboardVerticalOffset={ Header.HEIGHT + 21 } style={styles.container}>
-      <Image source= { require('../../img/bg2.png')} style= {{ position: 'absolute', top: -1, resizeMode: 'cover'}} />
+      <KeyboardAvoidingView behavior='padding' style={styles.container}>
+        <Image source= { require('../../img/bg2.png')} style= {{ position: 'absolute', top: 52, resizeMode: 'cover'}} />
+        <Header
+          outerContainerStyles={{
+            backgroundColor: '#d03c1b',
+            borderBottomWidth: 0,
+            shadowColor: 'transparent',
+            elevation: 0,
+          }}
+          centerComponent={<Image source={ require('../../img/flash.png')} style={{ resizeMode: 'stretch', height: 20, width: 100 }}/>}
+        />
         <View style={styles.logoContainer}>
         <Image
             style={styles.loginlogo}

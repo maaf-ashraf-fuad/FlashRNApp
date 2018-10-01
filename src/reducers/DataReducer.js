@@ -6,12 +6,17 @@ import { Type } from '../component/DataPage/types';
 
 const INITIAL_STATE = {
   parent: undefined,
+  parentDetails: undefined,
   child: undefined,
+  childDetails: {
+    childPage: 0,
+    slicedChild: undefined
+  },
   parent_type: undefined,
   child_type: undefined,
-  searchKeys: undefined,
   searchType: 'Frame',
-  searchText: '',
+  searchText: '',//'PUJ_ODF001',
+  localImage: undefined,
   error: '',
   loading: false,
   coreLoading: false,
@@ -73,7 +78,11 @@ export default (state = INITIAL_STATE, action) => {
   switch (action.type) {
     case 'Navigate_To_Login':
       NavigationService.replace('Login', {});
-      return state;
+      return {
+        ...state,
+        loading: false,
+        error: ''
+      };
     case 'Login_Success':
       NavigationService.replace('Menu', {});
       return {
@@ -124,11 +133,17 @@ export default (state = INITIAL_STATE, action) => {
         searchType: 'NE',
         error: _.replace(action.payload, /\([0-9]*\)/, '')
       };
+    case 'Cable_Fetch_Failed':
+      return { ...state,
+        loading: false,
+        searchType: 'Cable_Id',
+        error: _.replace(action.payload, /\([0-9]*\)/, '')
+      };
     case 'Frame_Fetch_Success':
       //parent = _.mapValues(_.mapKeys(_.omitBy(action.payload, (val, key) => key === 'LIST_FRAME_UNIT' || key === 'ErrorCode' || key === 'ErrorMessage' || key === 'TMSOA_Status' || key === 'xmlns' || key === 'xmlns:env' || key === 'xmlns:ns2' || key === 'xmlns:wsa'), (val, key) => key.toLowerCase()), (val) => val==='Null'?null:val);
       parent = _.reduce(action.payload, (details, i, j) => {
                         if (!Type.excludeFromResponse.includes(j)) {
-                          details[j.toLowerCase()] = i==='Null'?null:i;
+                          details[j.toLowerCase()] = i === 'Null'?null:i;
                         }
                         return details;
                       }, {});
@@ -139,23 +154,23 @@ export default (state = INITIAL_STATE, action) => {
           //child: _.map(Object.values(_.pick(action.payload, ['LIST_FRAME_UNIT']))[0], (val) => _.mapValues(val, (val) => val==='Null'?null:val)),
           parent,
           child,
-          //parentDetails: _.map(_.toPairs(parent), d => _.fromPairs([d])),
-          parentDetails: _.reduce(parent, (details, i, j) => {
+          /*parentDetails: _.reduce(parent, (details, i, j) => {
                             if (!Type.excludeFromDetails.includes(j)) {
                               details.push({[j]:i});
                             }
                             return details;
-                          }, []),
-          searchKeys: _.reduce(parent, (details, i, j) => {
+                          }, []),*/
+          parentDetails: _.reduce(parent, (details, i, j) => {
                             if (!Type.excludeFromDetails.includes(j)) {
-                              details.push(j);
+                              details.push({ 'name': j, 'value': i, 'key': details.length.toString() });
                             }
                             return details;
                           }, []),
           parent_type: 'Frame',
           child_type: 'Shelf',
           loading: false,
-          error: ''
+          error: '',
+          lastIndex: 0,
       };
 
     case 'Shelf_Fetch_Success':
@@ -165,28 +180,38 @@ export default (state = INITIAL_STATE, action) => {
                       }
                       return details;
                     }, {});
-      child = this.isArray(action.payload.FU_Detail)?action.payload.FU_Detail:[action.payload.FU_Detail];
+      //child = this.isArray(action.payload.FU_Detail)?action.payload.FU_Detail:[action.payload.FU_Detail];
+      if (this.isArray(action.payload.FU_Detail)){
+        child = _.map(action.payload.FU_Detail, ( i, j )=> {
+          i.key = j.toString();
+          return i;
+        });
+      } else {
+        child = [action.payload.FU_Detail];
+        child.key = '0';
+      }
+
       this.navigationHelper(action.nav);
       return { ...state,
         parent,
         child,
-        //parentDetails: _.map(_.toPairs(parent), d => _.fromPairs([d])),
-        parentDetails: _.reduce(parent, (details, i, j) => {
+        /*parentDetails: _.reduce(parent, (details, i, j) => {
                           if (!Type.excludeFromDetails.includes(j)) {
                             details.push({[j]:i});
                           }
                           return details;
-                        }, []),
-        searchKeys: _.reduce(parent, (details, i, j) => {
+                        }, []),*/
+        parentDetails: _.reduce(parent, (details, i, j) => {
                           if (!Type.excludeFromDetails.includes(j)) {
-                            details.push(j);
+                            details.push({ 'name': j, 'value': i, 'key': details.length.toString() });
                           }
                           return details;
                         }, []),
         parent_type: 'Shelf',
         child_type: 'Core',
         loading: false,
-        error: ''
+        error: '',
+        lastIndex: action.nav.next.lastIndex,
       };
     case 'Core_Fetch_Success':
       this.navigationHelper(action.nav);
@@ -194,16 +219,58 @@ export default (state = INITIAL_STATE, action) => {
       return { ...state,
         parent,
         child: undefined,
-        //parentDetails: _.map(_.toPairs(parent), d => _.fromPairs([d])),
-        parentDetails: _.reduce(parent, (details, i, j) => {
+        /*parentDetails: _.reduce(parent, (details, i, j) => {
                           if (!Type.excludeFromDetails.includes(j)) {
                             details.push({[j]:i});
                           }
                           return details;
+                        }, []),*/
+        parentDetails: _.reduce(parent, (details, i, j) => {
+                          if (!Type.excludeFromDetails.includes(j) && j !== 'key') {
+                            details.push({ 'name': j, 'value': i, 'key': details.length.toString() });
+                          }
+                          return details;
                         }, []),
-        searchKeys: _.reduce(parent, (details, i, j) => {
+        parent_type: 'Core',
+        child_type: undefined,
+        loading: false,
+        error: '',
+        editCore: {
+          frame_unit_id: parent.frame_unit_id,
+          pair_id: parent.pair_id,
+          ne_id: parent.ne_id,
+          ne_shelf: parent.ne_shelf,
+          ne_slot: parent.ne_slot,
+          ne_port: parent.ne_port,
+          cct_name: parent.cct_name,
+          to_ne_id: parent.to_ne_id,
+          to_ne_shelf: parent.to_ne_shelf,
+          to_ne_slot: parent.to_ne_slot,
+          to_ne_port: parent.to_ne_port,
+          to_cct_name: parent.to_cct_name,
+          status: parent.Cable_core_status
+        },
+        toCore: {
+          ...INITIAL_STATE.toCore,
+          from_pair_id: parent.pair_id,
+          //cable_core_id: parent.Cable_core_id
+        },
+        lastIndex: 0,
+      }
+    case 'Core_Refresh_Success':
+      parent = _.mapValues(action.payload, (val) => val==='Null'?null:val);
+      return { ...state,
+        parent,
+        child: undefined,
+        /*parentDetails: _.reduce(parent, (details, i, j) => {
                           if (!Type.excludeFromDetails.includes(j)) {
-                            details.push(j);
+                            details.push({[j]:i});
+                          }
+                          return details;
+                        }, []),*/
+        parentDetails: _.reduce(parent, (details, i, j) => {
+                          if (!Type.excludeFromDetails.includes(j) && j !== 'key') {
+                            details.push({ 'name': j, 'value': i, 'key': details.length.toString() });
                           }
                           return details;
                         }, []),
@@ -229,13 +296,18 @@ export default (state = INITIAL_STATE, action) => {
         toCore: {
           ...INITIAL_STATE.toCore,
           from_pair_id: parent.pair_id
-        }
+        },
+        lastIndex: 0,
       }
     case 'NE_Fetch_Success':
       if (this.isArray(action.payload.FU_Detail)){
-        child = action.payload.FU_Detail;
+        child = _.map(action.payload.FU_Detail, ( i, j )=> {
+          i.key = j.toString();
+          return i;
+        });
       } else {
         child = [action.payload.FU_Detail];
+        child.key = '0';
       }
       this.navigationHelper(action.nav);
       return { ...state,
@@ -246,7 +318,30 @@ export default (state = INITIAL_STATE, action) => {
           parent_type: 'NE',
           child_type: 'Core',
           loading: false,
-          error: ''
+          error: '',
+          lastIndex: action.nav.next.lastIndex,
+      };
+    case 'Cable_Fetch_Success':
+      if (this.isArray(action.payload.FU_Detail)){
+        child = _.map(action.payload.FU_Detail, ( i, j )=> {
+          i.key = j.toString();
+          return i;
+        });
+      } else {
+        child = [action.payload.FU_Detail];
+        child.key = '0';
+      }
+      this.navigationHelper(action.nav);
+      return { ...state,
+          parent: undefined,
+          //child: _.map(Object.values(_.pick(action.payload, ['FU_Detail']))[0], (val) => _.mapValues(val, (val) => val==='Null'?null:val)),
+          child,
+          parentDetails: undefined,
+          parent_type: 'Cable_Id',
+          child_type: 'Core',
+          loading: false,
+          error: '',
+          lastIndex: action.nav.next.lastIndex,
       };
     case 'Core_Set_Values':
       return { ...state,
@@ -343,6 +438,7 @@ export default (state = INITIAL_STATE, action) => {
         error: ''
       }
     case 'Core_Update_Details_Failed':
+      Alert.alert('Flash 2.0', _.replace(action.payload, /\([0-9]*\)/, ''));
       return { ...state,
         coreLoading: false,
         error: _.replace(action.payload, /\([0-9]*\)/, '')
@@ -353,23 +449,37 @@ export default (state = INITIAL_STATE, action) => {
         coreLoading: false,
         headerExpended: false,
         headerMode: null,
-        toCore: INITIAL_STATE.toCore,
+        toCore: {
+          ...INITIAL_STATE.toCore,
+          from_pair_id: state.parent.pair_id
+        },
         toCoreDetails: INITIAL_STATE.toCoreDetails,
         error: ''
       }
-    case 'Transfer_Core_Failed':
-      NavigationService.pop();
+    case 'Core_Refresh_Failed':
+      //NavigationService.pop();
+      Alert.alert('Flash 2.0', _.replace(action.payload, /\([0-9]*\)/, ''));
       return { ...state,
         coreLoading: false,
         loading: false,
-        toCore: INITIAL_STATE.toCore,
+        toCore: { ...INITIAL_STATE.toCore, from_pair_id: state.parent.pair_id},
+        toCoreDetails: INITIAL_STATE.toCoreDetails,
+        error: _.replace(action.payload, /\([0-9]*\)/, '')
+      }
+    case 'Transfer_Core_Failed':
+      //NavigationService.pop();
+      Alert.alert('Flash 2.0', _.replace(action.payload, /\([0-9]*\)/, ''));
+      return { ...state,
+        coreLoading: false,
+        loading: false,
+        toCore: { ...INITIAL_STATE.toCore, from_pair_id: state.parent.pair_id},
         toCoreDetails: INITIAL_STATE.toCoreDetails,
         error: _.replace(action.payload, /\([0-9]*\)/, '')
       }
     case 'Transfer_Core_Reset_Value':
       return { ...state,
         coreLoading: false,
-        toCore: INITIAL_STATE.toCore,
+        toCore: { ...INITIAL_STATE.toCore, from_pair_id: state.parent.pair_id},
         toCoreDetails: INITIAL_STATE.toCoreDetails,
         error: ''
       }
@@ -377,7 +487,7 @@ export default (state = INITIAL_STATE, action) => {
       parent = !this.isArray(action.payload.FU_Detail)?{[action.payload.FU_Detail.Cable_name]:[action.payload.FU_Detail.Cable_core_no]}:
                 _.reduce(action.payload.FU_Detail, (details, i) => {
                   if (i.Cable_name!==null||i.Cable_name!=='Null') {
-                    if ((i.Cable_core_no!==null||i.Cable_core_no!=='Null')&&(i.status.toLowerCase()==='free'||i.status.toLowerCase()==='spare')) {
+                    if ((i.Cable_core_no!==null||i.Cable_core_no!=='Null')&&(i.Cable_core_status.toLowerCase()==='free'||i.Cable_core_status.toLowerCase()==='spare')) {
                       if (details[i.Cable_name]===undefined){
                         details[i.Cable_name] = [];
                       }

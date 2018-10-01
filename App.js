@@ -29,18 +29,11 @@ const TopLevelNavigator = createStackNavigator({
         initialRouteName:
         'Splash',
         //'Menu',
-        //headerMode: 'none',
+        headerMode: 'none',
         headerLayoutPreset: 'center',
         headerBackTitleVisible : false,
-        navigationOptions: ({navigation}) => ({
+        /*navigationOptions: ({navigation}) => ({
             headerTitle: <Image source={ require('./src/img/flash.png')} style={{ resizeMode: 'stretch', height: 20, width: 100 }}/>,
-            /*headerLeft: (
-              <Button iconName='arrow-back' iconColor='#fff' iconStyle={{ marginLeft: 15 }} onPress={() => {
-                console.log(this);
-                this.props.fetchHelper(navigation.state.params.type, navigation.state.params.input);
-                navigation.goBack(null);
-              }} />
-            ),*/
             headerTintColor: '#fff',
             headerStyle: {
                 backgroundColor: '#d03c1b',
@@ -48,11 +41,7 @@ const TopLevelNavigator = createStackNavigator({
                 shadowColor: 'transparent',
                 elevation: 0,
             },
-            /*headerTitleContainerStyle: {
-                justifyContent: 'center',
-            },*/
-
-        })
+        })*/
     }
 );
 

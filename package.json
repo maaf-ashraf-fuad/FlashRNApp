@@ -37,6 +37,7 @@
     "react-native-modal-popover-props": "0.0.6",
     "react-native-qrcode": "^0.2.6",
     "react-native-qrcode-svg": "^5.0.6",
+    "react-native-qrimage-decoder": "^1.0.1",
     "react-native-svg": "^6.3.1",
     "react-navigation": "^2.9.0",
     "react-redux": "^5.0.7",

@@ -81,6 +81,7 @@ class DropDownMenu extends PureComponent {
             placement='bottom'
             duration={ 0 }
             supportedOrientations={['portrait', 'landscape']}
+            //useNativeDriver
           >
             <Button
               onPress={handlePressView}

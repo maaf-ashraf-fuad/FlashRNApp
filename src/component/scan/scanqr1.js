@@ -1,32 +1,57 @@
 import React, { PureComponent } from 'react';
-import { Dimensions, StyleSheet, Text, View, Alert} from 'react-native';
-import { BarCodeScanner, Permissions } from 'expo';
+import { Dimensions, StyleSheet, Text, View, Alert, Image, BackHandler, TouchableOpacity } from 'react-native';
+import { ImagePicker, BarCodeScanner, Permissions } from 'expo';
 import { Button, Spinner, CardSection } from '../common';
-import { Header } from 'react-navigation';
 import { connect } from 'react-redux';
+import { Header, Icon } from 'react-native-elements';
+import QRdecoder from 'react-native-qrimage-decoder';
 import { fetchHelper, frameUpdateQR, shelfUpdateQR, coreUpdateQR, transferCoreFetchShelf, setMenuState, requestCameraPermission } from '../../actions';
 import _ from 'lodash';
 
 
 class ScanScreen extends PureComponent {
+  _didFocusSubscription;
+  _willBlurSubscription;
+
   constructor(props) {
     super(props);
     this.handleBarCodeRead = _.debounce(this.handleBarCodeRead.bind(this), 250, { 'maxWait': 1000, leading:true, trailing:false });
     const { height, width } = Dimensions.get('window');
     this.state = {
       hasCameraPermission: null,
-      maskRowHeight: Math.round((height - 300 - Header.HEIGHT) / 20),
-      maskColWidth: (width - 300) / 2
+      //maskRowHeight: Math.round((height - 300 - Header.HEIGHT) / 20),
+      maskRowHeight: Math.round((height - 300) / 20),
+      maskColWidth: (width - 300) / 2,
+      image: null
     };
+    this._didFocusSubscription = props.navigation.addListener('didFocus', () =>
+      BackHandler.addEventListener('hardwareBackPress', this.onBackButtonPressAndroid)
+    );
   }
 
   componentDidMount() {
     const { setMenuState, navigation, requestCameraPermission, qrFlash } = this.props;
     requestCameraPermission();
-    navigation.setParams({ setMenuState, qrFlash });
+    //navigation.setParams({ setMenuState, qrFlash });
+    this._willBlurSubscription = this.props.navigation.addListener('willBlur', () =>
+      BackHandler.removeEventListener('hardwareBackPress', this.onBackButtonPressAndroid)
+    );
   }
 
-  static navigationOptions = ({navigation}) => {
+  onBackButtonPressAndroid = () => {
+    const {navigation, loading} = this.props;
+    if (loading===false){
+      navigation.goBack();
+    }
+    return true;
+  };
+
+  componentWillUnmount() {
+    this._didFocusSubscription && this._didFocusSubscription.remove();
+    this._willBlurSubscription && this._willBlurSubscription.remove();
+  }
+
+  /*static navigationOptions = ({navigation}) => {
     const { setMenuState, qrFlash } = navigation.state.params;
     //console.log(navigation.state.params);
     const onPressFlash = () => {
@@ -47,7 +72,7 @@ class ScanScreen extends PureComponent {
         )
       //headerRight: null
     })
-  };
+  };*/
 
   handleBarCodeRead = ({data}) => {
     const { shelfUpdateQR, frameUpdateQR, coreUpdateQR, transferCoreFetchShelf, parent, parent_type, navigation: { replace, pop, state: { params: { fetchHelper, next }}}} = this.props;
@@ -89,7 +114,8 @@ class ScanScreen extends PureComponent {
                 setMenuState({ qrType: [BarCodeScanner.Constants.BarCodeType.qr] });
               }
             }
-          ]
+          ],
+          { cancelable: false }
         );
       } else {
         Alert.alert('Flash 2.0', error,
@@ -104,32 +130,85 @@ class ScanScreen extends PureComponent {
                 navigation.goBack();
               }
             }
-          ]
+          ],
+          { cancelable: false }
         );
       }
     }
     return null;
   }
 
+  handleFlash = () => {
+    const { qrFlash, setMenuState } = this.props;
+    //this._menu.hide();
+    setMenuState({ qrFlash: qrFlash==='off'?'on':'off' });
+  }
+
+  handleError = (error) => {
+    //this.setState({ image: null });
+    Alert.alert('Flash 2.0', error,
+      [
+        {
+          text: 'OK', onPress: () => {
+            this.props.setMenuState({ localImage: undefined, loading: false, qrType: [BarCodeScanner.Constants.BarCodeType.qr] });
+          }
+        }
+      ],
+      { cancelable: false }
+    );
+  }
+
+  handleSuccess = (e) => {
+    //this.setState({ image: null });
+    this.props.setMenuState({ localImage: undefined });
+    this.handleBarCodeRead({data: e});
+  }
+
+  handlePickImage = async () => {
+    const {setMenuState} = this.props;
+    setMenuState({ qrType: [], loading: true, localImage: undefined });
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: 'Images'
+      //allowsEditing: true,
+      //aspect: [3, 3],
+    });
+
+    //console.log (result);
+
+    if (!result.cancelled) {
+      setMenuState({ localImage: result.uri });
+      //this.setState({ image: result.uri });
+    } else {
+      setMenuState({ qrType: [BarCodeScanner.Constants.BarCodeType.qr], loading: false, localImage: undefined });
+    }
+  };
+
   render() {
-    const { maskRowHeight, maskColWidth } = this.state;
-    const { error, loading, qrType, navigation, qrFlash } = this.props;
+    const { maskRowHeight, maskColWidth, image } = this.state;
+    const { error, loading, qrType, navigation, qrFlash, localImage } = this.props;
     /*const level = this.props.navigation.getParam('level', undefined);
     const id = this.props.navigation.getParam('id', undefined);
     const mode = this.props.navigation.getParam('mode', undefined);
     const item = this.props.navigation.getParam('item', undefined);*/
     //console.log('qrType: ', qrType[0]);
+
     return (
         <BarCodeScanner
           onBarCodeRead={this.handleBarCodeRead}
-          style={styles.barcode}
+          style={[StyleSheet.absoluteFill, styles.barcode]}
           barCodeTypes={qrType}
           torchMode={qrFlash}
         >
         { this.handleAlert() }
-          <View style={{ padding: 15, backgroundColor: '#ffd294', justifyContent: 'center' }}>
-            <Text style={{ textAlign: 'center', textAlignVertical: 'center' }}>{navigation.getParam('QRText', 'Scan Frame, Shelf or Core QR Code here')}</Text>
-          </View>
+        <Header
+          outerContainerStyles={styles.header}
+          //innerContainerStyles={{ justifyContent: 'space-around' }}
+          leftComponent={<Button disabled={loading} iconName='arrow-back' iconColor='#fff' onPress={this.onBackButtonPressAndroid} />}
+          centerComponent={<Image source={ require('../../img/flash.png')} style={{ resizeMode: 'stretch', height: 20, width: 100 }}/>}
+          rightComponent={<Button disabled={loading} iconName={qrFlash==='off'?'flash-on':'flash-off'} iconColor='#fff' onPress={this.handleFlash}/>}
+          //rightComponent={< this.rightComponent />}
+        />
           <View style={styles.maskOutter}>
             <View style={[{ flex: maskRowHeight }, styles.maskRow, styles.maskFrame]} />
               <View style={[{ flex: 30 }, styles.maskCenter]}>
@@ -139,19 +218,43 @@ class ScanScreen extends PureComponent {
               </View>
             <View style={[{ flex: maskRowHeight }, styles.maskRow, styles.maskFrame]} />
           </View>
-          { loading?<Spinner border />:null }
+          <View style={{ padding: 13, backgroundColor: '#ffd294', justifyContent: 'space-around' }}>
+            <Text style={{ textAlign: 'center', textAlignVertical: 'center' }}>{navigation.getParam('QRText', 'Scan Frame, Shelf or Core QR Code here')}</Text>
+          </View>
+          <TouchableOpacity disabled={loading} style={styles.gallery} onPress={this.handlePickImage}>
+            <Text style={{ textAlign: 'center', textAlignVertical: 'center' }}>Load QR from Gallery  </Text>
+            <Icon name='image-multiple' type='material-community' />
+            <QRdecoder src={localImage} onSuccess={this.handleSuccess} onError={this.handleError} />
+          </TouchableOpacity>
+          { loading?<View style={styles.maskOutter}><Spinner border /></View>:null }
         </BarCodeScanner>
     );
   }
 }
 
 const styles = StyleSheet.create({
+  header: {
+    backgroundColor: '#d03c1b',
+    borderBottomWidth: 0,
+    shadowColor: 'transparent',
+    elevation: 0,
+  },
+  gallery: {
+    position: 'absolute',
+    bottom: 0,
+    width: '100%',
+    padding: 10,
+    backgroundColor: '#ffd294',
+    flexDirection: 'row',
+    justifyContent: 'center'
+  },
   barcode: {
     flex: 1,
+    flexDirection: 'column',
   },
   maskOutter: {
     position: 'absolute',
-    top: 0,
+    top: 36,
     left: 0,
     width: '100%',
     height: '100%',
@@ -173,9 +276,9 @@ const styles = StyleSheet.create({
   maskCenter: { flexDirection: 'row' },
 });
 
-const mapStateToProps = ({data: { parent_type, error, parent, loading, qrType, hasCameraPermission, qrFlash }}) => {
+const mapStateToProps = ({data: { parent_type, error, parent, loading, qrType, hasCameraPermission, qrFlash, localImage }}) => {
   //const { parent_type, error, parent, loading, qrType, hasCameraPermission, qrFlash } = state.data;
-  return { error, parent_type, parent, loading, qrType, hasCameraPermission, qrFlash };
+  return { error, parent_type, parent, loading, qrType, hasCameraPermission, qrFlash, localImage };
 };
 
 export default connect(mapStateToProps, { fetchHelper, frameUpdateQR, shelfUpdateQR, coreUpdateQR, transferCoreFetchShelf, setMenuState, requestCameraPermission })(ScanScreen);

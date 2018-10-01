@@ -3,9 +3,9 @@ import { AsyncStorage, Alert } from 'react-native';
 import { Permissions } from 'expo';
 
 export const fetchHelper = (nav) => {
-  const { type, id, qr, staff, item } = nav.next;
-  //@API response@console.log('DataAction:fetchHelper');
-  //@API response@console.log(nav.next);
+  const { type, id, qr, item } = nav.next;
+  //@API Response@//console.log('DataAction:fetchHelper');
+  ////@API Response@//console.log(nav);
 
   if (nav.action&&nav.action.type==='back'){
     NavigationService.back();
@@ -58,6 +58,12 @@ export const fetchHelper = (nav) => {
           return dispatch({ type: 'NE_Fetch_Failed', payload: 'Please enter a value.' });
         }
         return neFetch(dispatch, id, nav);
+      case 'Cable_Id':
+        dispatch({ type: 'Fetching_Data'});
+        if (id === '' || id === null){
+          return dispatch({ type: 'Cable_Fetch_Failed', payload: 'Please enter a value.' });
+        }
+        return cableFetch(dispatch, id, null, nav);
       case 'Reset':
         return dispatch({ type: 'Reset_Data', nav });
       case 'QR':
@@ -136,8 +142,8 @@ export const login = (source = 'splash',  staff_user, staff_pass, staff_name ) =
           return dispatch({ type: 'Login_Failed', payload: 'Invalid TM Staff Id/password. Please try again.' });
         }
         staff_name = responseJson.fullName;
-        fetch('http://58.27.85.176/FLASH/VerifyUser',
-        //fetch('http://10.54.1.15:8001/FLASH/verifyAccess/Proxy_Services/PS_Flash_verifyAccess2',
+        /*DMZ*/fetch('http://58.27.85.176/FLASH/VerifyUser',/*
+        fetch('http://10.54.1.15:8001/FLASH/verifyAccess/Proxy_Services/PS_Flash_verifyAccess2',//*/
           {
             method: 'POST',
             headers: {
@@ -158,8 +164,8 @@ export const login = (source = 'splash',  staff_user, staff_pass, staff_name ) =
             throw new Error ('FLASH/VerifyUser Network Error [' + response.status + ']. Please try again later');
           })
           .then((responseJson) => {
-            //@API response@console.log('DataActions:loginFlash');
-            //@API response@console.log(responseJson);
+            //@API Response@//console.log('DataActions:loginFlash');
+            //@API Response@//console.log(responseJson);
             if (responseJson.ErrorCode === '00') {
               Alert.alert("Welcome", staff_name);
               AsyncStorage.setItem('flash_user', staff_user);
@@ -240,8 +246,8 @@ export const updateUserValues = ({ prop, value }) => {
 
 export async function frameFetch (id, qr, user) {
   try {
-    //const response = await fetch('http://10.54.1.15:8001/FLASH/listFrameUnit/Proxy_Services/PS_listFrameUnit', {
-    const response = await fetch('http://58.27.85.176/FLASH/QueryFrame', {
+    /*DMZ*/const response = await fetch('http://58.27.85.176/FLASH/QueryFrame', {/*
+    const response = await fetch('http://10.54.1.15:8001/FLASH/listFrameUnit/Proxy_Services/PS_listFrameUnit', {//*/
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -263,8 +269,8 @@ export async function frameFetch (id, qr, user) {
 
     const responseJson = await response.json();
 
-    //@API response@console.log('DataAction:frameFetch');
-    //@API response@console.log(responseJson);
+    //@API Response@//console.log('DataAction:frameFetch');
+    //@API Response@//console.log(responseJson);
 
     if (responseJson.ErrorCode === '00'){
       return Promise.resolve({ result: 'Success', payload: responseJson });
@@ -279,8 +285,8 @@ export async function frameFetch (id, qr, user) {
 
 export async function shelfFetch (id, qr, user) {
   try {
-    //const response = await fetch('http://10.54.1.15:8001/FLASH/listFrameUnitDetail/Proxy_Services/PS_listFrameUnitDetail', {
-    const response = await fetch('http://58.27.85.176/FLASH/QueryShelf', {
+    /*DMZ*/const response = await fetch('http://58.27.85.176/FLASH/QueryShelf', {/*
+    const response = await fetch('http://10.54.1.15:8001/FLASH/listFrameUnitDetail/Proxy_Services/PS_listFrameUnitDetail', {//*/
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -302,8 +308,8 @@ export async function shelfFetch (id, qr, user) {
 
     const responseJson = await response.json();
 
-    //@API response@console.log('DataAction:shelfFetch');
-    //@API response@console.log(responseJson);
+    //@API Response@//console.log('DataAction:shelfFetch');
+    //@API Response@//console.log(responseJson);
 
     if (responseJson.ErrorCode === '00'){
       return Promise.resolve({ result: 'Success', payload: responseJson });
@@ -318,8 +324,8 @@ export async function shelfFetch (id, qr, user) {
 
 export async function coreQRFetch (qr, user) {
   try {
-    //const response = await fetch('http://10.54.1.15:8001/FLASH/frameUnitDetailOnQR/Proxy_Services/PS_frameUnitDetailOnQR', {
-    const response = await fetch('http://58.27.85.176/FLASH/frameUnitDetailOnQR', {
+    /*DMZ*/const response = await fetch('http://58.27.85.176/FLASH/frameUnitDetailOnQR', {/*
+    const response = await fetch('http://10.54.1.15:8001/FLASH/frameUnitDetailOnQR/Proxy_Services/PS_frameUnitDetailOnQR', {//*/
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -340,8 +346,8 @@ export async function coreQRFetch (qr, user) {
 
     const responseJson = await response.json();
 
-    //@API response@console.log('DataAction:coreQRFetch');
-    //@API response@console.log(responseJson);
+    //@API Response@//console.log('DataAction:coreQRFetch');
+    //@API Response@//console.log(responseJson);
 
     if (responseJson.ErrorCode === '00'){
       return Promise.resolve({ result: 'Success', payload: responseJson });
@@ -355,8 +361,8 @@ export async function coreQRFetch (qr, user) {
 }
 
 export const neFetch = (dispatch, id, nav) => {
-    //fetch('http://10.54.1.15:8001/FLASH/listFrameUnit/Proxy_Services/PS_listFrameUnit',
-    fetch('http://58.27.85.176/FLASH/QueryNEID',
+    /*DMZ*/fetch('http://58.27.85.176/FLASH/QueryNEID',/*
+    fetch('http://10.54.1.15:8001/FLASH/frameUnitDetailOnNe/Proxy_Services/PS_frameUnitDetailOnNe',//*/
     {
       method: 'POST',
       headers: {
@@ -377,8 +383,8 @@ export const neFetch = (dispatch, id, nav) => {
       throw new Error ('FLASH/QueryNEID Network Error [' + response.status + ']. Please try again later');
     })
     .then((responseJson) => {
-      //@API response@console.log('DataAction:neFetch');
-      //@API response@console.log(responseJson);
+      //@API Response@//console.log('DataAction:neFetch');
+      //@API Response@//console.log(responseJson);
       if (responseJson.ErrorCode === '00'){
         return dispatch({ type: 'NE_Fetch_Success', payload: responseJson, nav });
       }
@@ -386,6 +392,45 @@ export const neFetch = (dispatch, id, nav) => {
     })
     .catch((error) => {
       dispatch({ type: 'NE_Fetch_Failed', payload: error.message});
+    })
+    .done();
+};
+
+export const cableFetch = (dispatch, cable_id, core_id, nav) => {
+    /*DMZ*/fetch('http://58.27.85.176/FLASH/frameUnitDetailOnCable',/*
+    fetch('http://10.54.1.15:8001/FLASH/frameUnitDetailOnCable/Proxy_Services/PS_frameUnitDetailOnCable',//*/
+    {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': 'Basic RkxBU0g6ZjE0NWg=',
+      },
+      body: JSON.stringify(
+        {
+          CABLE_ID: cable_id,
+          CAB_CORE_ID: core_id,
+        }
+      )
+    })
+    .then((response) => {
+      //@API Response@//console.log('DataAction:cableFetch');
+      //@API Response@//console.log(response);
+      if (response.ok===true){
+        return response.json();
+      }
+      throw new Error ('FLASH/QueryCableID Network Error [' + response.status + ']. Please try again later');
+    })
+    .then((responseJson) => {
+      //@API Response@//console.log('DataAction:cableFetch');
+      //@API Response@//console.log(responseJson);
+      if (responseJson.ErrorCode === '00'){
+        return dispatch({ type: 'Cable_Fetch_Success', payload: responseJson, nav });
+      }
+      throw new Error(responseJson.ErrorMessage);
+    })
+    .catch((error) => {
+      dispatch({ type: 'Cable_Fetch_Failed', payload: error.message});
     })
     .done();
 };
@@ -398,11 +443,52 @@ export const coreFetch = (dispatch, payload, nav) => {
   return dispatch({ type: 'Core_Fetch_Success', payload, nav });
 };
 
+export const coreRefresh = ( core_id ) => {
+  return (dispatch) => {
+      /*DMZ*/fetch('http://58.27.85.176/FLASH/frameUnitDetailOnCable',/*
+      fetch('http://10.54.1.15:8001/FLASH/frameUnitDetailOnCable/Proxy_Services/PS_frameUnitDetailOnCable',//*/
+      {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          'Authorization': 'Basic RkxBU0g6ZjE0NWg=',
+        },
+        body: JSON.stringify(
+          {
+            CABLE_ID: null,
+            CAB_CORE_ID: core_id,
+          }
+        )
+      })
+      .then((response) => {
+        //@API Response@//console.log('DataAction:coreRefresh');
+        //@API Response@//console.log(response);
+        if (response.ok===true){
+          return response.json();
+        }
+        throw new Error ('FLASH/refreshCore Network Error [' + response.status + ']. Please try again later');
+      })
+      .then((responseJson) => {
+        //@API Response@//console.log('DataAction:coreRefresh');
+        //@API Response@//console.log(responseJson);
+        if (responseJson.ErrorCode === '00'){
+          return dispatch({ type: 'Core_Refresh_Success', payload: responseJson });
+        }
+        throw new Error(responseJson.ErrorMessage);
+      })
+      .catch((error) => {
+        dispatch({ type: 'Core_Refresh_Failed', payload: error.message});
+      })
+      .done();
+  };
+};
+
 export const frameUpdateQR = ( IN_FRAME_NAME, QR_CODE) => {
   return (dispatch, getState) => {
     dispatch({ type: 'QR_Fetching_Data'});
-    //fetch('http://10.54.1.15:8001/FLASH/updateQrOnFrame/Proxy_Services/PS_Flash_updateQrOnFrame',
-    fetch('http://58.27.85.176/FLASH/updateQrOnFrame',
+    /*DMZ*/fetch('http://58.27.85.176/FLASH/updateQrOnFrame',/*
+    fetch('http://10.54.1.15:8001/FLASH/updateQrOnFrame/Proxy_Services/PS_Flash_updateQrOnFrame',//*/
     {
       method: 'POST',
       headers: {
@@ -425,8 +511,8 @@ export const frameUpdateQR = ( IN_FRAME_NAME, QR_CODE) => {
       throw new Error ('FLASH/UpdateQROnFrame Network Error [' + response.status + ']. Please try again later');
     })
     .then((responseJson) => {
-      //@API response@console.log('DataAction:frameUpdateQR');
-      //@API response@console.log(responseJson);
+      //@API Response@//console.log('DataAction:frameUpdateQR');
+      //@API Response@//console.log(responseJson);
       if (responseJson.ErrorCode === '00'){
         return dispatch({ type: 'Frame_Update_QR_Success', payload: QR_CODE });
       }
@@ -442,8 +528,8 @@ export const frameUpdateQR = ( IN_FRAME_NAME, QR_CODE) => {
 export const shelfUpdateQR = ( frame_unit_id, qr_code_id) => {
   return (dispatch, getState) => {
     dispatch({ type: 'QR_Fetching_Data'});
-    //fetch('http://10.54.1.15:8001/FLASH/updateQrOnFrameUnit/Proxy_Services/PS_updateQrOnFrameUnit',
-    fetch('http://58.27.85.176/FLASH/UpdateQROnFrameUnit',
+    /*DMZ*/fetch('http://58.27.85.176/FLASH/UpdateQROnFrameUnit',/*
+    fetch('http://10.54.1.15:8001/FLASH/updateQrOnFrameUnit/Proxy_Services/PS_updateQrOnFrameUnit',//*/
     {
       method: 'POST',
       headers: {
@@ -466,8 +552,8 @@ export const shelfUpdateQR = ( frame_unit_id, qr_code_id) => {
       throw new Error ('FLASH/UpdateQROnFrameUnit Network Error [' + response.status + ']. Please try again later');
     })
     .then((responseJson) => {
-      //@API response@console.log('DataAction:shelfUpdateQR');
-      //@API response@console.log(responseJson);
+      //@API Response@//console.log('DataAction:shelfUpdateQR');
+      //@API Response@//console.log(responseJson);
       if (responseJson.ErrorCode === '00'){
         return dispatch({ type: 'Shelf_Update_QR_Success', payload: qr_code_id });
       }
@@ -483,8 +569,8 @@ export const shelfUpdateQR = ( frame_unit_id, qr_code_id) => {
 export const coreUpdateQR = ( frame_unit_id, pair_id, qr_code_id ) => {
   return (dispatch, getState) => {
     dispatch({ type: 'QR_Fetching_Data'});
-    //fetch('http://10.54.1.15:8001/FLASH/updateQrOnPatching/Proxy_Services/PS_updateQrOnPatching',
-    fetch('http://58.27.85.176/FLASH/UpdateQROnPatching',
+    /*DMZ*/fetch('http://58.27.85.176/FLASH/UpdateQROnPatching',/*
+    fetch('http://10.54.1.15:8001/FLASH/updateQrOnPatching/Proxy_Services/PS_updateQrOnPatching',//*/
     {
       method: 'POST',
       headers: {
@@ -508,8 +594,8 @@ export const coreUpdateQR = ( frame_unit_id, pair_id, qr_code_id ) => {
       throw new Error ('FLASH/UpdateQROnPatching Network Error [' + response.status + ']. Please try again later');
     })
     .then((responseJson) => {
-      //@API response@console.log('DataAction:coreUpdateQR');
-      //@API response@console.log(responseJson);
+      //@API Response@//console.log('DataAction:coreUpdateQR');
+      //@API Response@//console.log(responseJson);
       if (responseJson.ErrorCode === '00'){
         return dispatch({ type: 'Core_Update_QR_Success', payload: qr_code_id });
       }
@@ -525,10 +611,11 @@ export const coreUpdateQR = ( frame_unit_id, pair_id, qr_code_id ) => {
 export const coreUpdateDetails = ( input ) => {
   const { frame_unit_id, pair_id, ne_id, ne_shelf, ne_slot, ne_port, cct_name, to_ne_id, to_ne_shelf, to_ne_slot, to_ne_port, to_cct_name, status } = input;
 
-  //@API response@console.log('coreUpdateDetails input:', input);
+  //@API Response@//console.log('coreUpdateDetails input:', input);
   return (dispatch, getState) => {
     dispatch({ type: 'Updating_Core'});
-    fetch('http://58.27.85.176/FLASH/UpdateNEOnPatching',
+    /*DMZ*/fetch('http://58.27.85.176/FLASH/UpdateNEOnPatching',/*
+    fetch('http://10.54.1.15:8001/FLASH/updateNeOnPatching/Proxy_Services/PS_updateNeOnPatching',//*/
     {
       method: 'POST',
       headers: {
@@ -562,8 +649,8 @@ export const coreUpdateDetails = ( input ) => {
       throw new Error ('FLASH/UpdateNEOnPatching Network Error [' + response.status + ']. Please try again later');
     })
     .then((responseJson) => {
-      //@API response@console.log('DataAction:coreUpdateDetails');
-      //@API response@console.log(responseJson);
+      //@API Response@//console.log('DataAction:coreUpdateDetails');
+      //@API Response@//console.log(responseJson);
       if (responseJson.ErrorCode === '00'){
         return dispatch({ type: 'Core_Update_Details_Success', payload: { ...input }});
       }
@@ -577,15 +664,16 @@ export const coreUpdateDetails = ( input ) => {
 };
 
 export const transferCore = (input) => {
-  const { from_pair_id, to_pair_id, frame_name, cable_name, cable_core_no } = input;
-  //@API response@console.log('transferCore input:', input);
+  const { from_pair_id, to_pair_id, frame_name, cable_name, cable_core_no , cable_core_id} = input;
+  //@API Response@//console.log('transferCore input:', input);
   return (dispatch, getState) => {
     dispatch({ type: 'Updating_Core'});
     if (!from_pair_id||!frame_name||!cable_name||!cable_core_no){
       return dispatch({ type: 'Transfer_Core_Failed', payload: 'Please fill in all required fields' });
     }
 
-    fetch('http://58.27.85.176/FLASH/TransferCore',
+    /*DMZ*/fetch('http://58.27.85.176/FLASH/TransferCore',/*
+    fetch('http://10.54.1.15:8001/FLASH/transferCore/Proxy_Services/PS_transferCore',//*/
     {
       method: 'POST',
       headers: {
@@ -605,18 +693,19 @@ export const transferCore = (input) => {
       )
     })
     .then((response) => {
-      //@disableHTTPrespons@console.log('DataAction:transferCore response');
-      //@disableHTTPrespons@console.log(response);
+      //@API Response@//console.log('DataAction:transferCore response');
+      //@API Response@//console.log(response);
       if (response.ok===true){
         return response.json();
       }
       throw new Error('FLASH/TransferCore Network Error [' + response.status + ']. Please try again later');
     })
     .then((responseJson) => {
-      //@API response@console.log('DataAction:transferCore');
-      //@API response@console.log(responseJson);
+      //@API Response@//console.log('DataAction:transferCore');
+      //@API Response@//console.log(responseJson);
       if (responseJson.ErrorCode === '00'){
-        return dispatch({ type: 'Transfer_Core_Success'});
+         return dispatch({ type: 'Transfer_Core_Success'});
+         //return coreRefresh (cable_core_id);
       }
       throw new Error(responseJson.ErrorMessage);
     })

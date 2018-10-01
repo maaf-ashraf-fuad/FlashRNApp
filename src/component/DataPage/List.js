@@ -8,18 +8,67 @@ import {
   TouchableOpacity
 } from 'react-native';
 import { Type } from './types';
-import NavigationService from '../../navigation/NavigationService.js';
 import { connect } from 'react-redux';
+import { Spinner } from '../common';
 import { fetchHelper } from '../../actions';
+import _ from 'lodash';
 
 class List extends PureComponent {
 
-  handleHeaderOnPress = (val) => {
-    const { onPress } = this.props;
-    val&&onPress(val);
-  };
+  constructor(props) {
+      super(props);
+      this.state = {
+        data: props.flag?props.parentDetails:props.lastIndex>=20?_.slice(props.child, 0, props.lastIndex+2):_.slice(props.child, 0, 20),
+        page: 1,
+        seed: 20,
+        error: null,
+        more: props.flag?false:props.child.length > 20,
+        refreshing: false
+      };
+  }
 
-  renderItemHeader = ({ item, index }) => {
+  lastTap = null;
+
+  handleLoadMore = () => {
+    const { child } = this.props;
+    const { page, seed, data } = this.state;
+    /*console.log (((page + 1) * seed), child.length);
+    this.setState(
+      {
+        data: _.slice(child, 0, (page + 1) * seed),
+        page: page + 1,
+        more: ((page + 1) * seed) <= child.length,
+      }
+    );*/
+    this.setState(
+      {
+        data: _.slice(child, 0, data.length + seed),
+        page: page + 1,
+        more: (data.length + seed) <= child.length,
+      }
+    );
+  }
+
+  handleHeaderOnPress(val){
+    const { onPress } = this.props;
+      const now = Date.now();
+      if (this.lastTap && (now - this.lastTap) < 300) {
+        val&&onPress(val);
+      } else {
+        this.lastTap = now;
+      }
+  }
+
+
+  handleChildOnPress(item, index){
+    const { current, type, fetchHelper } = this.props;
+    //requestAnimationFrame(() =>
+    fetchHelper({ action: { type: 'push', routeName: 'DataPage' },
+                    back: { ...current, lastIndex: index },
+                    next: { type, id: item[Type[type].id], qr: '', item: type==='Core'?item:null }});
+  }
+
+  /*renderItemHeader = ({ item, index }) => {
     const title=<Text style={{ fontWeight: 'bold' }}>{ Object.keys(item)[0].toUpperCase() }</Text>;
     return (
       <ListItem
@@ -33,7 +82,23 @@ class List extends PureComponent {
         hideChevron
       />
     )
-    }
+}*/
+
+  renderItemHeader = ({ item, index }) => {
+    const title=<Text style={{ fontWeight: 'bold' }}>{item.name.toUpperCase()}</Text>;
+    return (
+      <ListItem
+        title={ title }
+        textInput
+        textInputEditable={false}
+        onPress={()=>this.handleHeaderOnPress(item.value)}
+        textInputValue={item.value}
+        textInputStyle={{ textAlign: 'left' }}
+        containerStyle={index%2?{ borderBottomWidth: 0, backgroundColor: '#f5f5f5' }:{ borderBottomWidth: 0, backgroundColor: '#fff' }}
+        hideChevron
+      />
+    )
+  }
 
   handleOnLayout = (event) => {
     const {x, y, width, height} = event.nativeEvent.layout;
@@ -82,7 +147,8 @@ class List extends PureComponent {
     )*/
 
     return (
-      <TouchableOpacity activeOpacity={0.9} style={index % 2?styles.rowEven:styles.rowOdd} onPress={() => fetchHelper({ action: { type: 'push', routeName: 'DataPage' }, back: { ...current }, next: { type, id: item[Type[type].id], qr: '', item }})}>
+      //<TouchableOpacity activeOpacity={0.9} style={index % 2?styles.rowEven:styles.rowOdd} onPress={ fetchHelper({ action: { type: 'push', routeName: 'DataPage' }, back: { ...current, lastIndex: index + 1 }, next: { type, id: item[Type[type].id], qr: '', item }})}>
+      <TouchableOpacity activeOpacity={0.9} style={index % 2?styles.rowEven:styles.rowOdd} onPress={ () => this.handleChildOnPress(item, index) }>
         <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center' }}>
         <View style={{ width: 38, alignItems: 'center'/*, paddingLeft: 15, paddingRight: 15*/ }}>
           <Text style={{ fontWeight: 'bold', textAlignVertical: 'center' }}>{ index + 1 }</Text>
@@ -106,8 +172,16 @@ class List extends PureComponent {
 
   keyExtractorChild = (item) => item[Type[this.props.type].id];
 
+  keyExtractor = (item) => {
+    const { flag, type } = this.props;
+    if (flag){
+      return item.key;
+    }
+    return item[Type[type].key];
+  }
+
   renderSeparator = () => {
-    const margin = this.props.flag?0:42;
+    //const margin = this.props.flag?0:42;
 
     return (
       <View
@@ -120,19 +194,54 @@ class List extends PureComponent {
     )
   }
 
+  renderEmptyList = () => {
+    return (
+      <View style={{ flex: 1, backgroundColor: '#000' }}>
+        <Spinner />
+      </View>
+    )
+  }
+
+  renderFooter = () => {
+    if (!this.props.flag) return null;
+
+    return (
+      <View
+        style={{
+          padding: 5,
+          borderTopWidth: 1,
+          borderColor: "#CED0CE",
+          justifyContent: 'center',
+          alignItems: 'center'
+        }}
+      >
+        <Text>Double tap to copy value to Clipboard</Text>
+      </View>
+    );
+  };
+
   render(){
-    const { type, lastChildIndex } = this.props;
+    const { type, lastChildIndex, child, parentDetails, flag, lastIndex } = this.props;
+    const { more } = this.state;
     return(
         <FlatList
-          data={this.props.data}
-          renderItem={this.props.flag?this.renderItemHeader:this.renderItemChildren}
-          keyExtractor={this.props.flag?this.keyExtractorHeader:this.keyExtractorChild}
+          //data={flag?parentDetails:child}
+          data={this.state.data}
+          renderItem={flag?this.renderItemHeader:this.renderItemChildren}
+          //keyExtractor={flag?this.keyExtractorHeader:this.keyExtractorChild}
+          keyExtractor={this.keyExtractor}
           ItemSeparatorComponent={this.renderSeparator}
+          ListFooterComponent={this.renderFooter}
           getItemLayout={this.getItemLayout}
           initialNumToRender={20}
+          maxToRenderPerBatch={5}
+          onEndReachedThreshold={1}
+          onEndReached={more&&this.handleLoadMore}
+          //CellRendererComponent={this.renderEmptyList}
           //style={{ marginBottom: 280 }}
-          //initialScrollIndex={flag?0:indexClicked}
+          initialScrollIndex={flag?0:lastIndex}
           //removeClippedSubviews={false}
+          //removeClippedSubviews
         />
     )
   }
@@ -153,8 +262,8 @@ const styles = StyleSheet.create({
   },
 });
 
-const mapStateToProps = ({ data: { loading, error }}) => {
-  return { loading, error };
+const mapStateToProps = ({ data: { loading, error, parentDetails, child, lastIndex }}) => {
+  return { loading, error, child, parentDetails, lastIndex };
 };
 
 export default connect(mapStateToProps, { fetchHelper })(List);

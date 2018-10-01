@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Text, Icon } from 'react-native-elements';
-import { Card, CardSection } from '../common';
+import { Card, CardSection, ModalDropdown } from '../common';
 import { connect } from 'react-redux';
 import List from './List';
 import { fetchHelper } from '../../actions';
@@ -16,11 +16,12 @@ class Children extends Component {
         return (
           <Card style={{
             //marginBottom: 350,
-            borderBottomWidth: 1
+            borderBottomWidth: 1,
+            flexShrink: 10
           }}>
             <CardSection style={{ justifyContent: 'space-between', backgroundColor:'#ecedf2' }}>
               <Text h4>{child_type}</Text>
-              {/*}<TouchableOpacity style={{ alignItems: 'center', justifyContent: 'center' }}>
+              {/*<TouchableOpacity style={{ alignItems: 'center', justifyContent: 'center' }}>
                 <Icon name='search' />
               </TouchableOpacity>*/}
             </CardSection>
@@ -44,7 +45,7 @@ class Children extends Component {
                 </View>
               </ModalDropdown>
             </CardSection>*/}
-            <List data={child} type={child_type} current={current}/>
+            <List type={child_type} current={current}/>
           </Card>
         )
       }

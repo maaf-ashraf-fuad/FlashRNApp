@@ -1,5 +1,6 @@
 import React, { PureComponent } from 'react';
 import {
+  StyleSheet,
   BackHandler,
   Text,
   View,
@@ -10,11 +11,12 @@ import {
   Keyboard,
   Alert
 } from 'react-native';
-import { FormInput, FormValidationMessage} from 'react-native-elements';
-import { Button, Card, CardSection, ModalDropdown } from '../common';
+import { FormInput, FormValidationMessage, Header } from 'react-native-elements';
+import { Button, Card, CardSection } from '../common';
 import { Type } from '../DataPage/types';
 import { connect } from 'react-redux';
 import { fetchHelper, setMenuState, logout } from '../../actions';
+import { NavigationEvents } from 'react-navigation';
 
 class menu extends PureComponent {
 _didFocusSubscription;
@@ -27,7 +29,6 @@ constructor(props) {
   );
 }
   componentDidMount(){
-    this.props.navigation.setParams({ logout: this.props.logout });
     this._willBlurSubscription = this.props.navigation.addListener('willBlur', () =>
       BackHandler.removeEventListener('hardwareBackPress', this.onBackButtonPressAndroid)
     );
@@ -69,6 +70,8 @@ constructor(props) {
     })
   };
 
+  handleLogout = () => this.props.logout();
+
   handleSearchTypeInput = (searchType) => this.props.setMenuState({ searchType, searchText: '' });
 
   handleSearchTextInput = (searchText) => this.props.setMenuState({ searchText });
@@ -87,7 +90,7 @@ constructor(props) {
 
   handleQRButtonPress = () => {
     this.props.setMenuState({ error: '' });
-    this.props.navigation.navigate('Scan', { next: {type: 'QR'}, QRText: 'Scan Frame, Shelf or Core QR Code here'});
+    this.props.navigation.navigate('Scan', { next: {type: 'QR'}, back: { type: 'Reset' }, QRText: 'Scan Frame, Shelf or Core QR Code here'});
   }
 
   render(){
@@ -95,8 +98,14 @@ constructor(props) {
     //console.log(this.props);
     return (
         <KeyboardAvoidingView enabled behavior='padding' style={{ flex: 1, backgroundColor:'#ffd294' }}>
-        <Image source= { require('../../img/bg2.png')} style= {{ position: 'absolute', top: -1, resizeMode: 'cover'}} />
-          <Card style={{ marginTop: 75, borderRadius: 5 }}>
+        <Image source= { require('../../img/bg2.png')} style= {{ position: 'absolute', top: 52, resizeMode: 'cover'}} />
+        <Header
+          outerContainerStyles={styles.header}
+          //innerContainerStyles={{ justifyContent: 'space-between' }}
+          centerComponent={<Image source={ require('../../img/flash.png')} style={{ resizeMode: 'stretch', height: 20, width: 100 }}/>}
+          rightComponent={<Button iconName='sign-out' iconType='octicon' iconColor='#fff' onPress={this.handleLogout} />}
+        />
+        <Card style={{ marginTop: 75, borderRadius: 5 }}>
             <CardSection style={{ padding: 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#ecedf2' }}>
               {/*<Text style={{ fontSize: 16 }}>Search Type:</Text>
               <Picker
@@ -119,6 +128,7 @@ constructor(props) {
                   onValueChange={this.handleSearchTypeInput}>
                   <Picker.Item label='Frame Name' value='Frame' />
                   <Picker.Item label='NE Id' value='NE' />
+                  <Picker.Item label='Cable Id' value='Cable_Id' />
                 </Picker>
                 <FormInput
                   value={searchText}
@@ -157,6 +167,15 @@ constructor(props) {
     )
   }
 }
+
+const styles = StyleSheet.create({
+  header: {
+    backgroundColor: '#d03c1b',
+    borderBottomWidth: 0,
+    shadowColor: 'transparent',
+    elevation: 0,
+  },
+});
 
 const mapStateToProps = (state) => {
   const { searchText, searchType, error, loading } = state.data;

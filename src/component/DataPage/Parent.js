@@ -1,13 +1,14 @@
 import React, { PureComponent } from 'react';
-import { Text, Icon} from 'react-native-elements';
+import { Text, Icon } from 'react-native-elements';
 import {
   View,
   StyleSheet,
   Clipboard,
-  Modal
+  Modal,
+  ScrollView
 } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
-import { Card, CardSection } from '../common';
+import { Card, CardSection, Button } from '../common';
 import { connect } from 'react-redux';
 import { setMenuState  } from '../../actions';
 import { Type } from './types';
@@ -15,6 +16,7 @@ import List from './List';
 import DropDownMenu from './DropDownMenu';
 import EditDetailsForm from './EditDetailsForm';
 import TransferForm from './TransferForm';
+import NavigationService from '../../navigation/NavigationService.js';
 
 class Parent extends PureComponent {
 
@@ -23,11 +25,11 @@ class Parent extends PureComponent {
     if (headerExpended) {
       if (headerMode==='View'){
         return(
-          <View>
-            <CardSection style={{justifyContent: 'space-between', backgroundColor:'#ecedf2', borderTopWidth: 1 }}>
+          <View style={{ flexShrink: 1 }}>
+            <CardSection style={{ justifyContent: 'space-between', backgroundColor:'#ecedf2', borderTopWidth: 1 }}>
               <Text style={{ fontSize: 20, fontWeight: 'bold' }}>View Details</Text>
             </CardSection>
-            <List data={parentDetails} onPress={this.handleCopyShow} flag />
+            <List onPress={this.handleCopyShow} flag />
           </View>
         )
       } else if (headerMode==='Edit') {
@@ -58,11 +60,34 @@ class Parent extends PureComponent {
   }
 
   handleCopyAutoClose = () => {
-    setTimeout(this.handleCopyClose, 750);
+    setTimeout(this.handleCopyClose, 1000);
   }
 
   handleCopyClose = () => {
     this.setMenuState({ showCopyModal: false });
+  }
+
+  onPressQR = () => {
+    const { parent_type } = this.props;
+    this._menu.hide();
+    NavigationService.navigate('Scan', {
+        next: {
+         type: `Update_${parent_type}_QR`
+        },
+        QRText: `Scan ${parent_type} QR Code here`
+       }
+    );
+  }
+
+  showMenu = () => {
+    this._menu.show();
+  };
+
+  handlePressClose = () => {
+    this.props.setMenuState({
+       headerExpended: false,
+       headerMode: ''
+    });
   }
 
   render(){
@@ -70,7 +95,7 @@ class Parent extends PureComponent {
 
     if (parent!==undefined){
       return (
-        <Card style={{ borderBottomWidth: 1 }}>
+        <Card style={{ flexShrink: 1, borderBottomWidth: 1 }}>
           <CardSection style={{ justifyContent: 'space-between', backgroundColor:'#ecedf2' }}>
             <Text h4>{parent_type}</Text>
             <DropDownMenu
@@ -101,7 +126,9 @@ class Parent extends PureComponent {
               }
             </View>
           </CardSection>
-            {this.renderExpendedHeader()}
+            <ScrollView>
+              {this.renderExpendedHeader()}
+            </ScrollView>
             <Modal
               animationType='fade'
               transparent
@@ -110,7 +137,7 @@ class Parent extends PureComponent {
               onRequestClose={this.handleCopyClose}
             >
               <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-                <Card style={{ justifyContent: 'center', alignItems: 'center', padding: 10 }}>
+                <Card style={{ justifyContent: 'center', alignItems: 'center', padding: 13 }}>
                   <Text style={{ textAlign: 'center', fontSize: 16 }}>Copied to Clipboard!</Text>
                 </Card>
               </View>
@@ -134,7 +161,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     padding: 3,
     backgroundColor: '#838383',
-    borderRadius: 3,
+    borderRadius: 3
   }
 });
 

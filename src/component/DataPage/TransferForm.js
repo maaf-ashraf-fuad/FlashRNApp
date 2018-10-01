@@ -17,6 +17,7 @@ class TransferForm extends PureComponent {
 
   handleTransferCoreDetails = () => {
     const { transferCore, toCore } = this.props;
+    console.log('toCore', toCore);
     transferCore(toCore);
   }
 
@@ -81,7 +82,7 @@ class TransferForm extends PureComponent {
             value={frame_name}
             onChangeText={value => updateTransferCoreValues({prop: 'frame_name', value})}
             returnKeyType='next'
-            onSubmitEditing={() => !toCoreDetails.cable_name?null:this.cable_name.focus()}
+            onSubmitEditing={!toCoreDetails.cable_name?null:() => this.cable_name.focus()}
           />
         </CardSection>
         <CardSection style={styles.editRowOdd}>
