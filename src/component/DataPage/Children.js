@@ -11,7 +11,7 @@ const DEMO_OPTIONS_2 = ['option 1', 'option 2', 'option 3', 'option 4', 'option 
 
 class Children extends Component {
     render(){
-      const { child, headerExpended, child_type, current, searchKeys } = this.props;
+      const { child, headerExpended, child_type, current } = this.props;
       if (child !== undefined && !headerExpended){
         return (
           <Card style={{
@@ -76,8 +76,8 @@ const styles = StyleSheet.create({
     }
 });
 
-const mapStateToProps = ({ data: {headerExpended, headerMode, child_type, child, searchKeys}}) => {
-  return { headerExpended, headerMode, child_type, child, searchKeys };
+const mapStateToProps = ({ data: {headerExpended, headerMode, child_type, child}}) => {
+  return { headerExpended, headerMode, child_type, child };
 };
 
 export default connect(mapStateToProps, { fetchHelper })(Children);

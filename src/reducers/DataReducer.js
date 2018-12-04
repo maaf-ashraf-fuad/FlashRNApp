@@ -3,6 +3,7 @@ import NavigationService from '../navigation/NavigationService.js';
 import { AsyncStorage, Alert } from 'react-native';
 import { BarCodeScanner } from 'expo';
 import { Type } from '../component/DataPage/types';
+import { coreRefresh } from '../actions';
 
 const INITIAL_STATE = {
   parent: undefined,
@@ -28,6 +29,7 @@ const INITIAL_STATE = {
     frame_name: '',
     cable_name: '',
     cable_core_no: '',
+    cable_core_id: '',
   },
   toCoreDetails: {
     frame_name: '',
@@ -45,7 +47,8 @@ const INITIAL_STATE = {
     to_ne_slot: '',
     to_ne_port: '',
     to_cct_name: '',
-    status: ''
+    status: '',
+    cable_core_id: '',
   },
   user: { staff_name: undefined, staff_user: undefined, staff_pass: undefined },
   qrType: [ BarCodeScanner.Constants.BarCodeType.qr ],
@@ -248,12 +251,13 @@ export default (state = INITIAL_STATE, action) => {
           to_ne_slot: parent.to_ne_slot,
           to_ne_port: parent.to_ne_port,
           to_cct_name: parent.to_cct_name,
-          status: parent.Cable_core_status
+          status: parent.Cable_core_status,
+          cable_core_id: parent.Cable_core_id,
         },
         toCore: {
           ...INITIAL_STATE.toCore,
           from_pair_id: parent.pair_id,
-          //cable_core_id: parent.Cable_core_id
+          cable_core_id: parent.Cable_core_id,
         },
         lastIndex: 0,
       }
@@ -291,11 +295,13 @@ export default (state = INITIAL_STATE, action) => {
           to_ne_slot: parent.to_ne_slot,
           to_ne_port: parent.to_ne_port,
           to_cct_name: parent.to_cct_name,
-          status: parent.Cable_core_status
+          status: parent.Cable_core_status,
+          cable_core_id: parent.Cable_core_id,
         },
         toCore: {
           ...INITIAL_STATE.toCore,
-          from_pair_id: parent.pair_id
+          from_pair_id: parent.pair_id,
+          cable_core_id: parent.Cable_core_id,
         },
         lastIndex: 0,
       }
@@ -377,7 +383,8 @@ export default (state = INITIAL_STATE, action) => {
         to_ne_slot: state.parent.to_ne_slot,
         to_ne_port: state.parent.to_ne_port,
         to_cct_name: state.parent.to_cct_name,
-        status: state.parent.status
+        status: state.parent.status,
+        cable_core_id: state.Cable_core_id,
       }};
     case 'Frame_Update_QR_Success':
       NavigationService.pop();
@@ -429,6 +436,9 @@ export default (state = INITIAL_STATE, action) => {
       };
     case 'Core_Update_Details_Success':
       Alert.alert('Flash 2.0', 'Core details successfully updated!');
+      
+      this.props.coreRefresh(action.payload.cable_core_id);
+
       return { ...state,
         parent: { ...state.parent, ...action.payload
         },
@@ -451,35 +461,48 @@ export default (state = INITIAL_STATE, action) => {
         headerMode: null,
         toCore: {
           ...INITIAL_STATE.toCore,
-          from_pair_id: state.parent.pair_id
+          from_pair_id: state.parent.pair_id,
+          cable_core_id: parent.Cable_core_id,
         },
         toCoreDetails: INITIAL_STATE.toCoreDetails,
         error: ''
       }
     case 'Core_Refresh_Failed':
-      //NavigationService.pop();
-      Alert.alert('Flash 2.0', _.replace(action.payload, /\([0-9]*\)/, ''));
+      /*Alert.alert('Flash 2.0', _.replace(action.payload, /\([0-9]*\)/, ''));
       return { ...state,
         coreLoading: false,
         loading: false,
-        toCore: { ...INITIAL_STATE.toCore, from_pair_id: state.parent.pair_id},
+        toCore: {
+          ...INITIAL_STATE.toCore,
+          from_pair_id: state.parent.pair_id,
+          cable_core_id: parent.Cable_core_id,
+        },
         toCoreDetails: INITIAL_STATE.toCoreDetails,
         error: _.replace(action.payload, /\([0-9]*\)/, '')
-      }
+      }*/
+      return { ...state }
     case 'Transfer_Core_Failed':
       //NavigationService.pop();
       Alert.alert('Flash 2.0', _.replace(action.payload, /\([0-9]*\)/, ''));
       return { ...state,
         coreLoading: false,
         loading: false,
-        toCore: { ...INITIAL_STATE.toCore, from_pair_id: state.parent.pair_id},
+        toCore: {
+          ...INITIAL_STATE.toCore,
+          from_pair_id: state.parent.pair_id,
+          cable_core_id: parent.Cable_core_id,
+        },
         toCoreDetails: INITIAL_STATE.toCoreDetails,
         error: _.replace(action.payload, /\([0-9]*\)/, '')
       }
     case 'Transfer_Core_Reset_Value':
       return { ...state,
         coreLoading: false,
-        toCore: { ...INITIAL_STATE.toCore, from_pair_id: state.parent.pair_id},
+        toCore: {
+          ...INITIAL_STATE.toCore,
+          from_pair_id: state.parent.pair_id,
+          cable_core_id: parent.Cable_core_id,
+        },
         toCoreDetails: INITIAL_STATE.toCoreDetails,
         error: ''
       }

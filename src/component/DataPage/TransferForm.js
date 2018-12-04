@@ -17,7 +17,7 @@ class TransferForm extends PureComponent {
 
   handleTransferCoreDetails = () => {
     const { transferCore, toCore } = this.props;
-    console.log('toCore', toCore);
+    //console.log('toCore', toCore);
     transferCore(toCore);
   }
 
