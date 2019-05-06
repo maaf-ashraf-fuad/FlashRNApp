@@ -437,7 +437,7 @@ export default (state = INITIAL_STATE, action) => {
     case 'Core_Update_Details_Success':
       Alert.alert('Flash 2.0', 'Core details successfully updated!');
       
-      this.props.coreRefresh(action.payload.cable_core_id);
+      //this.props.coreRefresh(action.payload.cable_core_id);
 
       return { ...state,
         parent: { ...state.parent, ...action.payload

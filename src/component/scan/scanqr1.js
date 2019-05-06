@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { Dimensions, StyleSheet, Text, View, Alert, Image, BackHandler, TouchableOpacity } from 'react-native';
+import { Platform,Dimensions, StyleSheet, Text, View, Alert, Image, BackHandler, TouchableOpacity } from 'react-native';
 import { ImagePicker, BarCodeScanner, Permissions } from 'expo';
 import { Button, Spinner, CardSection } from '../common';
 import { connect } from 'react-redux';
@@ -183,6 +183,15 @@ class ScanScreen extends PureComponent {
       setMenuState({ qrType: [BarCodeScanner.Constants.BarCodeType.qr], loading: false, localImage: undefined });
     }
   };
+  
+  outer_ios = () => {
+    if(Platform.OS === 'ios'){
+      return(styles.maskOutterIOS);
+    }
+    else{
+      return(styles.maskOutter);
+    }
+  }
 
   render() {
     const { maskRowHeight, maskColWidth, image } = this.state;
@@ -209,7 +218,7 @@ class ScanScreen extends PureComponent {
           rightComponent={<Button disabled={loading} iconName={qrFlash==='off'?'flash-on':'flash-off'} iconColor='#fff' onPress={this.handleFlash}/>}
           //rightComponent={< this.rightComponent />}
         />
-          <View style={styles.maskOutter}>
+          <View style={this.outer_ios()}>
             <View style={[{ flex: maskRowHeight }, styles.maskRow, styles.maskFrame]} />
               <View style={[{ flex: 30 }, styles.maskCenter]}>
                 <View style={[{ width: maskColWidth }, styles.maskFrame]} />
@@ -255,6 +264,15 @@ const styles = StyleSheet.create({
   maskOutter: {
     position: 'absolute',
     top: 36,
+    left: 0,
+    width: '100%',
+    height: '100%',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+  },
+  maskOutterIOS: {
+    position: 'absolute',
+    top: 70,
     left: 0,
     width: '100%',
     height: '100%',

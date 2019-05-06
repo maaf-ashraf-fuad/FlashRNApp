@@ -37,7 +37,7 @@ export default class SearchInput extends React.Component {
     const id = this.props.navigation.getParam('id', undefined);
     const mode = this.props.navigation.getParam('mode', undefined);
     const { searchinput } = this.state;
-    console.log ('searchinput - level: ' + level, 'mode: ' + mode, 'id: ' + id);
+    //console.log ('searchinput - level: ' + level, 'mode: ' + mode, 'id: ' + id);
 
     return (
       <View >//style={styles.container}>

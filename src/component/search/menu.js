@@ -8,9 +8,10 @@ import {
   KeyboardAvoidingView,
   TouchableOpacity,
   Picker,
-  Keyboard,
+  Keyboard,Platform,
   Alert
 } from 'react-native';
+import IOSPicker from 'react-native-ios-picker';
 import { FormInput, FormValidationMessage, Header } from 'react-native-elements';
 import { Button, Card, CardSection } from '../common';
 import { Type } from '../DataPage/types';
@@ -93,6 +94,31 @@ constructor(props) {
     this.props.navigation.navigate('Scan', { next: {type: 'QR'}, back: { type: 'Reset' }, QRText: 'Scan Frame, Shelf or Core QR Code here'});
   }
 
+  picker_label = () => {
+    if (Platform.OS === 'ios'){
+      return (<IOSPicker
+        selectedValue={this.props.searchType}
+        style={{ height: 30, width: 155, marginTop: 20, marginLeft: 10 }}
+        itemStyle={{ fontSize: 30 }}
+        onValueChange={this.handleSearchTypeInput}>
+        <Picker.Item label='Frame Name' value='Frame' />
+        <Picker.Item label='NE Id' value='NE' />
+        <Picker.Item label='Cable Id' value='Cable_Id' />
+      </IOSPicker>);
+    }
+    else{
+      return( <Picker
+        selectedValue={this.props.searchType}
+        style={{ height: 20, width: 155, marginTop: 20, marginLeft: 10 }}
+        itemStyle={{ fontSize: 14 }}
+        onValueChange={this.handleSearchTypeInput}>
+        <Picker.Item label='Frame Name' value='Frame' />
+        <Picker.Item label='NE Id' value='NE' />
+        <Picker.Item label='Cable Id' value='Cable_Id' />
+      </Picker>);
+    }
+  }
+
   render(){
     const { searchType, searchText, error, loading } = this.props;
     //console.log(this.props);
@@ -121,15 +147,7 @@ constructor(props) {
             <View>
               <View style={{ justifyContent: 'center', marginHorizontal: 20 }}>
                 {/*<FormLabel labelStyle={{ fontSize: 14 }}>{searchType} {searchType==='Frame'?'Name':'ID'}</FormLabel>*/}
-                <Picker
-                  selectedValue={searchType}
-                  style={{ height: 20, width: 155, marginTop: 20, marginLeft: 10 }}
-                  itemStyle={{ fontSize: 14 }}
-                  onValueChange={this.handleSearchTypeInput}>
-                  <Picker.Item label='Frame Name' value='Frame' />
-                  <Picker.Item label='NE Id' value='NE' />
-                  <Picker.Item label='Cable Id' value='Cable_Id' />
-                </Picker>
+                {this.picker_label()}
                 <FormInput
                   value={searchText}
                   inputStyle={{ paddingLeft: 5 }}

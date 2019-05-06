@@ -102,10 +102,11 @@ class List extends PureComponent {
 
   handleOnLayout = (event) => {
     const {x, y, width, height} = event.nativeEvent.layout;
-    console.log ('x:', x);
+    /*console.log ('x:', x);
     console.log ('y:', y);
     console.log ('width:', width);
     console.log ('height:', height);
+    */
   }
 
   getItemLayout = (data, index) => {

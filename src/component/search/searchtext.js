@@ -44,7 +44,7 @@ state = {
     }
    else {
        //To validate perform search on the based on SOA rest API
-       console.log(searchinput)
+       //console.log(searchinput)
        Alert.alert('Your Input',searchinput,
        [
         {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},

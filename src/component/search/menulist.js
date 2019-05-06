@@ -38,7 +38,7 @@ state = {
   _submitValue = (level) => {
     const navigate = this.props.navigation;
       navigate('Search', { mode: 'Menu', level }) ;
-      console.log('Test')
+      //console.log('Test')
    }
 
 }

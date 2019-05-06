@@ -58,7 +58,7 @@ export default class LoginForm extends React.Component {
     }
     else {
       //call the soa rest api to call the username
-      console.log(f_user)
+      //console.log(f_user)
       //console.log(f_pass)
       fetch('https://tmbill.tm.com.my/EZiBillWeb/Login/json/ldap',
         {
@@ -100,9 +100,9 @@ export default class LoginForm extends React.Component {
 
               .then((response) => response.text())
               .then((responseJson) => {
-                console.log(responseJson);
+                /*console.log(responseJson);
                 console.log(responseJson.xmlns);
-                console.log(responseJson["ns2:ErrorCode"]);
+                console.log(responseJson["ns2:ErrorCode"]);*/
                 if (responseJson["ns2:ErrorCode"] == '01') {
                   Alert.alert("Flash", f_name + ", Kindly Contact Your System Admin");
                   return;
