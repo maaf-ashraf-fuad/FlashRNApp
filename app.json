@@ -3,7 +3,7 @@
     "sdkVersion": "28.0.0",
     "name": "FLASH",
     "description": "This GIT initiative to Assist NMO on FLASH project",
-    "icon": "./src/img/iconnew.png",
+    "icon": "./src/img/iconnew1.png",
     "version": "1.0.0",
     "slug": "TM_FLASH",
     "ios": {
