@@ -174,7 +174,7 @@ export const login = (source = 'splash',  staff_user, staff_pass, staff_name ) =
             */
 
             if (responseJson.ErrorCode === '00') {
-              Alert.alert("Welcome", staff_name + " on Flash 2.0 in " +  Platform.OS+Platform.Version + " platform");
+              Alert.alert("FLASH", "Welcome "+staff_name + " on Flash App in " +  Platform.OS+Platform.Version + " platform");
               AsyncStorage.setItem('flash_user', staff_user);
               AsyncStorage.setItem('flash_pass', staff_pass);
               AsyncStorage.setItem('flash_name', staff_name);
