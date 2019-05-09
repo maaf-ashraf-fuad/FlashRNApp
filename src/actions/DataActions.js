@@ -184,7 +184,7 @@ export const login = (source = 'splash',  staff_user, staff_pass, staff_name ) =
               return dispatch({ type: 'Navigate_To_Login' });
             }
 
-            throw new Error ('You are not authorized for Flash 2.0. Please contact your system administrator');
+            throw new Error ('You are not authorized for FLASH. Please contact your system administrator');
 
           })
           .catch((error) => {

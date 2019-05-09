@@ -388,7 +388,7 @@ export default (state = INITIAL_STATE, action) => {
       }};
     case 'Frame_Update_QR_Success':
       NavigationService.pop();
-      Alert.alert('Flash 2.0', 'Frame QR Code successfully updated!');
+      Alert.alert('FLASH', 'Frame QR Code successfully updated!');
       return { ...state,
         parent: {
           ...state.parent,
@@ -404,7 +404,7 @@ export default (state = INITIAL_STATE, action) => {
       };
     case 'Shelf_Update_QR_Success':
       NavigationService.pop();
-      Alert.alert('Flash 2.0', 'Shelf QR Code successfully updated!');
+      Alert.alert('FLASH', 'Shelf QR Code successfully updated!');
       return { ...state,
         parent: {
           ...state.parent,
@@ -420,7 +420,7 @@ export default (state = INITIAL_STATE, action) => {
       };
     case 'Core_Update_QR_Success':
       NavigationService.pop();
-      Alert.alert('Flash 2.0', 'Core QR Code successfully updated!');
+      Alert.alert('FLASH', 'Core QR Code successfully updated!');
       return { ...state,
         parent: {
           ...state.parent,
@@ -435,7 +435,7 @@ export default (state = INITIAL_STATE, action) => {
         error: _.replace(action.payload, /\([0-9]*\)/, '')
       };
     case 'Core_Update_Details_Success':
-      Alert.alert('Flash 2.0', 'Core details successfully updated!');
+      Alert.alert('FLASH', 'Core details successfully updated!');
       
       //this.props.coreRefresh(action.payload.cable_core_id);
 
@@ -448,13 +448,13 @@ export default (state = INITIAL_STATE, action) => {
         error: ''
       }
     case 'Core_Update_Details_Failed':
-      Alert.alert('Flash 2.0', _.replace(action.payload, /\([0-9]*\)/, ''));
+      Alert.alert('FLASH', _.replace(action.payload, /\([0-9]*\)/, ''));
       return { ...state,
         coreLoading: false,
         error: _.replace(action.payload, /\([0-9]*\)/, '')
       }
     case 'Transfer_Core_Success':
-      Alert.alert('Flash 2.0', 'Core successfully trasferred!');
+      Alert.alert('FLASH', 'Core successfully trasferred!');
       return { ...state,
         coreLoading: false,
         headerExpended: false,
@@ -468,7 +468,7 @@ export default (state = INITIAL_STATE, action) => {
         error: ''
       }
     case 'Core_Refresh_Failed':
-      /*Alert.alert('Flash 2.0', _.replace(action.payload, /\([0-9]*\)/, ''));
+      /*Alert.alert('FLASH', _.replace(action.payload, /\([0-9]*\)/, ''));
       return { ...state,
         coreLoading: false,
         loading: false,
@@ -483,7 +483,7 @@ export default (state = INITIAL_STATE, action) => {
       return { ...state }
     case 'Transfer_Core_Failed':
       //NavigationService.pop();
-      Alert.alert('Flash 2.0', _.replace(action.payload, /\([0-9]*\)/, ''));
+      Alert.alert('FLASH', _.replace(action.payload, /\([0-9]*\)/, ''));
       return { ...state,
         coreLoading: false,
         loading: false,

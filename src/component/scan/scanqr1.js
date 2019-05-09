@@ -107,7 +107,7 @@ class ScanScreen extends PureComponent {
     const { error, setMenuState, hasCameraPermission, requestCameraPermission, navigation } = this.props;
     if(error!==null&&error!==undefined&&error!==''){
       if (hasCameraPermission){
-        Alert.alert('Flash 2.0', error,
+        Alert.alert('FLASH', error,
           [
             {
               text: 'OK', onPress: () => {
@@ -118,7 +118,7 @@ class ScanScreen extends PureComponent {
           { cancelable: false }
         );
       } else {
-        Alert.alert('Flash 2.0', error,
+        Alert.alert('FLASH', error,
           [
             {
               text: 'OK', onPress: () => {
@@ -146,7 +146,7 @@ class ScanScreen extends PureComponent {
 
   handleError = (error) => {
     //this.setState({ image: null });
-    Alert.alert('Flash 2.0', error,
+    Alert.alert('FLASH', error,
       [
         {
           text: 'OK', onPress: () => {

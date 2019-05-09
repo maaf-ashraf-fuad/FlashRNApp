@@ -20,7 +20,7 @@ constructor(props) {
   }
 
   onBackButtonPressAndroid = () => {
-    Alert.alert("Flash 2.0", 'Are you sure you want to exit?',
+    Alert.alert("FLASH", 'Are you sure you want to exit?',
       [
         {
           text: 'Yes', onPress: () => BackHandler.exitApp()
