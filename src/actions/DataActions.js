@@ -853,6 +853,18 @@ export const requestCameraPermission = () => {
         return dispatch({ type: 'Camera_Permission_Denied', payload: error.message});
       })
       .done();
+      Permissions.askAsync(Permissions.CAMERA_ROLL)
+        .then(({ status }) => {
+          if (status==='granted'){
+            return dispatch({ type: 'Camera_Permission_Granted'});
+          }
+          throw new Error('Camera permission not granted. Press OK to retry');
+        }
+      )
+      .catch((error) => {
+        return dispatch({ type: 'Camera_Permission_Denied', payload: error.message});
+      })
+      .done();
     } else {
       return dispatch({ type: 'Camera_Permission_Granted'});
     }
