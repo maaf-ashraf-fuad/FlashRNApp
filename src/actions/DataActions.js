@@ -111,7 +111,10 @@ export const login = (source = 'splash',  staff_user, staff_pass, staff_name ) =
     } else  if (source==='login'&&(staff_pass===null||staff_pass===undefined)){
       return dispatch({ type: 'Login_Failed', payload: 'Please enter your Password' });
     }
-    fetch('https://euct.tm.com.my/api/api/LoginApi',
+    //EUCT-server
+     fetch('https://euct.tm.com.my/api/api/LoginApi',
+    //Ezibill
+    //fetch('https://tmbill.tm.com.my/EZiBillWeb/Login/json/ldap',
     {
         method: 'POST',
         headers: {
@@ -120,29 +123,42 @@ export const login = (source = 'splash',  staff_user, staff_pass, staff_name ) =
         },
         body: JSON.stringify(
           {
+            //EUCT-SERVER
             STAFF_ID: staff_user,
             PASSWORD: staff_pass,
+            //EZI-BILL
+           // username:staff_user,
+            //password:staff_pass
           }
         )
       })
       .then((response) =>
       {
+        //EUCT-server
         if (response.status===200){
+          //if (response.status===800){        
           return response.json();
         }
         throw new Error ('LDAP/Login Network Error [' + response.status + ']. Please try again later');
       })
       .then((responseJson) => {
+       //EUCT-server
         if (!responseJson.data.NAME) {
+        //Ezibill
+       //if (!responseJson.fullName) {
           if (source === 'splash'){
             return dispatch({ type: 'Navigate_To_Login' });
           }
           return dispatch({ type: 'Login_Failed', payload: 'Invalid TM Staff Id/password. Please try again.' });
         }
+        //EUCT-server
         staff_name = responseJson.data.NAME;
-        /*DMZfetch('http://58.27.85.176/FLASH/VerifyUser',
-        fetch('http://10.54.1.15:8001/FLASH/verifyAccess/Proxy_Services/PS_Flash_verifyAccess2',//*/
-        fetch('http://tmsoaosb.intra.tm/FLASH/verifyAccess/Proxy_Services/PS_Flash_verifyAccess2',
+        //Ezibill
+        //staff_name = responseJson.fullName;
+        
+        //DMZ
+        fetch('https://tmsoagit.tm.com.my/FLASH/VerifyUser',
+        //fetch('http://tmsoaosb.intra.tm/FLASH/verifyAccess/Proxy_Services/PS_Flash_verifyAccess2',
           {
             method: 'POST',
             headers: {
@@ -253,9 +269,9 @@ export const updateUserValues = ({ prop, value }) => {
 
 export async function frameFetch (id, qr, user) {
   try {
-    /*DMZconst response = await fetch('http://58.27.85.176/FLASH/QueryFrame', {
-    const response = await fetch('http://10.54.1.15:8001/FLASH/listFrameUnit/Proxy_Services/PS_listFrameUnit', {//*/
-    const response = await fetch('http://tmsoaosb.intra.tm/FLASH/listFrameUnit/Proxy_Services/PS_listFrameUnit', {
+    //DMZ
+    const response = await fetch('https://tmsoagit.tm.com.my/FLASH/QueryFrame', {
+   // const response = await fetch('http://tmsoaosb.intra.tm/FLASH/listFrameUnit/Proxy_Services/PS_listFrameUnit', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -297,9 +313,9 @@ export async function frameFetch (id, qr, user) {
 
 export async function shelfFetch (id, qr, user) {
   try {
-    /*DMZconst response = await fetch('http://58.27.85.176/FLASH/QueryShelf', {
-    const response = await fetch('http://10.54.1.15:8001/FLASH/listFrameUnitDetail/Proxy_Services/PS_listFrameUnitDetail', {//*/
-    const response = await fetch('http://tmsoaosb.intra.tm/FLASH/listFrameUnitDetail/Proxy_Services/PS_listFrameUnitDetail', {
+    //DMZ
+    const response = await fetch('https://tmsoagit.tm.com.my/FLASH/QueryShelf', {
+    //const response = await fetch('http://tmsoaosb.intra.tm/FLASH/listFrameUnitDetail/Proxy_Services/PS_listFrameUnitDetail', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -342,9 +358,9 @@ export async function shelfFetch (id, qr, user) {
 
 export async function coreQRFetch (qr, user) {
   try {
-    /*DMZconst response = await fetch('http://58.27.85.176/FLASH/frameUnitDetailOnQR', {
-    const response = await fetch('http://10.54.1.15:8001/FLASH/frameUnitDetailOnQR/Proxy_Services/PS_frameUnitDetailOnQR', {//*/
-    const response = await fetch('http://tmsoaosb.intra.tm/FLASH/frameUnitDetailOnQR/Proxy_Services/PS_frameUnitDetailOnQR', {
+    //DMZ
+    const response = await fetch('https://tmsoagit.tm.com.my/FLASH/frameUnitDetailOnQR', {
+   // const response = await fetch('http://tmsoaosb.intra.tm/FLASH/frameUnitDetailOnQR/Proxy_Services/PS_frameUnitDetailOnQR', {
 
       method: 'POST',
       headers: {
@@ -385,9 +401,9 @@ export async function coreQRFetch (qr, user) {
 }
 
 export const neFetch = (dispatch, id, nav) => {
-    /*DMZfetch('http://58.27.85.176/FLASH/QueryNEID',
-    fetch('http://10.54.1.15:8001/FLASH/frameUnitDetailOnNe/Proxy_Services/PS_frameUnitDetailOnNe',//*/
-    fetch('http://tmsoaosb.intra.tm/FLASH/frameUnitDetailOnNe/Proxy_Services/PS_frameUnitDetailOnNe',
+    //DMZ
+    fetch('https://tmsoagit.tm.com.my/FLASH/QueryNEID',
+    //fetch('http://tmsoaosb.intra.tm/FLASH/frameUnitDetailOnNe/Proxy_Services/PS_frameUnitDetailOnNe',
     {
       method: 'POST',
       headers: {
@@ -429,9 +445,9 @@ export const neFetch = (dispatch, id, nav) => {
 };
 
 export const cableFetch = (dispatch, cable_id, core_id, nav) => {
-    /*DMZfetch('http://58.27.85.176/FLASH/frameUnitDetailOnCable',
-    fetch('http://10.54.1.15:8001/FLASH/frameUnitDetailOnCable/Proxy_Services/PS_frameUnitDetailOnCable',//*/
-    fetch('http://tmsoaosb.intra.tm/FLASH/frameUnitDetailOnCable/Proxy_Services/PS_frameUnitDetailOnCable',
+    //DMZ
+    fetch('https://tmsoagit.tm.com.my/FLASH/frameUnitDetailOnCable',
+    //fetch('http://tmsoaosb.intra.tm/FLASH/frameUnitDetailOnCable/Proxy_Services/PS_frameUnitDetailOnCable',
     {
       method: 'POST',
       headers: {
@@ -484,9 +500,9 @@ export const coreFetch = (dispatch, payload, nav) => {
 
 export const coreRefresh = ( core_id ) => {
   return (dispatch) => {
-      /*DMZfetch('http://58.27.85.176/FLASH/frameUnitDetailOnCable',
-      fetch('http://10.54.1.15:8001/FLASH/frameUnitDetailOnCable/Proxy_Services/PS_frameUnitDetailOnCable',//*/
-      fetch('http://tmsoaosb.intra.tm/FLASH/frameUnitDetailOnCable/Proxy_Services/PS_frameUnitDetailOnCable',
+      //DMZ
+      fetch('https://tmsoagit.tm.com.my/FLASH/frameUnitDetailOnCable',
+      //fetch('http://tmsoaosb.intra.tm/FLASH/frameUnitDetailOnCable/Proxy_Services/PS_frameUnitDetailOnCable',
       {
         method: 'POST',
         headers: {
@@ -533,9 +549,9 @@ export const coreRefresh = ( core_id ) => {
 export const frameUpdateQR = ( IN_FRAME_NAME, QR_CODE) => {
   return (dispatch, getState) => {
     dispatch({ type: 'QR_Fetching_Data'});
-    /*DMZfetch('http://58.27.85.176/FLASH/updateQrOnFrame',
-    fetch('http://10.54.1.15:8001/FLASH/updateQrOnFrame/Proxy_Services/PS_Flash_updateQrOnFrame',//*/
-    fetch('http://tmsoaosb.intra.tm/FLASH/updateQrOnFrame/Proxy_Services/PS_Flash_updateQrOnFrame',
+    //DMZ
+    fetch('https://tmsoagit.tm.com.my/FLASH/updateQrOnFrame',
+    //fetch('http://tmsoaosb.intra.tm/FLASH/updateQrOnFrame/Proxy_Services/PS_Flash_updateQrOnFrame',
     {
       method: 'POST',
       headers: {
@@ -584,9 +600,9 @@ export const frameUpdateQR = ( IN_FRAME_NAME, QR_CODE) => {
 export const shelfUpdateQR = ( frame_unit_id, qr_code_id) => {
   return (dispatch, getState) => {
     dispatch({ type: 'QR_Fetching_Data'});
-    /*DMZfetch('http://58.27.85.176/FLASH/UpdateQROnFrameUnit',
-    fetch('http://10.54.1.15:8001/FLASH/updateQrOnFrameUnit/Proxy_Services/PS_updateQrOnFrameUnit',//*/
-    fetch('http://tmsoaosb.intra.tm/FLASH/updateQrOnFrameUnit/Proxy_Services/PS_updateQrOnFrameUnit',
+    //DMZ
+    fetch('https://tmsoagit.tm.com.my/FLASH/UpdateQROnFrameUnit',
+    //fetch('http://tmsoaosb.intra.tm/FLASH/updateQrOnFrameUnit/Proxy_Services/PS_updateQrOnFrameUnit',
     {
       method: 'POST',
       headers: {
@@ -635,9 +651,9 @@ export const shelfUpdateQR = ( frame_unit_id, qr_code_id) => {
 export const coreUpdateQR = ( frame_unit_id, pair_id, qr_code_id ) => {
   return (dispatch, getState) => {
     dispatch({ type: 'QR_Fetching_Data'});
-    /*DMZfetch('http://58.27.85.176/FLASH/UpdateQROnPatching',
-    fetch('http://10.54.1.15:8001/FLASH/updateQrOnPatching/Proxy_Services/PS_updateQrOnPatching',//*/
-    fetch('http://tmsoaosb.intra.tm/FLASH/updateQrOnPatching/Proxy_Services/PS_updateQrOnPatching',
+    //DMZ
+    fetch('https://tmsoagit.tm.com.my/FLASH/UpdateQROnPatching',
+    //fetch('http://tmsoaosb.intra.tm/FLASH/updateQrOnPatching/Proxy_Services/PS_updateQrOnPatching',
     {
       method: 'POST',
       headers: {
@@ -690,9 +706,9 @@ export const coreUpdateDetails = ( input ) => {
 
   return (dispatch, getState) => {
     dispatch({ type: 'Updating_Core'});
-    /*DMZfetch('http://58.27.85.176/FLASH/UpdateNEOnPatching',
-    fetch('http://10.54.1.15:8001/FLASH/updateNeOnPatching/Proxy_Services/PS_updateNeOnPatching',//*/
-    fetch('http://tmsoaosb.intra.tm/FLASH/updateNeOnPatching/Proxy_Services/PS_updateNeOnPatching',
+    //DMZ
+    fetch('https://tmsoagit.tm.com.my/FLASH/UpdateNEOnPatching',
+    //fetch('http://tmsoaosb.intra.tm/FLASH/updateNeOnPatching/Proxy_Services/PS_updateNeOnPatching',
     {
       method: 'POST',
       headers: {
@@ -768,9 +784,9 @@ export const transferCore = (input) => {
       return dispatch({ type: 'Transfer_Core_Failed', payload: 'Please fill in all required fields' });
     }
 
-    /*DMZfetch('http://58.27.85.176/FLASH/TransferCore',
-    fetch('http://10.54.1.15:8001/FLASH/transferCore/Proxy_Services/PS_transferCore',//*/
-    fetch('http://tmsoaosb.intra.tm/FLASH/transferCore/Proxy_Services/PS_transferCore',
+    //DMZ
+    fetch('https://tmsoagit.tm.com.my/FLASH/TransferCore',
+    //fetch('http://tmsoaosb.intra.tm/FLASH/transferCore/Proxy_Services/PS_transferCore',
     {
       method: 'POST',
       headers: {
