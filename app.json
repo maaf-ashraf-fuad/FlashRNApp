@@ -1,10 +1,10 @@
 {
   "expo": {
-    "sdkVersion": "28.0.0",
+    "sdkVersion": "33.0.0",
     "name": "FLASH",
     "description": "This GIT initiative to Assist NMO on FLASH project",
     "icon": "./src/img/iconnew3.png",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "slug": "TM_FLASH",
     "ios": {
       "bundleIdentifier": "com.TM.FLASH"
