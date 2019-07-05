@@ -8,6 +8,7 @@ import {
   KeyboardAvoidingView,
   TouchableOpacity,
   Picker,
+  PickerIOS,
   Keyboard,Platform,
   Alert
 } from 'react-native';
@@ -96,7 +97,7 @@ constructor(props) {
 
   picker_label = () => {
     if (Platform.OS === 'ios'){
-      return (<IOSPicker
+      return (<PickerIOS
         selectedValue={this.props.searchType}
         style={{ height: 30, width: 155, marginTop: 20, marginLeft: 10 }}
         itemStyle={{ fontSize: 30 }}
@@ -104,7 +105,7 @@ constructor(props) {
         <Picker.Item label='Frame Name' value='Frame' />
         <Picker.Item label='NE Id' value='NE' />
         <Picker.Item label='Cable Id' value='Cable_Id' />
-      </IOSPicker>);
+      </PickerIOS>);
     }
     else{
       return( <Picker
@@ -131,7 +132,7 @@ constructor(props) {
           centerComponent={<Image source={ require('../../img/flash.png')} style={{ resizeMode: 'stretch', height: 20, width: 100 }}/>}
           rightComponent={<Button iconName='sign-out' iconType='octicon' iconColor='#fff' onPress={this.handleLogout} />}
         />
-        <Card style={{ marginTop: 75, borderRadius: 5 }}>
+        <Card style={{ marginTop: 75, borderRadius: 5 }} title='Search Menu'>
             <CardSection style={{ padding: 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#ecedf2' }}>
               {/*<Text style={{ fontSize: 16 }}>Search Type:</Text>
               <Picker

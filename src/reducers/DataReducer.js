@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import NavigationService from '../navigation/NavigationService.js';
 import { AsyncStorage, Alert } from 'react-native';
-import { BarCodeScanner } from 'expo';
+import { BarCodeScanner } from 'expo-barcode-scanner';
 import { Type } from '../component/DataPage/types';
 import { coreRefresh } from '../actions';
 

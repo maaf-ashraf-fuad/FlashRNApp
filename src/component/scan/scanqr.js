@@ -10,7 +10,8 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
-import { BarCodeScanner, Permissions } from 'expo';
+import {  Permissions } from 'expo';
+import { BarCodeScanner } from 'expo-barcode-scanner';
 
 export default class ScanScreen extends Component {
   state = {

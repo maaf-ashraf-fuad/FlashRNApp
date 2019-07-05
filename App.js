@@ -52,7 +52,7 @@ const TopLevelNavigator = createStackNavigator({
 export default class App extends Component {
   constructor(props) {
       super(props);
-      ScreenOrientation.allow(ScreenOrientation.Orientation.PORTRAIT_UP);
+      ScreenOrientation.lockAsync(ScreenOrientation.Orientation.PORTRAIT_UP);
   }
 
   handleRef = (navigatorRef) => {
