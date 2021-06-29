@@ -7,11 +7,14 @@ import {
   Image,
   KeyboardAvoidingView,
   TouchableOpacity,
-  Picker,
-  PickerIOS,
+  //Picker,
+  //PickerIOS,
   Keyboard,Platform,
   Alert
 } from 'react-native';
+import {Picker,PickerIOS} from '@react-native-picker/picker';
+import DropDownPicker from 'react-native-dropdown-picker'
+import RNPickerSelect from 'react-native-picker-select';
 import IOSPicker from 'react-native-ios-picker';
 import { FormInput, FormValidationMessage, Header } from 'react-native-elements';
 import { Button, Card, CardSection } from '../common';
@@ -97,15 +100,36 @@ constructor(props) {
 
   picker_label = () => {
     if (Platform.OS === 'ios'){
-      return (<PickerIOS
+      return (
+       <Card style={{ marginTop: 10, borderRadius: 10 }}>
+      <RNPickerSelect
+            style={{ fontSize: 30,
+              paddingVertical: 12,
+              paddingHorizontal: 10,
+              borderWidth: 1,
+              borderColor: 'black',
+              borderRadius: 4,
+              color: 'black',
+              paddingRight: 30, }}
+            onValueChange={this.handleSearchTypeInput}
+            //onChangeItem={value => console.log(value)}
+            items={[
+                { label: 'Frame Name', value: 'Frame' },
+                { label: 'NE Id', value: 'NE' },
+                { label: 'Cable Id', value: 'Cable_Id' },
+            ]}
+        />
+        </Card>
+        /**<Picker
         selectedValue={this.props.searchType}
         style={{ height: 30, width: 155, marginTop: 20, marginLeft: 10 }}
         itemStyle={{ fontSize: 30 }}
-        onValueChange={this.handleSearchTypeInput}>
+        onValueChange={(value) => console.log(value)}>
         <Picker.Item label='Frame Name' value='Frame' />
         <Picker.Item label='NE Id' value='NE' />
         <Picker.Item label='Cable Id' value='Cable_Id' />
-      </PickerIOS>);
+        </Picker>**/
+      );
     }
     else{
       return( <Picker
@@ -148,7 +172,7 @@ constructor(props) {
             <View>
               <View style={{ justifyContent: 'center', marginHorizontal: 20 }}>
                 {/*<FormLabel labelStyle={{ fontSize: 14 }}>{searchType} {searchType==='Frame'?'Name':'ID'}</FormLabel>*/}
-                {this.picker_label()}
+                {this.picker_label()}  
                 <FormInput
                   value={searchText}
                   inputStyle={{ paddingLeft: 5 }}

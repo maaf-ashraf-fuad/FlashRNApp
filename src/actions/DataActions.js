@@ -1,6 +1,7 @@
 import NavigationService from '../navigation/NavigationService.js';
 import { AsyncStorage, Alert,Platform } from 'react-native';
-import { Permissions } from 'expo';
+//import { Permissions } from 'expo';
+import * as Permissions from 'expo-permissions';
 
 export const fetchHelper = (nav) => {
   const { type, id, qr, item } = nav.next;
@@ -133,7 +134,9 @@ export const login = (source = 'splash',  staff_user, staff_pass, staff_name ) =
         )
       })
       .then((response) =>
+      
       {
+        console.log(response)
         //EUCT-server
         if (response.status===200){
           //if (response.status===800){        
@@ -173,6 +176,7 @@ export const login = (source = 'splash',  staff_user, staff_pass, staff_name ) =
             )
           })
           .then((response) => {
+            console.log(response)
             if (response.ok===true){
               return response.json();
             }
@@ -204,6 +208,7 @@ export const login = (source = 'splash',  staff_user, staff_pass, staff_name ) =
 
           })
           .catch((error) => {
+            console.log(error)
             if (source==='splash'){
               return dispatch({ type: 'Navigate_To_Login' });
             }
@@ -212,6 +217,7 @@ export const login = (source = 'splash',  staff_user, staff_pass, staff_name ) =
           .done()
       })
       .catch((error) => {
+        console.log(error)
         if (source==='splash'){
           return dispatch({ type: 'Navigate_To_Login' });
         }

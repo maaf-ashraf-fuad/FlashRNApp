@@ -14,7 +14,7 @@ import DataPage from './src/component/DataPage/DataPage';
 import ScanScreen from './src/component/scan/scanqr1';
 import NavigationService from './src/navigation/NavigationService';
 import { createStackNavigator } from 'react-navigation';
-import { ScreenOrientation } from 'expo';
+import * as ScreenOrientation from 'expo-screen-orientation'
 
 const TopLevelNavigator = createStackNavigator({
     Splash: { screen: Splash },

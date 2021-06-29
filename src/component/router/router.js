@@ -9,7 +9,7 @@ import Menu from '../search/menu';
 import DataPage from '../DataPage/DataPage';
 import ScanScreen from '../scan/scanqr1';
 import Reducer from '../../reducers/DataReducer';
-import { ScreenOrientation } from 'expo';
+import * as ScreenOrientation from 'expo-screen-orientation';
 import { Button } from '../common';
 //import LoginForm from '../splash/testsoa';
 

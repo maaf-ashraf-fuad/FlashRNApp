@@ -1,6 +1,5 @@
 {
   "expo": {
-    "sdkVersion": "33.0.0",
     "name": "FLASH",
     "description": "This GIT initiative to Assist NMO on FLASH project",
     "icon": "./src/img/iconnew3.png",

@@ -1,12 +1,14 @@
 import React, { PureComponent } from 'react';
 import { Platform,Dimensions, StyleSheet, Text, View, Alert, Image, BackHandler, TouchableOpacity } from 'react-native';
-import { ImagePicker, BarCodeScanner, Permissions } from 'expo';
+//import { ImagePicker, Permissions } from 'expo';
 import { Button, Spinner, CardSection } from '../common';
 import { connect } from 'react-redux';
 import { Header, Icon } from 'react-native-elements';
 import QRdecoder from 'react-native-qrimage-decoder';
 import { fetchHelper, frameUpdateQR, shelfUpdateQR, coreUpdateQR, transferCoreFetchShelf, setMenuState, requestCameraPermission } from '../../actions';
 import _ from 'lodash';
+import { BarCodeScanner } from 'expo-barcode-scanner';
+import * as ImagePicker from 'expo-image-picker'
 
 
 class ScanScreen extends PureComponent {
