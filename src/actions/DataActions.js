@@ -113,9 +113,11 @@ export const login = (source = 'splash',  staff_user, staff_pass, staff_name ) =
       return dispatch({ type: 'Login_Failed', payload: 'Please enter your Password' });
     }
     //EUCT-server
-     fetch('https://euct.tm.com.my/api/api/LoginApi',
+     //fetch('https://euct.tm.com.my/api/api/LoginApi', //-- end 5th Aug 2021
+     //migrate to trust
+     fetch('https://trust.tm.com.my/api/UserLogin',
     //Ezibill
-    //fetch('https://tmbill.tm.com.my/EZiBillWeb/Login/json/ldap',
+    //fetch('https://tmbill.tm.com.my/EZiBillWeb/Login/json/ldap', -- end 7 Sep 2019
     {
         method: 'POST',
         headers: {
@@ -124,10 +126,13 @@ export const login = (source = 'splash',  staff_user, staff_pass, staff_name ) =
         },
         body: JSON.stringify(
           {
-            //EUCT-SERVER
-            STAFF_ID: staff_user,
-            PASSWORD: staff_pass,
-            //EZI-BILL
+            //trust server
+            staff_no:staff_user,
+           password:staff_pass
+            //EUCT-SERVER - end 5th Aug 2021
+            //STAFF_ID: staff_user,
+            //PASSWORD: staff_pass,
+            //EZI-BILL - end 7 Sep 2019
            // username:staff_user,
             //password:staff_pass
           }
@@ -146,7 +151,8 @@ export const login = (source = 'splash',  staff_user, staff_pass, staff_name ) =
       })
       .then((responseJson) => {
        //EUCT-server
-        if (!responseJson.data.NAME) {
+       //alert(responseJson.msg)
+        if (responseJson.msg == '"OK"') {
         //Ezibill
        //if (!responseJson.fullName) {
           if (source === 'splash'){
@@ -155,7 +161,7 @@ export const login = (source = 'splash',  staff_user, staff_pass, staff_name ) =
           return dispatch({ type: 'Login_Failed', payload: 'Invalid TM Staff Id/password. Please try again.' });
         }
         //EUCT-server
-        staff_name = responseJson.data.NAME;
+        staff_name = responseJson.data.user.name;
         //Ezibill
         //staff_name = responseJson.fullName;
         
